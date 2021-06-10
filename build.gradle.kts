@@ -21,7 +21,7 @@ javafx {
 dependencies {
     testImplementation(kotlin("test-junit"))
 
-    implementation(files("libs/JAMS-0.2.jar"))
+    implementation(files("lib/JAMS-0.2.jar"))
     implementation(group = "no.tornado", name = "tornadofx", version = "1.7.20")
 }
 
