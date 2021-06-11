@@ -1,5 +1,7 @@
-package io.github.gaeqs.nes4jams.assembly
+package io.github.gaeqs.nes4jams.cpu
 
+import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
+import io.github.gaeqs.nes4jams.cpu.instruction.NESAssembledInstruction
 import io.github.gaeqs.nes4jams.utils.*
 
 class OLC6502 {
@@ -25,7 +27,7 @@ class OLC6502 {
         }
 
         currentOpcode = read(pc++)
-        val instruction = OLC6502Instruction.INSTRUCTIONS[currentOpcode.toInt()]
+        val instruction = NESAssembledInstruction.INSTRUCTIONS[currentOpcode.toInt()]
         cyclesLeft = instruction.cycles
         val addCycleOne = instruction.addressingMode.addressingFunction.call(this)
         val addCycleTwo = instruction.operation.call(this)
@@ -75,8 +77,8 @@ class OLC6502 {
     }
 
     fun fetch(): UByte {
-        val instruction = OLC6502Instruction.INSTRUCTIONS[currentOpcode.toInt()]
-        if (instruction.addressingMode != OLC6502AddressingMode.IMPLIED) {
+        val instruction = NESAssembledInstruction.INSTRUCTIONS[currentOpcode.toInt()]
+        if (instruction.addressingMode != NESAddressingMode.IMPLIED) {
             fetched = read(absoluteAddress)
         }
         return fetched;
@@ -115,7 +117,7 @@ class OLC6502 {
         setFlag(StatusFlag.ZERO, (temp and 0x00FFu).isZero())
         setFlag(StatusFlag.NEGATIVE, temp and 0x80u > 0u)
 
-        if (OLC6502Instruction.INSTRUCTIONS[currentOpcode.toInt()].addressingMode == OLC6502AddressingMode.IMPLIED) {
+        if (NESAssembledInstruction.INSTRUCTIONS[currentOpcode.toInt()].addressingMode == NESAddressingMode.IMPLIED) {
             accumulator = temp.toUByte()
         } else {
             write(absoluteAddress, temp.toUByte())
@@ -332,7 +334,7 @@ class OLC6502 {
         setFlag(StatusFlag.ZERO, temp.isZero())
         setFlag(StatusFlag.NEGATIVE, temp and 0x80u > 0u)
 
-        if (OLC6502Instruction.INSTRUCTIONS[currentOpcode.toInt()].addressingMode == OLC6502AddressingMode.IMPLIED) {
+        if (NESAssembledInstruction.INSTRUCTIONS[currentOpcode.toInt()].addressingMode == NESAddressingMode.IMPLIED) {
             accumulator = temp
         } else {
             write(absoluteAddress, temp)
@@ -395,7 +397,7 @@ class OLC6502 {
         setFlag(StatusFlag.ZERO, (temp and 0x00FFu).isZero())
         setFlag(StatusFlag.NEGATIVE, temp and 0x80u > 0u)
 
-        if (OLC6502Instruction.INSTRUCTIONS[currentOpcode.toInt()].addressingMode == OLC6502AddressingMode.IMPLIED) {
+        if (NESAssembledInstruction.INSTRUCTIONS[currentOpcode.toInt()].addressingMode == NESAddressingMode.IMPLIED) {
             accumulator = temp.toUByte()
         } else {
             write(absoluteAddress, temp.toUByte())
@@ -412,7 +414,7 @@ class OLC6502 {
         setFlag(StatusFlag.ZERO, temp.isZero())
         setFlag(StatusFlag.NEGATIVE, temp and 0x80u > 0u)
 
-        if (OLC6502Instruction.INSTRUCTIONS[currentOpcode.toInt()].addressingMode == OLC6502AddressingMode.IMPLIED) {
+        if (NESAssembledInstruction.INSTRUCTIONS[currentOpcode.toInt()].addressingMode == NESAddressingMode.IMPLIED) {
             accumulator = temp
         } else {
             write(absoluteAddress, temp)
@@ -666,83 +668,6 @@ class OLC6502 {
     private fun popFromStack() = read((0x0100u + ++stackPointer).toUShort())
 
     //endregion
-
-    // region DIASSEMBLE
-
-    //fun disassemble(from: UShort, to: UShort): Map<Int, String> {
-    //
-    //    var address = from
-    //    var value: UByte
-    //    var low: UByte
-    //    var high: UByte
-    //    val map = HashMap<Int, String>()
-    //    var lineStart = address.toInt()
-    //
-    //    while (address <= to) {
-    //        if (lineStart > address.toInt()) break
-    //        lineStart = address.toInt()
-    //        var string = "$${address.toString(16)}:  "
-    //        val opcode = bus!!.cpuRead(address++, true)
-    //        val instruction = OLC6502Instruction.INSTRUCTIONS[opcode.toInt()]
-    //        string += "${instruction.mnemonic}  "
-    //
-    //        string += when (instruction.addressingMode) {
-    //            OLC6502AddressingMode.IMPLIED -> "{IMP}"
-    //            OLC6502AddressingMode.IMMEDIATE -> {
-    //                value = bus!!.cpuRead(address++, true)
-    //                "#$${value.toHex(2)} {IMM}"
-    //            }
-    //            OLC6502AddressingMode.ZERO_PAGE -> {
-    //                low = bus!!.cpuRead(address++, true)
-    //                "$${low.toHex(2)}, {ZP0}"
-    //            }
-    //            OLC6502AddressingMode.ZERO_PAGE_X -> {
-    //                low = bus!!.cpuRead(address++, true)
-    //                "$${low.toHex(2)}, X {ZPX}"
-    //            }
-    //            OLC6502AddressingMode.ZERO_PAGE_Y -> {
-    //                low = bus!!.cpuRead(address++, true)
-    //                "$${low.toHex(2)}, Y {ZPY}"
-    //            }
-    //            OLC6502AddressingMode.INDIRECT_X -> {
-    //                low = bus!!.cpuRead(address++, true)
-    //                "($${low.toHex(2)}, X) {IZX}"
-    //            }
-    //            OLC6502AddressingMode.INDIRECT_Y -> {
-    //                low = bus!!.cpuRead(address++, true)
-    //                "($${low.toHex(2)}), Y {IZY}"
-    //            }
-    //            OLC6502AddressingMode.ABSOLUTE -> {
-    //                low = bus!!.cpuRead(address++, true)
-    //                high = bus!!.cpuRead(address++, true)
-    //                "$${(high concatenate low).toHex(4)} {ABS}"
-    //            }
-    //            OLC6502AddressingMode.ABSOLUTE_X -> {
-    //                low = bus!!.cpuRead(address++, true)
-    //                high = bus!!.cpuRead(address++, true)
-    //                "$${(high concatenate low).toHex(4)}, X {ABX}"
-    //            }
-    //            OLC6502AddressingMode.ABSOLUTE_Y -> {
-    //                low = bus!!.cpuRead(address++, true)
-    //                high = bus!!.cpuRead(address++, true)
-    //                "$${(high concatenate low).toHex(4)}, Y {ABY}"
-    //            }
-    //            OLC6502AddressingMode.INDIRECT -> {
-    //                low = bus!!.cpuRead(address++, true)
-    //                high = bus!!.cpuRead(address++, true)
-    //                "($${(high concatenate low).toHex(4)}) {IND}"
-    //            }
-    //            OLC6502AddressingMode.RELATIVE -> {
-    //                value = bus!!.cpuRead(address++, true)
-    //                "$${value.toHex(2)} [$${(address.toInt() + value.toByte()).toString(16)}] {REL}"
-    //            }
-    //            else -> "ILL"
-    //        }
-    //        map[lineStart] = string
-    //    }//return map //}
-
-    //endregion
-
 }
 
 enum class StatusFlag(val mask: UByte) {

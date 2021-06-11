@@ -19,14 +19,14 @@ javafx {
 }
 
 dependencies {
-    testImplementation(kotlin("test-junit"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
 
     implementation(files("lib/JAMS-0.2.jar"))
     implementation(group = "no.tornado", name = "tornadofx", version = "1.7.20")
 }
 
 tasks.test {
-    useJUnit()
+    useJUnitPlatform()
 }
 
 tasks.withType<KotlinCompile> {
