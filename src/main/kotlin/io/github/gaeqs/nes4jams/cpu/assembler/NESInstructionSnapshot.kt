@@ -3,7 +3,6 @@ package io.github.gaeqs.nes4jams.cpu.assembler
 import io.github.gaeqs.nes4jams.cpu.instruction.MatchResult
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
-import io.github.gaeqs.nes4jams.utils.parseParameterExpresion
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 import kotlin.math.min
 
@@ -110,14 +109,13 @@ class NESInstructionSnapshot(val line: Int, val address: UShort, val raw: String
 
         // Now we search for a candidate. If found, return.
         addressingModeCandidates!!.forEach {
-            val result = file.replaceEquivalentsAndLabels(it.value.label!!, it.value.invalidNumbers)
-            val finalValue = result.parseParameterExpresion() ?: return@forEach
+            val finalValue = file.replaceAndEvaluate(it.value.label!!, it.value.invalidNumbers) ?: return@forEach
 
             return if (it.key == NESAddressingMode.RELATIVE) {
                 val from = -address.toInt() - NESAddressingMode.RELATIVE.bytesUsed - 1
-                Pair(it.key, finalValue.value + from)
+                Pair(it.key, finalValue + from)
             } else {
-                Pair(it.key, finalValue.value)
+                Pair(it.key, finalValue)
             }
         }
 

@@ -2,7 +2,6 @@ package io.github.gaeqs.nes4jams.cpu.directive.defaults
 
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerFile
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
-import io.github.gaeqs.nes4jams.utils.parseParameterExpresion
 import io.github.gaeqs.nes4jams.utils.parseParameterExpresionWithInvalids
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 
@@ -32,9 +31,9 @@ class NESDirectiveDb : NESDirective(NAME) {
             val (value, invalids) = string.parseParameterExpresionWithInvalids()
             if (value == null) throw AssemblerException("Bad format: $string")
 
-            val result = file.replaceEquivalentsAndLabels(string, invalids)
-            val finalValue = result.parseParameterExpresion() ?: throw AssemblerException("Bad format: $string")
-            file.assembler.write((address + index.toUInt()).toUShort(), finalValue.value.toUByte())
+            val finalValue =
+                file.replaceAndEvaluate(string, invalids) ?: throw AssemblerException("Bad format: $string")
+            file.assembler.write((address + index.toUInt()).toUShort(), finalValue.toUByte())
         }
     }
 

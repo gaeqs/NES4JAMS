@@ -24,7 +24,7 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
         return labels[label] ?: assembler.globalLabels[label]
     }
 
-    fun replaceEquivalentsAndLabels(string: String, replacementsToSearch: Set<String>): String {
+    fun replaceAndEvaluate(string: String, replacementsToSearch: Set<String>): Int? {
         var result = string
 
         var replaced = false
@@ -42,14 +42,19 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
             }
         }
 
-        if (replaced) {
-            // Try to replace again!
-            val (value, invalids) = result.parseParameterExpresionWithInvalids()
-            if (value == null) throw AssemblerException("Bad format: $string")
-            return if(invalids.isEmpty()) result else replaceEquivalentsAndLabels(result, invalids)
+
+        val (value, invalids) = result.parseParameterExpresionWithInvalids()
+        if (value == null) throw AssemblerException("Bad format: $string")
+        if (invalids.isEmpty()) {
+            return value.value
         }
 
-        return result
+        if (replaced) {
+            // Try to replace again!
+            return replaceAndEvaluate(result, invalids)
+        }
+
+        return null
     }
 
     fun scan() {
