@@ -1,5 +1,8 @@
 package io.github.gaeqs.nes4jams.utils
 
+import io.github.gaeqs.nes4jams.data.BYTE_RANGE
+import io.github.gaeqs.nes4jams.utils.extension.toIntOldWayOrNull
+
 data class Value(val value: Int, val isWord: Boolean)
 
 class UnaryOperation(val mnemonic: String, val applyAtEnd: Boolean, val operation: (Value) -> Value)

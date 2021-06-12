@@ -2,7 +2,7 @@ package io.github.gaeqs.nes4jams.cpu.directive.defaults
 
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerFile
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
-import io.github.gaeqs.nes4jams.utils.isLabelLegal
+import io.github.gaeqs.nes4jams.utils.extension.isLabelLegal
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 
 class NESDirectiveGlobl : NESDirective(NAME) {
@@ -20,7 +20,7 @@ class NESDirectiveGlobl : NESDirective(NAME) {
         if (parameters.isEmpty()) throw AssemblerException(lineNumber, ".$NAME must have at least one parameter.")
 
         for (parameter in parameters) {
-            if (!isLabelLegal(parameter)) throw AssemblerException("Illegal label $parameter.")
+            if (!parameter.isLabelLegal()) throw AssemblerException("Illegal label $parameter.")
         }
 
         for (parameter in parameters) {

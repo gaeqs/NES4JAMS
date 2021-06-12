@@ -1,8 +1,8 @@
 package io.github.gaeqs.nes4jams.cpu.instruction
 
 import io.github.gaeqs.nes4jams.utils.Value
-import io.github.gaeqs.nes4jams.utils.parseParameterExpresion
-import io.github.gaeqs.nes4jams.utils.parseParameterExpresionWithInvalids
+import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpresion
+import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpresionWithInvalids
 
 data class MatchResult(
     val valid: Boolean,

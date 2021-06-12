@@ -2,8 +2,8 @@ package io.github.gaeqs.nes4jams.cpu.assembler
 
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAssembledInstruction
-import io.github.gaeqs.nes4jams.utils.concatenate
-import io.github.gaeqs.nes4jams.utils.toHex
+import io.github.gaeqs.nes4jams.utils.extension.concatenate
+import io.github.gaeqs.nes4jams.utils.extension.toHex
 
 
 class NESAssembledRawData(val start: UShort, val size: Int) {

@@ -1,9 +1,9 @@
 package io.github.gaeqs.nes4jams.cpu.assembler
 
 import io.github.gaeqs.nes4jams.cpu.label.OLC6502Label
-import io.github.gaeqs.nes4jams.utils.isLabelLegal
-import io.github.gaeqs.nes4jams.utils.parseParameterExpresionWithInvalids
-import io.github.gaeqs.nes4jams.utils.removeComments
+import io.github.gaeqs.nes4jams.utils.extension.isLabelLegal
+import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpresionWithInvalids
+import io.github.gaeqs.nes4jams.utils.extension.removeComments
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 import net.jamsimulator.jams.utils.LabelUtils
 import net.jamsimulator.jams.utils.StringUtils
@@ -159,7 +159,7 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
     }
 
     private fun checkLabel(index: Int, label: String, address: UShort) {
-        if (!isLabelLegal(label)) throw AssemblerException(
+        if (!label.isLabelLegal()) throw AssemblerException(
             index,
             "Label $label contains illegal characters."
         )
@@ -181,8 +181,7 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
     }
 
     private fun sanityLine(line: String): String {
-        var result = removeComments(line).trim()
-        return result
+        return line.removeComments().trim()
     }
 
 }

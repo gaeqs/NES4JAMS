@@ -2,7 +2,7 @@ package io.github.gaeqs.nes4jams.cpu.directive.defaults
 
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerFile
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
-import io.github.gaeqs.nes4jams.utils.parseParameterExpresionWithInvalids
+import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpresionWithInvalids
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 
 class NESDirectiveDb : NESDirective(NAME) {
