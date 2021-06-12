@@ -11,6 +11,7 @@ private const val PROGRAM = """
     SND_NOISE_REG = $400c
     
     .org $8000
+    .globl test
 test:
     jmp test
     lda #$01

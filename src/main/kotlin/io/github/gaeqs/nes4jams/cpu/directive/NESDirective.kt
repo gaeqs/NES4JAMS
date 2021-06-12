@@ -3,6 +3,7 @@ package io.github.gaeqs.nes4jams.cpu.directive
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerFile
 import io.github.gaeqs.nes4jams.cpu.directive.defaults.NESDirectiveDb
 import io.github.gaeqs.nes4jams.cpu.directive.defaults.NESDirectiveDw
+import io.github.gaeqs.nes4jams.cpu.directive.defaults.NESDirectiveGlobl
 import io.github.gaeqs.nes4jams.cpu.directive.defaults.NESDirectiveOrg
 
 abstract class NESDirective(val mnemonic: String) {
@@ -22,7 +23,8 @@ abstract class NESDirective(val mnemonic: String) {
         val DIRECTIVES = mutableMapOf(
             NESDirectiveOrg.NAME.lowercase() to NESDirectiveOrg(),
             NESDirectiveDb.NAME.lowercase() to NESDirectiveDb(),
-            NESDirectiveDw.NAME.lowercase() to NESDirectiveDw()
+            NESDirectiveDw.NAME.lowercase() to NESDirectiveDw(),
+            NESDirectiveGlobl.NAME.lowercase() to NESDirectiveGlobl()
         )
 
     }

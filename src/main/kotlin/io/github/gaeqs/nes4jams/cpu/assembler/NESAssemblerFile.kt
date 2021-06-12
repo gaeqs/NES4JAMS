@@ -42,7 +42,6 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
             }
         }
 
-
         val (value, invalids) = result.parseParameterExpresionWithInvalids()
         if (value == null) throw AssemblerException("Bad format: $string")
         if (invalids.isEmpty()) {
@@ -56,6 +55,23 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
 
         return null
     }
+
+
+    fun setAsGlobalLabel(executingLine: Int, label: String?) {
+        convertToGlobalLabel.add(label!!)
+        val instance = labels.remove(label)
+        if (instance != null) {
+            val global = assembler.addGlobalLabel(
+                executingLine,
+                instance.key,
+                instance.address,
+                instance.originFile,
+                instance.originLine
+            )
+            labels[global.key] = global
+        }
+    }
+
 
     fun scan() {
         lines.forEachIndexed { index, line ->
