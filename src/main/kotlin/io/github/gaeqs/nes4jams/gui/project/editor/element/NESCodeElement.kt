@@ -17,13 +17,13 @@ abstract class NESCodeElement(val line: MIPSLine, val text: String, var startInd
         return language[translatedNameNode]
     }
 
-    fun move(offset: Int) {
+    open fun move(offset: Int) {
         startIndex += offset
         endIndex += offset
     }
 
-    fun getGeneralStyles(baseStyle: String): MutableList<String> {
-        val list = mutableListOf(baseStyle)
+    fun getGeneralStyles(vararg baseStyles: String): MutableList<String> {
+        val list = baseStyles.toMutableList()
         //if (hasInspections()) {
         //    list.add(if (hasErrors()) "mips-error" else "mips-warning")
         //}

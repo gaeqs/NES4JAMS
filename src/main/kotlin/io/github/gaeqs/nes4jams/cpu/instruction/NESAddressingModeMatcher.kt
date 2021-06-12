@@ -1,8 +1,8 @@
 package io.github.gaeqs.nes4jams.cpu.instruction
 
 import io.github.gaeqs.nes4jams.utils.Value
-import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpresion
-import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpresionWithInvalids
+import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpression
+import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpressionWithInvalids
 
 data class MatchResult(
     val valid: Boolean,
@@ -30,7 +30,7 @@ interface NESAddressingModeMatcher {
             if (!str.startsWith("#")) return MatchResult(false)
 
             val label = str.substring(1)
-            val (invalidResult, invalidNumbers) = label.parseParameterExpresionWithInvalids()
+            val (invalidResult, invalidNumbers) = label.parseParameterExpressionWithInvalids()
             if (invalidResult == null) return MatchResult(false)
             val validNumber = invalidNumbers.isEmpty() && !invalidResult.isWord
 
@@ -41,8 +41,8 @@ interface NESAddressingModeMatcher {
     class ZeroPage : NESAddressingModeMatcher {
         override fun matches(parameters: String): MatchResult {
             val str = parameters.filter { !it.isWhitespace() }
-            val number = str.parseParameterExpresion()
-            val (invalidResult, invalidNumbers) = str.parseParameterExpresionWithInvalids()
+            val number = str.parseParameterExpression()
+            val (invalidResult, invalidNumbers) = str.parseParameterExpressionWithInvalids()
             if (invalidResult == null) return MatchResult(false)
             val validNumber = invalidNumbers.isEmpty() && !invalidResult.isWord
 
@@ -56,8 +56,8 @@ interface NESAddressingModeMatcher {
             if (!str.endsWith(",x") && !str.endsWith(",X")) return MatchResult(false)
 
             val label = str.substring(0, str.length - 2)
-            val number = label.parseParameterExpresion()
-            val (invalidResult, invalidNumbers) = label.parseParameterExpresionWithInvalids()
+            val number = label.parseParameterExpression()
+            val (invalidResult, invalidNumbers) = label.parseParameterExpressionWithInvalids()
             if (invalidResult == null) return MatchResult(false)
             val validNumber = invalidNumbers.isEmpty() && !invalidResult.isWord
 
@@ -71,8 +71,8 @@ interface NESAddressingModeMatcher {
             if (!str.endsWith(",y") && !str.endsWith(",Y")) return MatchResult(false)
 
             val label = str.substring(0, str.length - 2)
-            val number = label.parseParameterExpresion()
-            val (invalidResult, invalidNumbers) = label.parseParameterExpresionWithInvalids()
+            val number = label.parseParameterExpression()
+            val (invalidResult, invalidNumbers) = label.parseParameterExpressionWithInvalids()
             if (invalidResult == null) return MatchResult(false)
             val validNumber = invalidNumbers.isEmpty() && !invalidResult.isWord
 
@@ -83,8 +83,8 @@ interface NESAddressingModeMatcher {
     class Relative : NESAddressingModeMatcher {
         override fun matches(parameters: String): MatchResult {
             val str = parameters.filter { !it.isWhitespace() }
-            val number = str.parseParameterExpresion()
-            val (invalidResult, invalidNumbers) = str.parseParameterExpresionWithInvalids()
+            val number = str.parseParameterExpression()
+            val (invalidResult, invalidNumbers) = str.parseParameterExpressionWithInvalids()
             if (invalidResult == null) return MatchResult(false)
             val validNumber = invalidNumbers.isEmpty()
 
@@ -95,8 +95,8 @@ interface NESAddressingModeMatcher {
     class Absolute : NESAddressingModeMatcher {
         override fun matches(parameters: String): MatchResult {
             val str = parameters.filter { !it.isWhitespace() }
-            val number = str.parseParameterExpresion()
-            val (invalidResult, invalidNumbers) = str.parseParameterExpresionWithInvalids()
+            val number = str.parseParameterExpression()
+            val (invalidResult, invalidNumbers) = str.parseParameterExpressionWithInvalids()
             if (invalidResult == null) return MatchResult(false)
             val validNumber = invalidNumbers.isEmpty()
 
@@ -110,8 +110,8 @@ interface NESAddressingModeMatcher {
             if (!str.endsWith(",x") && !str.endsWith(",X")) return MatchResult(false)
 
             val label = str.substring(0, str.length - 2)
-            val number = label.parseParameterExpresion()
-            val (invalidResult, invalidNumbers) = label.parseParameterExpresionWithInvalids()
+            val number = label.parseParameterExpression()
+            val (invalidResult, invalidNumbers) = label.parseParameterExpressionWithInvalids()
             if (invalidResult == null) return MatchResult(false)
             val validNumber = invalidNumbers.isEmpty()
 
@@ -125,8 +125,8 @@ interface NESAddressingModeMatcher {
             if (!str.endsWith(",y") && !str.endsWith(",Y")) return MatchResult(false)
 
             val label = str.substring(0, str.length - 2)
-            val number = label.parseParameterExpresion()
-            val (invalidResult, invalidNumbers) = label.parseParameterExpresionWithInvalids()
+            val number = label.parseParameterExpression()
+            val (invalidResult, invalidNumbers) = label.parseParameterExpressionWithInvalids()
             if (invalidResult == null) return MatchResult(false)
             val validNumber = invalidNumbers.isEmpty()
 
@@ -140,8 +140,8 @@ interface NESAddressingModeMatcher {
             if (!str.startsWith("(") || !str.endsWith(")")) return MatchResult(false)
 
             val label = str.substring(1, str.length - 1)
-            val number = label.parseParameterExpresion()
-            val (invalidResult, invalidNumbers) = label.parseParameterExpresionWithInvalids()
+            val number = label.parseParameterExpression()
+            val (invalidResult, invalidNumbers) = label.parseParameterExpressionWithInvalids()
             if (invalidResult == null) return MatchResult(false)
             val validNumber = invalidNumbers.isEmpty()
 
@@ -156,8 +156,8 @@ interface NESAddressingModeMatcher {
             if (!str.startsWith("(") || !str.endsWith(",x)") && !str.endsWith(",X)")) return MatchResult(false)
 
             val label = str.substring(1, str.length - 3)
-            val number = label.parseParameterExpresion()
-            val (invalidResult, invalidNumbers) = label.parseParameterExpresionWithInvalids()
+            val number = label.parseParameterExpression()
+            val (invalidResult, invalidNumbers) = label.parseParameterExpressionWithInvalids()
             if (invalidResult == null) return MatchResult(false)
             val validNumber = invalidNumbers.isEmpty()
 
@@ -172,8 +172,8 @@ interface NESAddressingModeMatcher {
             if (!str.startsWith("(") || !str.endsWith("),y") && !str.endsWith("),Y")) return MatchResult(false)
 
             val label = str.substring(1, str.length - 3)
-            val number = label.parseParameterExpresion()
-            val (invalidResult, invalidNumbers) = label.parseParameterExpresionWithInvalids()
+            val number = label.parseParameterExpression()
+            val (invalidResult, invalidNumbers) = label.parseParameterExpressionWithInvalids()
             if (invalidResult == null) return MatchResult(false)
             val validNumber = invalidNumbers.isEmpty()
 

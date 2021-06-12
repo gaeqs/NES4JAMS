@@ -2,7 +2,7 @@ package io.github.gaeqs.nes4jams.cpu.assembler
 
 import io.github.gaeqs.nes4jams.cpu.label.OLC6502Label
 import io.github.gaeqs.nes4jams.utils.extension.isLabelLegal
-import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpresionWithInvalids
+import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpressionWithInvalids
 import io.github.gaeqs.nes4jams.utils.extension.removeComments
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 import net.jamsimulator.jams.utils.LabelUtils
@@ -42,7 +42,7 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
             }
         }
 
-        val (value, invalids) = result.parseParameterExpresionWithInvalids()
+        val (value, invalids) = result.parseParameterExpressionWithInvalids()
         if (value == null) throw AssemblerException("Bad format: $string")
         if (invalids.isEmpty()) {
             return value.value

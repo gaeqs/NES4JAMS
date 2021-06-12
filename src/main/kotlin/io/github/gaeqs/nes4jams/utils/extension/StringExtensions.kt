@@ -24,7 +24,7 @@ fun String.toIntOldWayOrNull(): Int? {
     }
 }
 
-fun String.parseParameterExpresion(ignoreInvalidParameters: Boolean = false): Value? {
+fun String.parseParameterExpression(ignoreInvalidParameters: Boolean = false): Value? {
     return try {
         ParameterExpressionSolver(this, ignoreInvalidParameters).solve()
     } catch (ex: IllegalArgumentException) {
@@ -32,7 +32,7 @@ fun String.parseParameterExpresion(ignoreInvalidParameters: Boolean = false): Va
     }
 }
 
-fun String.parseParameterExpresionWithInvalids(): Pair<Value?, Set<String>> {
+fun String.parseParameterExpressionWithInvalids(): Pair<Value?, Set<String>> {
     return try {
         val solver = ParameterExpressionSolver(this, true)
         Pair(solver.solve(), solver.ignoredInvalidNumbers)
@@ -96,4 +96,9 @@ fun String.isLabelLegal(): Boolean {
         }
     } while (length > colon + 2)
     return illegalCharacters.stream().noneMatch { contains(it) }
+}
+
+fun String.indexesOf(substr: String, ignoreCase: Boolean = true): List<Int> {
+    val regex = if (ignoreCase) Regex(substr, RegexOption.IGNORE_CASE) else Regex(substr)
+    return regex.findAll(this).map { it.range.first }.toList()
 }
