@@ -1,9 +1,8 @@
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
 import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
-import net.jamsimulator.jams.gui.mips.editor.element.MIPSLine
 
-class NESEditorInstruction(line: MIPSLine, text: String, startIndex: Int, endIndex: Int) :
+class NESEditorInstruction(line: NESLine, text: String, startIndex: Int, endIndex: Int) :
     NESCodeElement(line, text, startIndex, endIndex) {
 
     override val translatedNameNode: String = "MIPS_ELEMENT_INSTRUCTION"

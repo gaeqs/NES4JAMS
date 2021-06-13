@@ -79,6 +79,21 @@ fun String.removeComments(): String {
     return this
 }
 
+fun String.getCommentIndex(): Int {
+    var c: Char
+    var insideString = false
+    var insideChar = false
+    var escape = true
+    for (i in indices) {
+        c = this[i]
+        if (c == '"' && !escape) insideString = !insideString
+        if (c == '\'' && !escape) insideChar = !insideChar
+        if ((c == ';') && !insideString && !insideChar) return i
+        escape = !escape && c == '\\'
+    }
+    return -1
+}
+
 private val illegalCharacters = Arrays.asList("\\", ";", "\"", "#", "'", "(", ")")
 
 fun String.isLabelLegal(): Boolean {

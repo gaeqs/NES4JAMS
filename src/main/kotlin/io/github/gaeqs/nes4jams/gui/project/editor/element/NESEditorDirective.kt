@@ -1,10 +1,9 @@
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
-import net.jamsimulator.jams.gui.mips.editor.element.MIPSLine
 import net.jamsimulator.jams.utils.StringUtils
 
-class NESEditorDirective(line: MIPSLine, text: String, startIndex: Int, endIndex: Int) :
+class NESEditorDirective(line: NESLine, text: String, startIndex: Int, endIndex: Int) :
     NESCodeElement(line, text, startIndex, endIndex) {
 
     override val translatedNameNode: String = "MIPS_ELEMENT_DIRECTIVE"
