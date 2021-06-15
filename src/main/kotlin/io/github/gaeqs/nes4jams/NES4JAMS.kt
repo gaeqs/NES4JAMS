@@ -1,9 +1,11 @@
 package io.github.gaeqs.nes4jams
 
+import io.github.gaeqs.nes4jams.gui.project.editor.NESFileEditor
 import io.github.gaeqs.nes4jams.project.NESProjectType
 import net.jamsimulator.jams.Jams
 import net.jamsimulator.jams.event.Listener
 import net.jamsimulator.jams.event.general.JAMSPostInitEvent
+import net.jamsimulator.jams.file.AssemblyFileType
 import net.jamsimulator.jams.gui.JamsApplication
 import net.jamsimulator.jams.plugin.Plugin
 import java.io.InputStream
@@ -11,7 +13,7 @@ import java.io.InputStream
 class NES4JAMS : Plugin() {
 
     companion object {
-        lateinit var INSTANCE : NES4JAMS
+        lateinit var INSTANCE: NES4JAMS
             private set
     }
 
@@ -33,6 +35,7 @@ class NES4JAMS : Plugin() {
         loadLanguages()
         loadThemes()
         Jams.getProjectTypeManager() += NESProjectType.INSTANCE
+        AssemblyFileType.INSTANCE.addBuilder(NESProjectType.INSTANCE) { NESFileEditor(it) }
         Jams.getLanguageManager().registerListeners(this, true)
     }
 

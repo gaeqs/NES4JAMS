@@ -7,4 +7,7 @@ class NESEditorLabel(line: NESLine, text: String, startIndex: Int, endIndex: Int
     override val simpleText: String = text.substring(0, text.length - 1).trim()
     override val styles: List<String> get() = getGeneralStyles(if (isGlobal) "mips-global-label" else "mips-label")
 
+    init {
+        this.startIndex += text.indexOf(text.trimStart())
+    }
 }

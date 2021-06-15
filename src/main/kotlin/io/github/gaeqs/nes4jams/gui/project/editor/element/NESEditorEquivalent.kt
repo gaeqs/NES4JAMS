@@ -1,6 +1,6 @@
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
-import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
+import io.github.gaeqs.nes4jams.utils.extension.isLabelLegal
 
 class NESEditorEquivalent(line: NESLine, text: String, startIndex: Int, endIndex: Int) :
     NESCodeElement(line, text, startIndex, endIndex) {
@@ -10,46 +10,26 @@ class NESEditorEquivalent(line: NESLine, text: String, startIndex: Int, endIndex
     override val styles: List<String> get() = getGeneralStyles("mips-macro-call-parameter")
 
     val expression: NESEditorExpression?
+    val isKeyLegal: Boolean
 
     init {
-        simpleText = text
-        expression = null
-        //val index = text.indexOf('=')
-        //if(index == -1) {
-        //    simpleText = text
-        //    expression = null
-        //} else {
-        //    simpleText = text.indexOf(index)
-        //}
-//
-        //if (text.isNotBlank()) {
-        //    val textWithoutStart = text.trimStart()
-        //    val instructionStart = text.indexOf(textWithoutStart[0])
-        //    val instructionEnd = textWithoutStart.indexOfAny(charArrayOf(' ', '\t'))
-//
-        //    this.startIndex += instructionStart
-//
-        //    if (instructionEnd == -1) {
-        //        simpleText = textWithoutStart
-        //        expression = null
-        //    } else {
-        //        simpleText = textWithoutStart.substring(0, instructionEnd)
-        //        val expressionText = textWithoutStart.substring(instructionEnd + 1)
-        //        val expressionStart = this.startIndex + instructionEnd + 1
-        //        expression = NESEditorExpression(
-        //            line, expressionText,
-        //            expressionStart,
-        //            expressionStart + expressionText.length
-        //        )
-        //    }
-//
-        //    instruction = NESInstruction.INSTRUCTIONS[simpleText.uppercase()]
-        //    this.endIndex = this.startIndex + simpleText.length
-        //} else {
-        //    simpleText = text
-        //    instruction = null
-        //    expression = null
-        //}
+        val index = text.indexOf('=')
+        if (index == -1) {
+            simpleText = text
+            expression = null
+            isKeyLegal = false
+        } else {
+            simpleText = text.substring(0, index).trim()
+            this.startIndex += text.indexOf(simpleText)
+            val eText = text.substring(index + 1)
+            expression = NESEditorExpression(
+                line,
+                eText,
+                startIndex + index + 1,
+                startIndex + index + 1 + eText.length
+            )
+            isKeyLegal = simpleText.isLabelLegal()
+        }
     }
 
     override fun move(offset: Int) {

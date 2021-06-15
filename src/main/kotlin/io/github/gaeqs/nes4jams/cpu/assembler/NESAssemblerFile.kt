@@ -99,9 +99,10 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
 
         val equivalenceIndex = sanity.indexOf('=')
         if (equivalenceIndex != -1) {
-            val key = sanity.substring(0, equivalenceIndex).filter { !it.isWhitespace() }
+            val key = sanity.substring(0, equivalenceIndex).trim()
             val value = sanity.substring(equivalenceIndex + 1).filter { !it.isWhitespace() }
             if (key.isEmpty()) throw AssemblerException(index, "Equivalence key is empty")
+            if (key.any { it.isWhitespace() }) throw AssemblerException(index, "Equivalence key has whitespaces.")
             if (value.isEmpty()) throw AssemblerException(index, "Equivalence value is empty")
 
             if (equivalents.containsKey(key)) {

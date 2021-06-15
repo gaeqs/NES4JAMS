@@ -5,6 +5,7 @@ import javafx.scene.control.ScrollPane
 import javafx.scene.layout.Region
 import net.jamsimulator.jams.event.Listener
 import net.jamsimulator.jams.gui.explorer.event.ExplorerAddElementEvent
+import net.jamsimulator.jams.gui.explorer.event.ExplorerRemoveElementEvent
 import net.jamsimulator.jams.gui.explorer.folder.ExplorerFile
 import net.jamsimulator.jams.gui.explorer.folder.ExplorerFolder
 import net.jamsimulator.jams.gui.explorer.folder.FolderExplorer
@@ -56,6 +57,11 @@ class NESFolderExplorer(val project: NESProject, scrollPane: ScrollPane) : Folde
             element as Region
             element.styleClass.add(MipsFolderExplorer.EXPLORER_OUT_FILE_STYLE_CLASS)
         }
+    }
+
+    @Listener
+    private fun onFileRemoved(event: ExplorerRemoveElementEvent.After) {
+        project.data.filesToAssemble.checkFiles()
     }
 
 }
