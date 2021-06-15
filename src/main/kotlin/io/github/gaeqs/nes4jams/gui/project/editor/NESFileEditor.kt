@@ -11,8 +11,6 @@ import net.jamsimulator.jams.gui.editor.CodeFileEditor
 import net.jamsimulator.jams.gui.editor.FileEditorTab
 import net.jamsimulator.jams.utils.StringUtils
 import org.fxmisc.richtext.model.PlainTextChange
-import org.reactfx.Subscription
-import java.util.function.Consumer
 import kotlin.math.max
 import kotlin.math.min
 
@@ -22,7 +20,6 @@ class NESFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
     val elements: NESFileElements
 
     private val popup = Popup()
-    private var subscription: Subscription
 
     init {
         val workingPane = tab.workingPane
@@ -119,7 +116,6 @@ class NESFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
 
     override fun reformat() {
         enableRefreshEvent(false)
-        subscription.unsubscribe()
         val reformattedCode = NESCodeFormatter(elements).format()
         val text = text
         if (reformattedCode == text) return
