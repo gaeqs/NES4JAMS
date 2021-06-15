@@ -38,14 +38,11 @@ class NESFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
         documentationPopup = null
 
         applyLabelTabRemover()
-
-        subscription = multiPlainChanges().subscribe { event -> event.forEach(Consumer { index(it) }) }
         Platform.runLater { index() }
-
     }
 
 
-    fun index(change: PlainTextChange) {
+    override fun onTextRefresh(change: PlainTextChange) {
         val added = change.inserted
         val removed = change.removed
         //Check current line.
@@ -121,15 +118,14 @@ class NESFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
     }
 
     override fun reformat() {
+        enableRefreshEvent(false)
         subscription.unsubscribe()
         val reformattedCode = NESCodeFormatter(elements).format()
-        println("FORMATTED.")
         val text = text
         if (reformattedCode == text) return
         val oLine = currentParagraph
         val oColumn = caretColumn
 
-        println("A")
         replaceText(0, text.length, reformattedCode)
 
         val lines = lines
@@ -137,28 +133,18 @@ class NESFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
         val newSize = lines.size
         val line = oLine.coerceAtMost(newSize - 1)
         val column = oColumn.coerceAtMost(lines[line].text.length)
-        println("B")
         moveTo(line, column)
-        println("C")
         val height: Double =
             if (totalHeightEstimateProperty().value == null) 0.0 else totalHeightEstimateProperty().value
 
         var toPixel = height * line / newSize - layoutBounds.height / 2
         toPixel = max(0.0, min(height, toPixel))
 
-        println("D")
         scrollPane.scrollYBy(toPixel)
-        println("REFORMATTING")
         index(reformattedCode)
-        println("DONE")
         tab.isSaveMark = true
         tab.layoutDisplay()
-        subscription = multiPlainChanges().subscribe { event -> event.forEach(Consumer { index(it) }) }
-    }
-
-    override fun onClose() {
-        super.onClose()
-        subscription.unsubscribe()
+        enableRefreshEvent(true)
     }
 
     override fun reload() {
