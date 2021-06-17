@@ -36,8 +36,12 @@ class NESAssembler(rawFiles: Map<String, String>) {
         return label
     }
 
-    fun write(address: UShort, data: UByte) {
-        assembledData.write(address, data)
+    fun write(line: Int, address: UShort, data: UByte) {
+        try {
+            assembledData.write(address, data)
+        } catch (ex: IndexOutOfBoundsException) {
+            throw AssemblerException(line, "Out of bounds!", ex)
+        }
     }
 
     fun assemble(start: UShort, size: Int): NESAssembledRawData {

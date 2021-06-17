@@ -1,11 +1,15 @@
 package io.github.gaeqs.nes4jams.project
 
+import net.jamsimulator.jams.project.FilesToAssemble
+import net.jamsimulator.jams.project.FilesToAssemblerHolder
 import net.jamsimulator.jams.project.ProjectData
 
 class NESProjectData(project: NESProject) :
-    ProjectData(NESProjectType.INSTANCE, project.folder) {
+    ProjectData(NESProjectType.INSTANCE, project.folder), FilesToAssemblerHolder {
 
     val filesToAssemble = NESFilesToAssemble(project)
+
+    override fun getFilesToAssemble() : FilesToAssemble = filesToAssemble
 
     override fun load() {
         if (loaded) return

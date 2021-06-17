@@ -99,8 +99,9 @@ private val illegalCharacters = Arrays.asList("\\", ";", "\"", "#", "'", "(", ")
 fun String.isLabelLegal(): Boolean {
     if (isEmpty()) return false
     if (' ' in this) return false
-    val str = lowercase()
-    if (str.startsWith(",x") || str.startsWith(",y")) return false
+    val str = lowercase().filter { !it.isWhitespace() }
+    if (str.endsWith(",x") || str.endsWith(",y")) return false
+
 
     //Special case: ':' is not allowed, but "::" is.
     var colon = -2

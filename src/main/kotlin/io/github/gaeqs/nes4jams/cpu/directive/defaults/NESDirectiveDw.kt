@@ -32,8 +32,9 @@ class NESDirectiveDw : NESDirective(NAME) {
             if (value == null) throw AssemblerException("Bad format: $string")
             val word = file.replaceAndEvaluate(string, invalids) ?: throw AssemblerException("Bad format: $string")
 
-            file.assembler.write((address + index.toUInt() * 2u).toUShort(), word.toUByte())
-            file.assembler.write((address + index.toUInt() * 2u + 1u).toUShort(), (word shr 8).toUByte())
+            file.assembler.write(lineNumber, (address + index.toUInt() * 2u).toUShort(), word.value.toUByte())
+            file.assembler.write(lineNumber, (address + index.toUInt() * 2u + 1u).toUShort(), (word.value shr 8)
+                .toUByte())
         }
     }
 

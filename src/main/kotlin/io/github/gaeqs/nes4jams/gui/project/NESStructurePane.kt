@@ -9,24 +9,39 @@ import net.jamsimulator.jams.gui.bar.BarPosition
 import net.jamsimulator.jams.gui.bar.BarSnapshot
 import net.jamsimulator.jams.gui.bar.mode.BarSnapshotViewModePane
 import net.jamsimulator.jams.gui.editor.FileEditorHolder
+import net.jamsimulator.jams.gui.editor.FileEditorHolderHolder
 import net.jamsimulator.jams.gui.image.icon.Icons
+import net.jamsimulator.jams.gui.mips.sidebar.FilesToAssembleSidebar
+import net.jamsimulator.jams.gui.project.ProjectFolderExplorer
 import net.jamsimulator.jams.gui.project.ProjectTab
 import net.jamsimulator.jams.gui.project.WorkingPane
 import net.jamsimulator.jams.gui.util.PixelScrollPane
+import net.jamsimulator.jams.gui.util.log.Log
+import net.jamsimulator.jams.gui.util.log.SimpleLog
 import net.jamsimulator.jams.language.Messages
 import java.io.File
 import java.util.function.Consumer
 
 class NESStructurePane(parent: Tab, projectTab: ProjectTab, val project: NESProject) :
-    WorkingPane(parent, projectTab, null, false) {
+    WorkingPane(parent, projectTab, null, false), FileEditorHolderHolder {
 
-    lateinit var explorer: NESFolderExplorer
+    lateinit var explorer: ProjectFolderExplorer
         private set
+
+    lateinit var filesToAssembleSidebar: FilesToAssembleSidebar
+        private set
+
+    lateinit var log: Log
+        private set
+
+    override fun getFileEditorHolder(): FileEditorHolder = center as FileEditorHolder
 
     init {
         center = FileEditorHolder(this)
         init()
         loadExplorer()
+        loadFilesToAssemble()
+        loadLog()
     }
 
     override fun getLanguageNode(): String = Messages.PROJECT_TAB_STRUCTURE
@@ -49,7 +64,7 @@ class NESStructurePane(parent: Tab, projectTab: ProjectTab, val project: NESProj
     private fun loadExplorer() {
         val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.SIDEBAR_EXPLORER).orElse(null)
         val pane = PixelScrollPane().fit()
-        explorer = NESFolderExplorer(project, pane)
+        explorer = ProjectFolderExplorer(project, project.data, pane)
         pane.content = explorer
 
         explorer.fileOpenAction = Consumer { openFile(it.file) }
@@ -63,6 +78,41 @@ class NESStructurePane(parent: Tab, projectTab: ProjectTab, val project: NESProj
                 true,
                 icon,
                 Messages.BAR_EXPLORER_NAME
+            )
+        )
+    }
+
+    private fun loadFilesToAssemble() {
+        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.SIDEBAR_EXPLORER).orElse(null)
+        val pane = PixelScrollPane().fit()
+        filesToAssembleSidebar = FilesToAssembleSidebar(project, project.data, pane)
+        pane.content = filesToAssembleSidebar
+
+        barMap.registerSnapshot(
+            BarSnapshot(
+                "files_to_assemble",
+                pane,
+                BarPosition.LEFT_BOTTOM,
+                BarSnapshotViewModePane.INSTANCE,
+                true,
+                icon,
+                Messages.BAR_FILES_TO_ASSEMBLE_NAME
+            )
+        )
+    }
+
+    private fun loadLog() {
+        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.FILE_FILE).orElse(null)
+        log = SimpleLog()
+        barMap.registerSnapshot(
+            BarSnapshot(
+                "log",
+                log as SimpleLog,
+                BarPosition.BOTTOM_LEFT,
+                BarSnapshotViewModePane.INSTANCE,
+                true,
+                icon,
+                Messages.BAR_LOG_NAME,
             )
         )
     }

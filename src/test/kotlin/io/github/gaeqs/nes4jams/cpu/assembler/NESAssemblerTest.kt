@@ -1,13 +1,14 @@
 package io.github.gaeqs.nes4jams.cpu.assembler
 
+import io.github.gaeqs.nes4jams.utils.extension.toHex
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.net.URL
 
-private const val MARIO_URL =
+const val MARIO_URL =
     "https://gist.githubusercontent.com/1wErt3r/4048722/raw/59e88c0028a58c6d7b9156749230ccac647bc7d4/SMBDIS.ASM"
 
-private const val PROGRAM = """
+ const val PROGRAM = """
     SND_NOISE_REG = $400c
     
     .org $8000
@@ -43,7 +44,12 @@ class NESAssemblerTest {
             it.lines.forEachIndexed { index, line -> println("${index + 1} -> $line") }
         }
         val data = assembler.assemble(0x8000u, 0x8000)
-        val disassembled = data.disassemble(0x8000u, 0x8020u)
+        val disassembled = data.disassemble(0x8000u, 0xFFFFu)
+
+        //data.array.forEachIndexed { index, value ->
+        //    println("$${(index.toUInt() + 0x8000u).toHex(2)} -> ${value.toHex(1)}")
+        //}
+
         disassembled.toSortedMap().forEach { instruction -> println(instruction.value) }
         Assertions.assertTrue(assembler.assembled)
     }

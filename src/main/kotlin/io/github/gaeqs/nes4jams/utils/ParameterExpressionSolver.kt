@@ -21,7 +21,7 @@ class ParameterExpressionSolver(val data: String, ignoreInvalidNumbers: Boolean 
     private val node1: ParameterExpressionSolver?
     private val node2: ParameterExpressionSolver?
     private val unaryOperation: UnaryOperation?
-    private val value: Int?
+    private val value: Value?
 
     init {
         // First we check if the data is empty.
@@ -36,7 +36,7 @@ class ParameterExpressionSolver(val data: String, ignoreInvalidNumbers: Boolean 
         // Now we try to parse the number itself. If we success, we're done!
         val value = current.toIntOldWayOrNull()
         if (value != null) {
-            this.value = value
+            this.value = Value(value, !BYTE_RANGE.contains(value))
             node1 = null
             node2 = null
             binaryOperation = null
@@ -79,7 +79,7 @@ class ParameterExpressionSolver(val data: String, ignoreInvalidNumbers: Boolean 
                     (ignoredInvalidNumbers as MutableSet<String>) += node1.ignoredInvalidNumbers
                 } else {
                     if (ignoreInvalidNumbers) {
-                        this.value = 0
+                        this.value = Value(0, true)
                         node1 = null
                         (ignoredInvalidNumbers as MutableSet<String>) += current
                     } else {
@@ -94,7 +94,7 @@ class ParameterExpressionSolver(val data: String, ignoreInvalidNumbers: Boolean 
      * Solves the expression and returns its result.
      */
     fun solve(): Value {
-        if (value != null) return Value(value, !BYTE_RANGE.contains(value))
+        if (value != null) return value
         if (unaryOperation != null) return unaryOperation.operation(node1!!.solve())
         return binaryOperation!!.operation(node1!!.solve(), node2!!.solve())
     }

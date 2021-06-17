@@ -1,6 +1,7 @@
 package io.github.gaeqs.nes4jams.cpu.assembler
 
 import io.github.gaeqs.nes4jams.cpu.label.OLC6502Label
+import io.github.gaeqs.nes4jams.utils.Value
 import io.github.gaeqs.nes4jams.utils.extension.isLabelLegal
 import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpressionWithInvalids
 import io.github.gaeqs.nes4jams.utils.extension.removeComments
@@ -24,7 +25,7 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
         return labels[label] ?: assembler.globalLabels[label]
     }
 
-    fun replaceAndEvaluate(string: String, replacementsToSearch: Set<String>): Int? {
+    fun replaceAndEvaluate(string: String, replacementsToSearch: Set<String>): Value? {
         var result = string
 
         var replaced = false
@@ -45,7 +46,7 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
         val (value, invalids) = result.parseParameterExpressionWithInvalids()
         if (value == null) throw AssemblerException("Bad format: $string")
         if (invalids.isEmpty()) {
-            return value.value
+            return value
         }
 
         if (replaced) {
@@ -139,7 +140,7 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
         } else {
             val snapshot = NESInstructionSnapshot(index, labelAddress!!, sanity, line)
             instructions += snapshot
-            assembler.addMemory((1 + snapshot.scan()).toUInt())
+            assembler.addMemory((1 + snapshot.scan(this)).toUInt())
         }
 
         if (labelAddress == null) {

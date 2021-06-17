@@ -33,7 +33,7 @@ class NESDirectiveDb : NESDirective(NAME) {
 
             val finalValue =
                 file.replaceAndEvaluate(string, invalids) ?: throw AssemblerException("Bad format: $string")
-            file.assembler.write((address + index.toUInt()).toUShort(), finalValue.toUByte())
+            file.assembler.write(lineNumber, (address + index.toUInt()).toUShort(), finalValue.value.toUByte())
         }
     }
 
