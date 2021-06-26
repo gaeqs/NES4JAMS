@@ -26,13 +26,11 @@ package io.github.gaeqs.nes4jams.cpu.directive.defaults
 
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerFile
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
-import io.github.gaeqs.nes4jams.utils.extension.toIntOldWayOrNull
-import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 
-class NESDirectiveOrg : NESDirective(NAME) {
+class NESDirectiveData : NESDirective(NAME) {
 
     companion object {
-        const val NAME = "org"
+        const val NAME = "data"
     }
 
     override fun firstPassExecute(file: NESAssemblerFile, lineNumber: Int, parameters: Array<String>) {
@@ -47,14 +45,8 @@ class NESDirectiveOrg : NESDirective(NAME) {
         address: UShort,
         parameters: Array<String>
     ): UShort {
-        if (parameters.size != 1) throw AssemblerException(lineNumber, ".$NAME directive must have one parameter!")
-        val number = parameters[0].toIntOldWayOrNull() ?: throw AssemblerException(
-            lineNumber,
-            "Invalid number ${parameters[0]}!"
-        )
-        val target = number.toUShort()
-        file.assembler.selectedBank.pointer = target
-        return target
+        file.assembler.selectDataBank()
+        return file.assembler.selectedBank.pointer
     }
 
     override fun fourthPassExecute(
@@ -64,5 +56,4 @@ class NESDirectiveOrg : NESDirective(NAME) {
         parameters: Array<String>
     ) {
     }
-
 }

@@ -1,11 +1,13 @@
 package io.github.gaeqs.nes4jams.cartridge
 
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssembler
+import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerMemoryBankBuilder
 import io.github.gaeqs.nes4jams.ppu.Mirror
-import io.github.gaeqs.nes4jams.utils.extension.toHex
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.File
+
+private val BANKS = listOf(NESAssemblerMemoryBankBuilder(0x8000u, 0x8000u, true))
 
 class CartridgeHeaderTest {
 
@@ -44,16 +46,12 @@ class CartridgeHeaderTest {
         stream.close()
 
         val raw = File("roms/mario.asm").readText()
-        val assembler = NESAssembler(mapOf("test.asm" to raw))
-        val data = assembler.assemble(0x8000u, header.prgRomSize.toInt())
-
-        data.array.forEachIndexed { index, value ->
-            println("$${(index.toUInt() + 0x8000u).toHex(2)} -> ${value.toHex(1)}")
-        }
+        val assembler = NESAssembler(mapOf("test.asm" to raw), BANKS, null)
+        assembler.assemble()
 
         val out = File("roms/out.nes").outputStream()
         out.write(header.toByteArray())
-        out.write(data.array.toByteArray())
+        out.write(assembler.banks[0].array.toByteArray())
         out.write(chrMemory)
         out.close()
     }

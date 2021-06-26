@@ -1,6 +1,29 @@
+/*
+ *  MIT License
+ *
+ *  Copyright (c) 2021 Gael Rial Costas
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
-import io.github.gaeqs.nes4jams.cpu.directive.defaults.NESDirectiveGlobl
 import io.github.gaeqs.nes4jams.gui.project.editor.NESFileEditor
 import io.github.gaeqs.nes4jams.project.NESFilesToAssemble
 import io.github.gaeqs.nes4jams.project.NESProject
@@ -38,7 +61,7 @@ class NESFileElements(val project: NESProject?, var filesToAssemble: NESFilesToA
     fun lineAt(position: Int): Int {
         if (position < 0) return -1
         for ((i, line) in lines.withIndex()) {
-            if (line.start <= position && line.start + line.text.length > position) return i
+            if (line.start <= position && line.start + line.text.length >= position) return i
         }
         return -1
     }
@@ -127,11 +150,11 @@ class NESFileElements(val project: NESProject?, var filesToAssemble: NESFilesToA
     private fun refreshAllManageLine(line: NESLine) {
         if (line.label != null) labels += line.label.simpleText
 
-        if (line.directive != null) {
-            if (line.directive.directive is NESDirectiveGlobl) {
-                line.directive.parameters.forEach { setAsGlobalLabels += it.text }
-            }
-        }
+        //if (line.directive != null) {
+        //    if (line.directive.directive is NESDirectiveGlobl) {
+        //        line.directive.parameters.forEach { setAsGlobalLabels += it.text }
+        //    }
+        //}
 
         lines += line
         if (line.equivalent != null) equivalents += line.equivalent
@@ -233,14 +256,14 @@ class NESFileElements(val project: NESProject?, var filesToAssemble: NESFilesToA
         }
 
         // DIRECTIVE
-        if (line.directive != null && line.directive.directive is NESDirectiveGlobl) {
-            line.directive.parameters.forEach {
-                if (add) setAsGlobalLabels += it.text
-                else setAsGlobalLabels -= it.text
-                check += it.text
-            }
-            globalLabelUpdated = globalLabelUpdated || line.directive.parameters.isNotEmpty()
-        }
+        //if (line.directive != null && line.directive.directive is NESDirectiveGlobl) {
+        //    line.directive.parameters.forEach {
+        //        if (add) setAsGlobalLabels += it.text
+        //        else setAsGlobalLabels -= it.text
+        //        check += it.text
+        //    }
+        //    globalLabelUpdated = globalLabelUpdated || line.directive.parameters.isNotEmpty()
+        //}
 
         return Pair(check, globalLabelUpdated)
     }

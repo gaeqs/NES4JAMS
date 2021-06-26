@@ -22,13 +22,27 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.project.editor.element
+package io.github.gaeqs.nes4jams.cpu.assembler
 
-class NESEditorExpressionPart(line: NESLine, text: String, startIndex: Int, endIndex: Int, val isLabel: Boolean) :
-    NESCodeElement(line, text, startIndex, endIndex) {
+import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
+import net.jamsimulator.jams.utils.StringUtils
 
-    override val translatedNameNode: String = "MIPS_ELEMENT_INSTRUCTION_PARAMETER_IMMEDIATE"
-    override val simpleText: String = text
-    override val styles: List<String> get() = getGeneralStyles(if (isLabel) "mips-directive-parameter" else "mips-instruction-parameter-immediate")
+class NESMacroCallSnapshot(
+    val line: NESAssemblerLine,
+    mnemonic: String,
+    rawParameters: String
+) {
+
+    val parameters: Array<String>
+    val mnemonic = mnemonic.uppercase()
+
+    init {
+        if (!rawParameters.startsWith('(') || !rawParameters.endsWith(')'))
+            throw AssemblerException(line.index, "Invalid macro parameters")
+
+        val raw = rawParameters.substring(1, rawParameters.length - 1)
+        parameters = StringUtils.multiSplitIgnoreInsideString(raw, false, " ", ",", "\t")
+            .toTypedArray()
+    }
 
 }

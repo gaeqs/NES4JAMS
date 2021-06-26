@@ -26,16 +26,55 @@ package io.github.gaeqs.nes4jams.cpu.directive.defaults
 
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerFile
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
-import io.github.gaeqs.nes4jams.utils.extension.toIntOldWayOrNull
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
+import net.jamsimulator.jams.mips.directive.defaults.DirectiveMacro
 
-class NESDirectiveOrg : NESDirective(NAME) {
+class NESDirectiveMacro : NESDirective(NAME) {
 
     companion object {
-        const val NAME = "org"
+        const val NAME = "macro"
     }
 
     override fun firstPassExecute(file: NESAssemblerFile, lineNumber: Int, parameters: Array<String>) {
+        if (parameters.isEmpty()) throw AssemblerException(
+            lineNumber,
+            "." + DirectiveMacro.NAME + " must have at least one parameter."
+        )
+
+        val name = parameters[0]
+        if (name.startsWith('.') || name.contains("(") || name.contains(")")) throw AssemblerException(
+            lineNumber,
+            "Macro name cannot contain parenthesis!"
+        )
+        if (file.searchMacro(name) != null) {
+            throw AssemblerException(lineNumber, "Macro $name already exists!")
+        }
+
+        val macroParameters: MutableList<String> = ArrayList()
+
+        for (i in 1 until parameters.size) {
+            var value = parameters[i]
+            if (value == "(" || value == "()") {
+                if (i == 1) continue
+                panic(lineNumber, value, i)
+            } else if (value == ")") {
+                if (i == parameters.size - 1) continue
+                panic(lineNumber, value, i)
+            }
+            if (value.startsWith("(")) {
+                if (i != 1) panic(lineNumber, value, i)
+                value = value.substring(1)
+            }
+            if (value.endsWith(")")) {
+                if (i != parameters.size - 1) panic(lineNumber, value, i)
+                value = value.substring(0, value.length - 1)
+            }
+            if (!value.startsWith("%")) panic(lineNumber, value, i)
+            if (value.length == 1) panic(lineNumber, value, 1)
+            macroParameters.add(value)
+        }
+
+        file.startMacroDefinition(lineNumber, name, macroParameters.toTypedArray())
     }
 
     override fun secondPassExecute(file: NESAssemblerFile, lineNumber: Int, parameters: Array<String>) {
@@ -46,15 +85,8 @@ class NESDirectiveOrg : NESDirective(NAME) {
         lineNumber: Int,
         address: UShort,
         parameters: Array<String>
-    ): UShort {
-        if (parameters.size != 1) throw AssemblerException(lineNumber, ".$NAME directive must have one parameter!")
-        val number = parameters[0].toIntOldWayOrNull() ?: throw AssemblerException(
-            lineNumber,
-            "Invalid number ${parameters[0]}!"
-        )
-        val target = number.toUShort()
-        file.assembler.selectedBank.pointer = target
-        return target
+    ): UShort? {
+        return null
     }
 
     override fun fourthPassExecute(
@@ -65,4 +97,8 @@ class NESDirectiveOrg : NESDirective(NAME) {
     ) {
     }
 
+
+    private fun panic(line: Int, value: String, i: Int) {
+        throw AssemblerException(line, "Invalid macro parameter '$value'! (Index $i)")
+    }
 }

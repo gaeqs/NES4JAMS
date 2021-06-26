@@ -1,14 +1,13 @@
 package io.github.gaeqs.nes4jams.cpu.assembler
 
-import io.github.gaeqs.nes4jams.utils.extension.toHex
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.net.URL
 
-const val MARIO_URL =
+private const val MARIO_URL =
     "https://gist.githubusercontent.com/1wErt3r/4048722/raw/59e88c0028a58c6d7b9156749230ccac647bc7d4/SMBDIS.ASM"
 
- const val PROGRAM = """
+private const val PROGRAM = """
     SND_NOISE_REG = $400c
     
     .org $8000
@@ -25,32 +24,32 @@ test:
     .db $0FE 20 20
 """
 
-class NESAssemblerTest {
+private val BANKS = listOf(NESAssemblerMemoryBankBuilder(0x8000u, 0x8000u, true))
+
+class OLDNESAssemblerTest {
     @Test
     fun assemblyTest() {
-        val assembler = NESAssembler(mapOf("test.asm" to PROGRAM))
-        val data = assembler.assemble(0x8000u, 0x4000)
-        val disassembled = data.disassemble(0x8000u, 0x8020u)
-        disassembled.toSortedMap().forEach { instruction -> println(instruction.value) }
+        val assembler = NESAssembler(mapOf("test.asm" to PROGRAM), BANKS, null)
+        assembler.assemble()
+        //val disassembled = data.disassemble(0x8000u, 0x8020u)
+        //disassembled.toSortedMap().forEach { instruction -> println(instruction.value) }
         Assertions.assertTrue(assembler.assembled)
     }
 
     @Test
     fun assembleMario() {
         val raw = URL(MARIO_URL).readText()
-        val assembler = NESAssembler(mapOf("test.asm" to raw))
+        val assembler = NESAssembler(mapOf("test.asm" to raw), BANKS, null)
         assembler.files.forEach {
             println("FILE ${it.name}")
             it.lines.forEachIndexed { index, line -> println("${index + 1} -> $line") }
         }
-        val data = assembler.assemble(0x8000u, 0x8000)
-        val disassembled = data.disassemble(0x8000u, 0xFFFFu)
+        assembler.assemble()
 
-        //data.array.forEachIndexed { index, value ->
-        //    println("$${(index.toUInt() + 0x8000u).toHex(2)} -> ${value.toHex(1)}")
-        //}
-
-        disassembled.toSortedMap().forEach { instruction -> println(instruction.value) }
+        assembler.banks.forEachIndexed { index, it ->
+            println("------- BANK $index -------")
+            it.disassemble().toSortedMap().forEach { (address, instruction) -> println("$address\t${instruction}") }
+        }
         Assertions.assertTrue(assembler.assembled)
     }
 }
