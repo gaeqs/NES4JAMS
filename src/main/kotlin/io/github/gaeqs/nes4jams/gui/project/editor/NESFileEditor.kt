@@ -43,8 +43,6 @@ class NESFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
     val project: NESProject?
     val elements: NESFileElements
 
-    private val popup = Popup()
-
     init {
         val workingPane = tab.workingPane
         if (workingPane is NESStructurePane) {
@@ -55,7 +53,7 @@ class NESFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
             elements = NESFileElements(null)
         }
 
-        autocompletionPopup = null
+        autocompletionPopup = NESAutocompletionPopup(this)
         documentationPopup = null
 
         applyLabelTabRemover()

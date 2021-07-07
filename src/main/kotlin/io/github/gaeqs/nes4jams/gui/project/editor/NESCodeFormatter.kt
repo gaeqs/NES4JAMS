@@ -102,14 +102,14 @@ class NESCodeFormatter(val elements: NESFileElements) {
             builder.append(instruction.simpleText)
         }
         if (instruction.expression != null) {
-            builder.append(' ').append(instruction.expression.text)
+            builder.append(' ').append(instruction.expression.text.trim())
         }
     }
 
 
     private fun formatDirective(builder: StringBuilder, directive: NESEditorDirective) {
         if (directive.directive != null) {
-            builder.append(directive.directive.mnemonic.lowercase())
+            builder.append('.').append(directive.directive.mnemonic.lowercase())
         } else {
             builder.append(directive.simpleText)
         }
@@ -125,9 +125,9 @@ class NESCodeFormatter(val elements: NESFileElements) {
     }
 
     private fun formatEquivalent(builder: StringBuilder, equivalent: NESEditorEquivalent) {
-        builder.append(equivalent.simpleText).append(" =")
+        builder.append(equivalent.simpleText.trim()).append(" =")
         if (equivalent.expression != null) {
-            builder.append(' ').append(equivalent.expression.text)
+            builder.append(' ').append(equivalent.expression.text.trim())
         }
     }
 

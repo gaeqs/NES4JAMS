@@ -106,7 +106,8 @@ class NESLine(val elements: NESFileElements, var start: Int, val text: String) {
 
     operator fun get(index: Int): NESCodeElement? {
         for (element in sortedElements) {
-            if (element.startIndex <= index && element.endIndex > index) return element
+            val valid = element.startIndex <= index && element.endIndex > index
+            if (valid) return element
         }
         return null
     }

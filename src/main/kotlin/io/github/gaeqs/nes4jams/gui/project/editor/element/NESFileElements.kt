@@ -88,9 +88,9 @@ class NESFileElements(val project: NESProject?, var filesToAssemble: NESFilesToA
         } else 0
 
         val line = NESLine(this, start, text)
-        val length = text.length
+        val length = text.length + 1
         lines.add(index, line)
-        for (i in index until lines.size) lines[i].move(length)
+        for (i in index + 1 until lines.size) lines[i].move(length)
 
         if (line.equivalent != null) addEquivalent(line.equivalent)
         requiresUpdate.add(index)
@@ -106,7 +106,7 @@ class NESFileElements(val project: NESProject?, var filesToAssemble: NESFilesToA
         val difference = text.length - old.text.length
         val line = NESLine(this, old.start, text)
         lines[index] = line
-        for (i in index until lines.size) lines[i].move(difference)
+        for (i in index + 1 until lines.size) lines[i].move(difference)
 
         if (old.equivalent != null) removeEquivalent(old.equivalent)
         if (line.equivalent != null) addEquivalent(line.equivalent)

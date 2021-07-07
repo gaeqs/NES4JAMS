@@ -64,7 +64,7 @@ class NESEditorDirective(line: NESLine, text: String, startIndex: Int, endIndex:
             }
 
             this.startIndex += firstKey
-            this.endIndex = startIndex + simpleText.length
+            this.endIndex = startIndex + simpleText.length + 1
             directive = NESDirective.DIRECTIVES[simpleText.substring(1)]
         }
     }

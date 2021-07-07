@@ -59,7 +59,7 @@ class NESEditorInstruction(line: NESLine, text: String, startIndex: Int, endInde
             }
 
             instruction = NESInstruction.INSTRUCTIONS[simpleText.uppercase()]
-            this.endIndex = this.startIndex + simpleText.length
+            this.endIndex = this.startIndex + simpleText.length + 1
         } else {
             simpleText = text
             instruction = null
