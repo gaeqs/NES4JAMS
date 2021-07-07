@@ -61,7 +61,6 @@ fun String.parseParameterExpressionWithInvalids(): Pair<Value?, Set<String>> {
         val solver = ParameterExpressionSolver(this, true)
         Pair(solver.solve(), solver.ignoredInvalidNumbers)
     } catch (ex: IllegalArgumentException) {
-        ex.printStackTrace()
         Pair(null, emptySet())
     }
 }
@@ -69,19 +68,19 @@ fun String.parseParameterExpressionWithInvalids(): Pair<Value?, Set<String>> {
 infix fun UByte.toHex(minSize: Int): String {
     var value = this.toString(16)
     while (value.length < minSize) value = "0${value}"
-    return value;
+    return value
 }
 
 infix fun UShort.toHex(minSize: Int): String {
     var value = this.toString(16)
     while (value.length < minSize) value = "0${value}"
-    return value;
+    return value
 }
 
 infix fun UInt.toHex(minSize: Int): String {
     var value = this.toString(16)
     while (value.length < minSize) value = "0${value}"
-    return value;
+    return value
 }
 
 fun String.removeComments(): String {
@@ -119,7 +118,7 @@ fun String.getCommentIndex(): Int {
     return -1
 }
 
-private val illegalCharacters = Arrays.asList("\\", ";", "\"", "#", "'", "(", ")")
+private val illegalCharacters = listOf("\\", ";", "\"", "#", "'", "(", ")")
 
 fun String.isLabelLegal(): Boolean {
     if (isEmpty()) return false

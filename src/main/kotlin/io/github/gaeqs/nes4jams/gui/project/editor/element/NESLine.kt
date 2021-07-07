@@ -162,7 +162,7 @@ class NESLine(val elements: NESFileElements, var start: Int, val text: String) {
                 newLastEnd = styleElement(spansBuilder, element, newLastEnd)
             } catch (exception: Exception) {
                 println("Last: $newLastEnd")
-                println("Element: $element")
+                println("Element: ${element.text}")
                 throw exception
             }
         }
@@ -213,9 +213,15 @@ class NESLine(val elements: NESFileElements, var start: Int, val text: String) {
 
     private fun populateUsedLabels() {
         val set = usedLabels as HashSet
-        instruction?.expression?.parts?.forEach { if (it.isLabel) set.add(it.simpleText) }
-        equivalent?.expression?.parts?.forEach { if (it.isLabel) set.add(it.simpleText) }
-        directive?.parameters?.flatMap { it.parts }?.forEach { if (it.isLabel) set.add(it.simpleText) }
+        instruction?.expression?.parts?.forEach {
+            if (it.type == NESEditorExpressionPartType.LABEL) set.add(it.simpleText)
+        }
+        equivalent?.expression?.parts?.forEach {
+            if (it.type == NESEditorExpressionPartType.LABEL) set.add(it.simpleText)
+        }
+        directive?.parameters?.flatMap { it.parts }?.forEach {
+            if (it.type == NESEditorExpressionPartType.LABEL) set.add(it.simpleText)
+        }
     }
 
     fun refreshMetadata(nesFileElements: NESFileElements) {

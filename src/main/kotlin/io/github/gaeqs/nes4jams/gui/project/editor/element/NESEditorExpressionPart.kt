@@ -24,11 +24,24 @@
 
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
-class NESEditorExpressionPart(line: NESLine, text: String, startIndex: Int, endIndex: Int, val isLabel: Boolean) :
+enum class NESEditorExpressionPartType(val style: String) {
+    LABEL("mips-label"),
+    IMMEDIATE("mips-instruction-parameter-immediate"),
+    ADDRESSING_MODE("mips-instruction-parameter-register"),
+    INVALID("mips-error")
+}
+
+class NESEditorExpressionPart(
+    line: NESLine,
+    text: String,
+    startIndex: Int,
+    endIndex: Int,
+    val type: NESEditorExpressionPartType
+) :
     NESCodeElement(line, text, startIndex, endIndex) {
 
     override val translatedNameNode: String = "MIPS_ELEMENT_INSTRUCTION_PARAMETER_IMMEDIATE"
     override val simpleText: String = text
-    override val styles: List<String> get() = getGeneralStyles(if (isLabel) "mips-directive-parameter" else "mips-instruction-parameter-immediate")
+    override val styles: List<String> get() = getGeneralStyles(type.style)
 
 }

@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
+import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.utils.RangeCollection
 import io.github.gaeqs.nes4jams.utils.extension.indexesOf
 import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpressionWithInvalids
@@ -33,46 +34,91 @@ class NESEditorExpression(val line: NESLine, val text: String, val startIndex: I
     val parts = mutableListOf<NESEditorExpressionPart>()
 
     init {
-        val (value, invalids) = text.parseParameterExpressionWithInvalids()
-        if (value == null || invalids.isEmpty()) {
-            parts += NESEditorExpressionPart(line, text, startIndex, endIndex, false)
+        // First we get the expression.
+        val (addressingModes, expression) = NESAddressingMode.getCompatibleAddressingModes(text)
+
+        // If the addressing mode is implied, add the whole text to the parts and return.
+        if (NESAddressingMode.IMPLIED in addressingModes) {
+            addAllAsAddressingMode()
         } else {
-            val ranges = RangeCollection()
-            invalids.forEach { invalid ->
-                ranges.addAll(text.indexesOf(invalid).map { IntRange(it, it + invalid.length - 1) })
+            val expressionStart = startIndex + text.indexOf(expression)
+            val expressionEnd = expressionStart + expression.length
+            val (value, invalids) = expression.parseParameterExpressionWithInvalids()
+            when {
+                value == null ->
+                    addExpressionAs(expression, expressionStart, expressionEnd, NESEditorExpressionPartType.INVALID)
+                invalids.isEmpty() ->
+                    addExpressionAs(expression, expressionStart, expressionEnd, NESEditorExpressionPartType.IMMEDIATE)
+                else ->
+                    rangeExpression(expression, expressionStart, invalids)
             }
 
-            val inverse = ranges.invert(0, text.length - 1)
-
-            ranges.forEach {
-                parts.add(
-                    NESEditorExpressionPart(
-                        line,
-                        text.substring(it),
-                        startIndex + it.first,
-                        startIndex + it.last + 1,
-                        true
-                    )
+            if (expressionStart > startIndex) {
+                addExpressionAs(
+                    text.substring(0, expressionStart - startIndex),
+                    startIndex,
+                    expressionStart,
+                    NESEditorExpressionPartType.ADDRESSING_MODE
                 )
             }
-
-            inverse.forEach {
-                parts.add(
-                    NESEditorExpressionPart(
-                        line,
-                        text.substring(it),
-                        startIndex + it.first,
-                        startIndex + it.last + 1,
-                        false
-                    )
+            if (expressionEnd < endIndex) {
+                addExpressionAs(
+                    text.substring(expressionEnd - startIndex),
+                    expressionEnd,
+                    endIndex,
+                    NESEditorExpressionPartType.ADDRESSING_MODE
                 )
             }
-
-
         }
     }
 
     fun move(offset: Int) {
         parts.forEach { it.move(offset) }
+    }
+
+    private fun addAllAsAddressingMode() {
+        parts += NESEditorExpressionPart(line, text, startIndex, endIndex, NESEditorExpressionPartType.ADDRESSING_MODE)
+    }
+
+    private fun addExpressionAs(
+        expression: String,
+        expressionStart: Int,
+        expressionEnd: Int,
+        type: NESEditorExpressionPartType
+    ) {
+        parts += NESEditorExpressionPart(line, expression, expressionStart, expressionEnd, type)
+    }
+
+    private fun rangeExpression(expression: String, expressionStart: Int, invalids: Set<String>) {
+        val ranges = RangeCollection()
+        invalids.forEach { invalid ->
+            ranges.addAll(expression.indexesOf(Regex.escape(invalid)).map { IntRange(it, it + invalid.length - 1) })
+        }
+
+        val inverse = ranges.invert(0, expression.length - 1)
+
+        ranges.forEach {
+            parts.add(
+                NESEditorExpressionPart(
+                    line,
+                    text.substring(it),
+                    expressionStart + it.first,
+                    expressionStart + it.last + 1,
+                    NESEditorExpressionPartType.LABEL
+                )
+            )
+        }
+
+        inverse.forEach {
+            parts.add(
+                NESEditorExpressionPart(
+                    line,
+                    text.substring(it),
+                    expressionStart + it.first,
+                    expressionStart + it.last + 1,
+                    NESEditorExpressionPartType.IMMEDIATE
+                )
+            )
+        }
     }
 }

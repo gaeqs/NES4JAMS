@@ -244,7 +244,7 @@ class ParameterExpressionSolver(val data: String, ignoreInvalidNumbers: Boolean 
 
             setOf(
                 BinaryOperation("*") { a, b -> Value(a.value * b.value, a.isWord || b.isWord) },
-                BinaryOperation("/") { a, b -> Value(a.value / b.value, a.isWord || b.isWord) },
+                BinaryOperation("/") { a, b -> Value(if(b.value == 0) 0 else a.value / b.value, a.isWord || b.isWord) },
                 BinaryOperation("%") { a, b -> Value(a.value % b.value, a.isWord || b.isWord) },
             )
         )

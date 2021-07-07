@@ -35,31 +35,79 @@ import net.jamsimulator.jams.mips.directive.defaults.DirectiveEndmacro
 import net.jamsimulator.jams.utils.StringUtils
 import java.util.*
 
-class NESAssemblerFile(val name: String, val rawData: String, val assembler: NESAssembler) {
+/**
+ * Represents a file being assembled.
+ */
+class NESAssemblerFile(val name: String, rawData: String, val assembler: NESAssembler) {
 
+    /**
+     * The raw lines.
+     */
     val rawLines = StringUtils.multiSplit(rawData, "\n", "\r")
+
+    /**
+     * The lines with its metadata. This list is loaded after the first step.
+     */
     val lines = mutableListOf<NESAssemblerLine>()
 
+    /**
+     * The local labels of this file. This list is loaded after the first step.
+     */
     val localLabels = mutableMapOf<String, NESLabel>()
+
+    /**
+     * The local equivalents of this file. This list is loaded after the first step.
+     */
     val localEquivalents = mutableMapOf<String, NESAssemblerEquivalent>()
+
+    /**
+     * The local macros of this file. This list is loaded after the first step.
+     */
     val localMacros = mutableMapOf<String, Macro>()
 
+    /**
+     * The labels whose address is assigned in the next directive / instruction. This queue is used in the third step.
+     */
     val assignLabelQueue: Queue<NESLabel> = LinkedList()
 
+    /**
+     * The macro currently being defined. This value is used in the first step.
+     */
     private var definingMacro: Macro? = null
 
+    /**
+     * Search the label that matches the given name. This method searches the local and global labels.
+     */
     fun searchLabel(label: String): NESLabel? {
         return localLabels[label] ?: assembler.globalLabels[label]
     }
 
+    /**
+     * Search the equivalent that matches the given name. This method searches the local and global equivalent.
+     */
     fun searchEquivalent(key: String): NESAssemblerEquivalent? {
         return localEquivalents[key] ?: assembler.globalEquivalents[key]
     }
 
+    /**
+     * Search the macro that matches the given name. This method searches the local and global macro.
+     */
     fun searchMacro(name: String): Macro? {
         return localMacros[name] ?: assembler.globalMacros[name]
     }
 
+    /**
+     * Evaluates the given expression. This method is recursive.
+     *
+     * If the evaluation is possible, this method returns a value.
+     * This method also returns a boolean representing whether the value is a word.
+     * This boolean is always returned.
+     *
+     * @param expression the expression to evaluate.
+     * @param alreadySearched this collection is used to detect cyclic dependencies.
+     * @return the value if the evaluation was possible and whether the value is a word.
+     * @throws AssemblerException when the expression has a bad format.
+     */
     tailrec fun evaluate(expression: String, alreadySearched: Collection<String> = emptySet()): Pair<Value?, Boolean> {
         val (value, invalids) = expression.parseParameterExpressionWithInvalids()
         if (value == null) throw AssemblerException("Bad expression format: $expression")
@@ -97,6 +145,14 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
         return if (replaced) evaluate(result, alreadySearched - invalids) else Pair(null, value.isWord)
     }
 
+    /**
+     * Starts a macro definition.
+     *
+     * @param line the line executing this operation.
+     * @param name the name of the macro.
+     * @param parameters the parameters of the macro.
+     * @throws AssemblerException when a macro is already being defined.
+     */
     fun startMacroDefinition(line: Int, name: String, parameters: Array<String>) {
         if (definingMacro != null) throw AssemblerException(line, "Another macro is already being defined!")
 
@@ -234,7 +290,7 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
 
     fun assignAddresses() {
         lines.forEach {
-            val address: UShort
+            var address: UShort? = null
             when {
                 it.directive != null -> {
                     it.directive.address = assembler.selectedBank.pointer
@@ -247,12 +303,13 @@ class NESAssemblerFile(val name: String, val rawData: String, val assembler: NES
                     assembler.selectedBank.skip(size + 1)
                     address = it.instruction.address!!
                 }
-                else -> {
-                    if (it.label != null) {
-                        assignLabelQueue += it.label
-                    }
-                    return@forEach
+            }
+
+            if (address == null) {
+                if (it.label != null) {
+                    assignLabelQueue += it.label
                 }
+                return
             }
 
             it.label?.address = address

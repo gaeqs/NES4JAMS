@@ -31,7 +31,7 @@ class NESEditorEquivalent(line: NESLine, text: String, startIndex: Int, endIndex
 
     override val translatedNameNode: String = "MIPS_ELEMENT_INSTRUCTION"
     override val simpleText: String
-    override val styles: List<String> get() = getGeneralStyles("mips-macro-call-parameter")
+    override val styles: List<String> get() = getGeneralStyles("mips-label")
 
     val expression: NESEditorExpression?
     val isKeyLegal: Boolean
