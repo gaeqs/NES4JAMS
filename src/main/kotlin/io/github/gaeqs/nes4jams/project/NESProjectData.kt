@@ -24,16 +24,53 @@
 
 package io.github.gaeqs.nes4jams.project
 
+import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfiguration
+import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationAddEvent
+import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationRemoveEvent
 import net.jamsimulator.jams.project.FilesToAssemble
 import net.jamsimulator.jams.project.FilesToAssemblerHolder
 import net.jamsimulator.jams.project.ProjectData
+import java.util.*
 
 class NESProjectData(project: NESProject) :
     ProjectData(NESProjectType.INSTANCE, project.folder), FilesToAssemblerHolder {
 
     val filesToAssemble = NESFilesToAssemble(project)
+    var selectedConfiguration: NESSimulationConfiguration? = null
+        private set
 
-    override fun getFilesToAssemble() : FilesToAssemble = filesToAssemble
+    private val _configurations = mutableSetOf<NESSimulationConfiguration>()
+
+    val configurations: Set<NESSimulationConfiguration> = Collections.unmodifiableSet(_configurations)
+
+    fun addConfiguration(configuration: NESSimulationConfiguration): Boolean {
+        if (_configurations.any { it.name == configuration.name }) return false
+        val before = callEvent(NESSimulationConfigurationAddEvent.Before(this, configuration))
+        if (before.isCancelled) return false
+        val result = _configurations.add(configuration)
+        if (result) {
+            callEvent(NESSimulationConfigurationAddEvent.After(this, configuration))
+            if (selectedConfiguration == null) selectConfiguration(configuration.name)
+        }
+        return result
+    }
+
+    fun removeConfiguration(name: String): Boolean {
+        val configuration = configurations.find { it.name == name } ?: return false
+        val before = callEvent(NESSimulationConfigurationRemoveEvent.Before(this, configuration))
+        if (before.isCancelled) return false
+        val result = _configurations.remove(configuration)
+        if (result) {
+            callEvent(NESSimulationConfigurationRemoveEvent.After(this, configuration))
+            if (selectedConfiguration == configuration) selectConfiguration(configurations.find { true }?.name)
+        }
+        return result
+    }
+
+    fun selectConfiguration(name: String?) {
+    }
+
+    override fun getFilesToAssemble(): FilesToAssemble = filesToAssemble
 
     override fun load() {
         if (loaded) return

@@ -80,8 +80,12 @@ class NESStructurePane(parent: Tab, projectTab: ProjectTab, val project: NESProj
         explorer.dispose()
     }
 
+    override fun saveAllOpenedFiles() {
+        fileEditorHolder.saveAll(true)
+    }
+
     fun openFile(file: File) {
-        val holder = center as FileEditorHolder;
+        val holder = center as FileEditorHolder
         holder.openFile(file)
     }
 

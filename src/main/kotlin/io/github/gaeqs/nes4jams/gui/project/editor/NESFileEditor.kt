@@ -30,7 +30,6 @@ import io.github.gaeqs.nes4jams.project.NESProject
 import javafx.application.Platform
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import javafx.stage.Popup
 import net.jamsimulator.jams.gui.editor.CodeFileEditor
 import net.jamsimulator.jams.gui.editor.FileEditorTab
 import net.jamsimulator.jams.utils.StringUtils
@@ -164,6 +163,17 @@ class NESFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
         tab.layoutDisplay()
         enableRefreshEvent(true)
     }
+
+
+    override fun replaceAllText(text: String?): Boolean {
+        enableRefreshEvent(false)
+        val result = super.replaceAllText(text)
+        enableRefreshEvent(true)
+        if (!result) return false
+        index()
+        return true
+    }
+
 
     override fun reload() {
         super.reload()
