@@ -43,7 +43,7 @@ data class NESSimulationConfigurationNodePreset(
                     + defaultValue
                     + " (" + defaultValue.javaClass + ")"
                     + " -> " + type
-        );
+        )
     }
 
     fun supportsNode(node: String, state: Any): Boolean {

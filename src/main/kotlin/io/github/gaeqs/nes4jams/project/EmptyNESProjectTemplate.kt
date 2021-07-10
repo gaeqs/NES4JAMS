@@ -26,6 +26,7 @@ package io.github.gaeqs.nes4jams.project
 
 import io.github.gaeqs.nes4jams.data.NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY
 import io.github.gaeqs.nes4jams.data.PLUGIN_ICON
+import io.github.gaeqs.nes4jams.utils.extension.orNull
 import javafx.beans.property.BooleanProperty
 import javafx.scene.Node
 import javafx.scene.image.Image
@@ -78,7 +79,7 @@ class EmptyNESProjectTemplateBuilder : ProjectTemplateBuilder<NESProject>(NAME, 
     companion object {
         const val NAME = "nes-empty"
         val LANGUAGE_NODE = NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY
-        val ICON: Image? = JamsApplication.getIconManager().getOrLoadSafe(PLUGIN_ICON).orElse(null)
+        val ICON: Image? = JamsApplication.getIconManager().getOrLoadSafe(PLUGIN_ICON).orNull()
     }
 
     override fun createBuilder(): ProjectTemplate<NESProject> = EmptyNESProjectTemplate()

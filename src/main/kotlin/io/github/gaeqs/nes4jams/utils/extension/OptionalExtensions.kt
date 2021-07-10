@@ -22,27 +22,11 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.project
+package io.github.gaeqs.nes4jams.utils.extension
 
-import io.github.gaeqs.nes4jams.data.PLUGIN_ICON
-import io.github.gaeqs.nes4jams.utils.extension.orNull
-import net.jamsimulator.jams.gui.image.icon.IconManager
-import net.jamsimulator.jams.project.ProjectType
-import java.io.File
+import java.util.*
 
-class NESProjectType private constructor() : ProjectType<NESProject>(NAME, ICON) {
-
-    companion object {
-        const val NAME = "NES"
-        val ICON = IconManager.INSTANCE.getOrLoadSafe(PLUGIN_ICON).orNull()
-        val INSTANCE = NESProjectType();
-    }
-
-    init {
-        templateBuilders += EmptyNESProjectTemplateBuilder()
-    }
-
-    override fun loadProject(folder: File): NESProject {
-        return NESProject(folder)
-    }
+@Suppress("unused")
+fun <T> Optional<T>.orNull(): T? {
+    return orElse(null)
 }

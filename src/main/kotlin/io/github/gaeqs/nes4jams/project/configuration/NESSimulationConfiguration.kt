@@ -33,7 +33,7 @@ class NESSimulationConfiguration {
 
     var name: String
         set(value) {
-            Validate.isTrue(name.isNotEmpty(), "Name cannot be empty!")
+            Validate.isTrue(value.isNotEmpty(), "Name cannot be empty!")
             field = value
         }
 

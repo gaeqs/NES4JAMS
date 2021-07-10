@@ -29,6 +29,7 @@ import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESCodeElement
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorDirective
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorInstruction
+import io.github.gaeqs.nes4jams.utils.extension.orNull
 import javafx.application.Platform
 import net.jamsimulator.jams.gui.JamsApplication
 import net.jamsimulator.jams.gui.editor.popup.AutocompletionPopup
@@ -38,9 +39,9 @@ class NESAutocompletionPopup(display: NESFileEditor) : AutocompletionPopup(displ
 
     companion object {
         private val ICON_DIRECTIVE =
-            JamsApplication.getIconManager().getOrLoadSafe(Icons.AUTOCOMPLETION_DIRECTIVE).orElse(null)
+            JamsApplication.getIconManager().getOrLoadSafe(Icons.AUTOCOMPLETION_DIRECTIVE).orNull()
         private val ICON_INSTRUCTION =
-            JamsApplication.getIconManager().getOrLoadSafe(Icons.AUTOCOMPLETION_INSTRUCTION).orElse(null)
+            JamsApplication.getIconManager().getOrLoadSafe(Icons.AUTOCOMPLETION_INSTRUCTION).orNull()
     }
 
     override fun getDisplay() = super.getDisplay() as NESFileEditor
@@ -68,7 +69,7 @@ class NESAutocompletionPopup(display: NESFileEditor) : AutocompletionPopup(displ
                 hide()
                 autocomplete()
             } else {
-                val bounds = display.caretBounds.orElse(null) ?: return@runLater
+                val bounds = display.caretBounds.orNull() ?: return@runLater
 
                 var zoomX = display.zoom.zoom.x
                 var zoomY = display.zoom.zoom.y

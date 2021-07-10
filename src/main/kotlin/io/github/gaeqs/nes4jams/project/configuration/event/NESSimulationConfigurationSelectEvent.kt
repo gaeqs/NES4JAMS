@@ -22,27 +22,31 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.project
+package io.github.gaeqs.nes4jams.project.configuration.event
 
-import io.github.gaeqs.nes4jams.data.PLUGIN_ICON
-import io.github.gaeqs.nes4jams.utils.extension.orNull
-import net.jamsimulator.jams.gui.image.icon.IconManager
-import net.jamsimulator.jams.project.ProjectType
-import java.io.File
+import io.github.gaeqs.nes4jams.project.NESProjectData
+import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfiguration
+import net.jamsimulator.jams.event.Cancellable
+import net.jamsimulator.jams.event.Event
 
-class NESProjectType private constructor() : ProjectType<NESProject>(NAME, ICON) {
+sealed class NESSimulationConfigurationSelectEvent private constructor(
+    val data: NESProjectData,
+    val old: NESSimulationConfiguration?,
+    val new: NESSimulationConfiguration?
+) : Event() {
 
-    companion object {
-        const val NAME = "NES"
-        val ICON = IconManager.INSTANCE.getOrLoadSafe(PLUGIN_ICON).orNull()
-        val INSTANCE = NESProjectType();
+    class Before(data: NESProjectData, old: NESSimulationConfiguration?, new: NESSimulationConfiguration?) :
+        NESSimulationConfigurationSelectEvent(data, old, new), Cancellable {
+
+        private var cancelled = false
+
+        override fun isCancelled() = cancelled
+        override fun setCancelled(cancelled: Boolean) {
+            this.cancelled = cancelled
+        }
+
     }
 
-    init {
-        templateBuilders += EmptyNESProjectTemplateBuilder()
-    }
-
-    override fun loadProject(folder: File): NESProject {
-        return NESProject(folder)
-    }
+    class After(data: NESProjectData, old: NESSimulationConfiguration?, new: NESSimulationConfiguration?) :
+        NESSimulationConfigurationSelectEvent(data, old, new)
 }

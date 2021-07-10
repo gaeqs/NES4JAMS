@@ -26,6 +26,7 @@ package io.github.gaeqs.nes4jams.project
 
 import io.github.gaeqs.nes4jams.gui.project.editor.NESFileEditor
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESFileElements
+import io.github.gaeqs.nes4jams.utils.extension.orNull
 import javafx.application.Platform
 import net.jamsimulator.jams.collection.Bag
 import net.jamsimulator.jams.event.SimpleEventBroadcast
@@ -114,13 +115,13 @@ class NESFilesToAssemble(val project: NESProject) : SimpleEventBroadcast(), File
         files.values.forEach { globalLabels.addAll(it.getExistingGlobalLabels()) }
         requiresUpdate += globalLabels
 
-        val tab = JamsApplication.getProjectsTabPane().getProjectTab(project).orElse(null) ?: return
+        val tab = JamsApplication.getProjectsTabPane().getProjectTab(project).orNull() ?: return
         val node = tab.projectTabPane.workingPane.center
         if (node !is FileEditorHolder) return
 
         files.forEach { (file, elements) ->
             elements.searchForLabelsUpdates(requiresUpdate)
-            val fileTab = node.getFileDisplayTab(file, true).orElse(null) ?: return@forEach
+            val fileTab = node.getFileDisplayTab(file, true).orNull() ?: return@forEach
             val display = fileTab.display
             if (display is NESFileEditor) {
                 elements.update(display)
@@ -155,10 +156,10 @@ class NESFilesToAssemble(val project: NESProject) : SimpleEventBroadcast(), File
     private fun refreshDeletedFiles(file: File, elements: NESFileElements) {
         elements.searchForLabelsUpdates(globalLabels)
 
-        val tab = JamsApplication.getProjectsTabPane().getProjectTab(project).orElse(null) ?: return
+        val tab = JamsApplication.getProjectsTabPane().getProjectTab(project).orNull() ?: return
         val node = tab.projectTabPane.workingPane.center
         if (node !is FileEditorHolder) return
-        val fileTab = node.getFileDisplayTab(file, true).orElse(null) ?: return
+        val fileTab = node.getFileDisplayTab(file, true).orNull() ?: return
         val display = fileTab.display
         if (display is NESFileEditor) {
             elements.update(display)
