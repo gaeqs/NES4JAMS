@@ -25,6 +25,7 @@
 package io.github.gaeqs.nes4jams.cpu.assembler
 
 import io.github.gaeqs.nes4jams.cpu.label.NESLabel
+import io.github.gaeqs.nes4jams.memory.NESMemoryBank
 import io.github.gaeqs.nes4jams.utils.extension.toHex
 import net.jamsimulator.jams.gui.util.log.Log
 import net.jamsimulator.jams.mips.assembler.Macro
@@ -137,7 +138,7 @@ import kotlin.system.measureTimeMillis
  */
 class NESAssembler(
     rawFiles: Map<String, String>,
-    bankBuilders: Iterable<NESAssemblerMemoryBankBuilder>,
+    bankBuilders: Iterable<NESMemoryBank>,
     val log: Log?
 ) {
 

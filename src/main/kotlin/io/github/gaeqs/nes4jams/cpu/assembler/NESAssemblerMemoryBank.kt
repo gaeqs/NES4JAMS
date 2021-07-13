@@ -26,15 +26,14 @@ package io.github.gaeqs.nes4jams.cpu.assembler
 
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAssembledInstruction
+import io.github.gaeqs.nes4jams.memory.NESMemoryBank
 import io.github.gaeqs.nes4jams.utils.extension.concatenate
 import io.github.gaeqs.nes4jams.utils.extension.toHex
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 
-data class NESAssemblerMemoryBankBuilder(val start: UShort, val size: UShort, val writable: Boolean)
-
 class NESAssemblerMemoryBank(val id: Int, val start: UShort, val size: UShort, val writable: Boolean) {
 
-    constructor(id: Int, builder: NESAssemblerMemoryBankBuilder) : this(
+    constructor(id: Int, builder: NESMemoryBank) : this(
         id,
         builder.start,
         builder.size,

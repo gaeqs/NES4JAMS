@@ -42,8 +42,9 @@ class NESProject(folder: File) : BasicProject(folder, true) {
     override fun onClose() {
         data.save()
         if (projectTab != null) {
-            var pane = projectTab.projectTabPane.workingPane
+            val pane = projectTab.projectTabPane.workingPane
             if (pane is NESStructurePane) {
+                pane.holder.closeAll(true)
             }
         }
     }

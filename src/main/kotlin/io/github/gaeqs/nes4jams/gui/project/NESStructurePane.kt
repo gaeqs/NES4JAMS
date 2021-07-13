@@ -51,6 +51,8 @@ import java.util.function.Consumer
 class NESStructurePane(parent: Tab, projectTab: ProjectTab, val project: NESProject) :
     WorkingPane(parent, projectTab, null, false), FileEditorHolderHolder {
 
+    val holder = FileEditorHolder(this)
+
     lateinit var explorer: ProjectFolderExplorer
         private set
 
@@ -65,7 +67,7 @@ class NESStructurePane(parent: Tab, projectTab: ProjectTab, val project: NESProj
     override fun getFileEditorHolder(): FileEditorHolder = center as FileEditorHolder
 
     init {
-        center = FileEditorHolder(this)
+        center = holder
         init()
         loadExplorer()
         loadFilesToAssemble()
