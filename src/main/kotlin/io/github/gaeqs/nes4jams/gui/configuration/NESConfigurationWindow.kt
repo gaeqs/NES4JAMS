@@ -26,7 +26,9 @@ package io.github.gaeqs.nes4jams.gui.configuration
 
 import io.github.gaeqs.nes4jams.project.NESProjectData
 import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfiguration
+import javafx.application.Platform
 import javafx.scene.control.SplitPane
+import javafx.scene.layout.AnchorPane
 import javafx.stage.Modality
 import javafx.stage.Stage
 import net.jamsimulator.jams.Jams
@@ -66,13 +68,29 @@ class NESConfigurationWindow(val data: NESProjectData) : SplitPane() {
         }
     }
 
+    val list = NESConfigurationList(this)
+    val displayGroup = AnchorPane()
+    var display: NESConfigurationDisplay? = null
 
     init {
+        items.addAll(list, displayGroup)
+        Platform.runLater { setDividerPosition(0, 0.3) }
+        list.contents.selectFirst()
     }
 
 
     fun display(configuration: NESSimulationConfiguration?) {
-
+        val oldDisplay = display
+        if (oldDisplay != null) {
+            if (oldDisplay.configuration == configuration) return
+            displayGroup.children -= oldDisplay
+        }
+        if (configuration == null) {
+            display = null
+        } else {
+            display = NESConfigurationDisplay(this, configuration)
+            displayGroup.children += display
+        }
     }
 
 

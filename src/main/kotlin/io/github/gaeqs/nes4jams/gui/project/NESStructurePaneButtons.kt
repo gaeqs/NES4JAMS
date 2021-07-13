@@ -27,6 +27,7 @@ package io.github.gaeqs.nes4jams.gui.project
 import io.github.gaeqs.nes4jams.gui.configuration.NESConfigurationWindow
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationAddEvent
+import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationRefreshEvent
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationRemoveEvent
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationSelectEvent
 import io.github.gaeqs.nes4jams.utils.extension.orNull
@@ -72,7 +73,7 @@ class NESStructurePaneButtons(val project: NESProject) {
         project.data.registerListeners(this, true)
     }
 
-    private fun createAssembleButton () : Button {
+    private fun createAssembleButton(): Button {
         val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.PROJECT_ASSEMBLE).orNull()
         val assemble =
             FixedButton("", NearestImageView(icon, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE), BUTTON_SIZE, BUTTON_SIZE)
@@ -81,7 +82,7 @@ class NESStructurePaneButtons(val project: NESProject) {
         return assemble
     }
 
-    private fun createSettingsButton () : Button {
+    private fun createSettingsButton(): Button {
         val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.PROJECT_SETTINGS).orNull()
         val settings =
             FixedButton("", NearestImageView(icon, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE), BUTTON_SIZE, BUTTON_SIZE)
@@ -105,4 +106,10 @@ class NESStructurePaneButtons(val project: NESProject) {
         configBox.selectionModel.select(event.new?.name)
     }
 
+    @Listener
+    private fun onConfigurationRefresh(event: NESSimulationConfigurationRefreshEvent) {
+        configBox.items.clear()
+        project.data.configurations.forEach { configBox.items += it.name }
+        project.data.selectedConfiguration?.let { configBox.selectionModel.select(it.name) }
+    }
 }

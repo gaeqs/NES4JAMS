@@ -37,8 +37,8 @@ class NESSimulationConfiguration {
             field = value
         }
 
-    val nodes = hashMapOf<Preset, Any>()
-    val rawValues = hashMapOf<String, Any>()
+    val nodes = hashMapOf<Preset, Any?>()
+    val rawValues = hashMapOf<String, Any?>()
 
     constructor(name: String) {
         this.name = name
@@ -93,7 +93,7 @@ class NESSimulationConfiguration {
         }
     }
 
-    fun setNodeValue(node: String, value: Any): Boolean {
+    fun setNodeValue(node: String, value: Any?): Boolean {
         val preset = Preset.PRESETS.find { it.name == node }
         if (preset == null) {
             rawValues[node] = value
