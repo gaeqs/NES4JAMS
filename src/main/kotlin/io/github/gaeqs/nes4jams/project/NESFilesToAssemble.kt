@@ -35,13 +35,15 @@ import net.jamsimulator.jams.gui.editor.FileEditorHolder
 import net.jamsimulator.jams.project.FilesToAssemble
 import net.jamsimulator.jams.project.Project
 import net.jamsimulator.jams.project.mips.event.FileAddToAssembleEvent
+import net.jamsimulator.jams.project.mips.event.FileIndexChangedFromAssembleEvent
 import net.jamsimulator.jams.project.mips.event.FileRemoveFromAssembleEvent
 import org.json.JSONArray
 import java.io.File
 
 class NESFilesToAssemble(val project: NESProject) : SimpleEventBroadcast(), FilesToAssemble {
 
-    val files = mutableMapOf<File, NESFileElements>()
+    private val files = mutableListOf<File>()
+    val fileElements = mutableMapOf<File, NESFileElements>()
     private val globalLabelsBag = Bag<String>()
 
     companion object {
@@ -51,7 +53,7 @@ class NESFilesToAssemble(val project: NESProject) : SimpleEventBroadcast(), File
     override fun getProject(): Project = project
     override fun supportsGlobalLabels(): Boolean = true
     override fun getGlobalLabels(): Bag<String> = globalLabelsBag
-    override fun getFiles(): MutableSet<File> = files.keys
+    override fun getFiles(): List<File> = files.toList()
     override fun containsFile(file: File?): Boolean = file in files
 
     override fun addFile(file: File, refreshGlobalLabels: Boolean) {
@@ -61,7 +63,8 @@ class NESFilesToAssemble(val project: NESProject) : SimpleEventBroadcast(), File
         if (before.isCancelled) return
 
         val elements = NESFileElements(project, this)
-        files[file] = elements
+        fileElements[file] = elements
+        files += file
         elements.refreshAll(file.readText())
 
         if (refreshGlobalLabels) {
@@ -77,7 +80,8 @@ class NESFilesToAssemble(val project: NESProject) : SimpleEventBroadcast(), File
         val before = callEvent(FileAddToAssembleEvent.Before(file))
         if (before.isCancelled) return
 
-        files[file] = elements
+        fileElements[file] = elements
+        files += file
         elements.filesToAssemble = this
 
         if (refreshGlobalLabels) {
@@ -101,25 +105,40 @@ class NESFilesToAssemble(val project: NESProject) : SimpleEventBroadcast(), File
         if (file !in files) return
         val before = callEvent(FileRemoveFromAssembleEvent.Before(file))
         if (before.isCancelled) return
-        val elements = files.remove(file)!!
+        files -= file
+        val elements = fileElements.remove(file)!!
         elements.filesToAssemble = null
         refreshDeletedFiles(file, elements)
         refreshGlobalLabels()
         callEvent(FileRemoveFromAssembleEvent.After(file))
     }
 
+    override fun moveFileToIndex(file: File, index: Int): Boolean {
+        if (!files.contains(file) || index !in 0 until files.size) return false
+        val old = files.indexOf(file)
+        val before = callEvent(FileIndexChangedFromAssembleEvent.Before(file, old, index))
+        if (before.isCancelled) return false
+        val newIndex = before.newIndex
+
+        if (index !in 0 until files.size) return false
+        files -= file
+        files.add(newIndex, file)
+        callEvent(FileIndexChangedFromAssembleEvent.After(file, old, newIndex))
+        return true
+    }
+
     override fun refreshGlobalLabels() {
         val requiresUpdate = HashSet(globalLabels)
 
         globalLabels.clear()
-        files.values.forEach { globalLabels.addAll(it.getExistingGlobalLabels()) }
+        fileElements.values.forEach { globalLabels.addAll(it.getExistingGlobalLabels()) }
         requiresUpdate += globalLabels
 
         val tab = JamsApplication.getProjectsTabPane().getProjectTab(project).orNull() ?: return
         val node = tab.projectTabPane.workingPane.center
         if (node !is FileEditorHolder) return
 
-        files.forEach { (file, elements) ->
+        fileElements.forEach { (file, elements) ->
             elements.searchForLabelsUpdates(requiresUpdate)
             val fileTab = node.getFileDisplayTab(file, true).orNull() ?: return@forEach
             val display = fileTab.display
@@ -145,12 +164,12 @@ class NESFilesToAssemble(val project: NESProject) : SimpleEventBroadcast(), File
     fun save(metadataFolder: File) {
         val json = JSONArray()
         val path = project.folder.toPath()
-        files.keys.map { path.relativize(it.toPath()) }.forEach { json.put(it) }
+        files.map { path.relativize(it.toPath()) }.forEach { json.put(it) }
         File(metadataFolder, FILE_NAME).writeText(json.toString(1))
     }
 
     override fun checkFiles() {
-        files.keys.filter { !it.isFile }.forEach { removeFile(it) }
+        files.filter { !it.isFile }.forEach { removeFile(it) }
     }
 
     private fun refreshDeletedFiles(file: File, elements: NESFileElements) {

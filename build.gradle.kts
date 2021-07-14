@@ -1,7 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.0"
+    kotlin("jvm") version "1.5.21"
+    kotlin("plugin.serialization") version "1.5.21"
     id("com.github.johnrengelman.shadow") version "2.0.4"
     id("org.openjfx.javafxplugin") version "0.0.9"
 }
@@ -22,6 +23,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
 
     implementation(files("lib/JAMS-0.2.jar"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
     implementation(group = "no.tornado", name = "tornadofx", version = "1.7.20")
 }
 

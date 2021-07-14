@@ -22,9 +22,36 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.data
+package io.github.gaeqs.nes4jams.gui.util.converter
 
-val NES4JAMS_DESCRIPTION = "NES4JAMS_DESCRIPTION"
-val NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY = "NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY"
-val NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS = "NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS"
-val NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP = "NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP"
+import io.github.gaeqs.nes4jams.memory.NESMemoryBank
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import net.jamsimulator.jams.gui.util.converter.ValueConverter
+import java.util.*
+
+class NESMemoryBankValueConverter private constructor() : ValueConverter<NESMemoryBank>() {
+
+    companion object {
+        val INSTANCE = NESMemoryBankValueConverter()
+        const val NAME = "nes_memory_bank"
+    }
+
+    override fun toString(value: NESMemoryBank): String {
+        return Json.encodeToString(value)
+    }
+
+    override fun fromStringSafe(raw: String): Optional<NESMemoryBank> {
+        return try {
+            Optional.of(Json.decodeFromString(raw))
+        } catch (ex: SerializationException) {
+            Optional.empty()
+        }
+    }
+
+    override fun conversionClass() = NESMemoryBank::class.java
+
+
+}

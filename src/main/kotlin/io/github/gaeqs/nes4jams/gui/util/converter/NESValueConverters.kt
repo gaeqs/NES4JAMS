@@ -22,9 +22,32 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.data
+package io.github.gaeqs.nes4jams.gui.util.converter
 
-val NES4JAMS_DESCRIPTION = "NES4JAMS_DESCRIPTION"
-val NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY = "NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY"
-val NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS = "NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS"
-val NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP = "NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP"
+import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
+import net.jamsimulator.jams.gui.util.converter.ValueConverters
+
+class NESValueConverters private constructor() {
+
+    companion object {
+
+        fun setupConverters() {
+            // NES MEMORY BANK
+            ValueConverters.addByType(NESMemoryBankValueConverter::class.java, NESMemoryBankValueConverter.INSTANCE)
+            ValueConverters.addByName(NESMemoryBankValueConverter.NAME, NESMemoryBankValueConverter.INSTANCE)
+
+            // NES MEMORY BANK COLLECTION
+            ValueConverters.addByType(
+                NESMemoryBankCollection::class.java,
+                NESMemoryBankCollectionValueConverter.INSTANCE
+            )
+            ValueConverters.addByName(
+                NESMemoryBankCollectionValueConverter.NAME,
+                NESMemoryBankCollectionValueConverter.INSTANCE
+            )
+
+        }
+
+    }
+
+}

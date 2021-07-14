@@ -124,7 +124,7 @@ class NESConfigurationListControls(val list: NESConfigurationList) : HBox() {
                     while (list.window.data.configurations.any { t -> t.name == name }) {
                         name = "$baseName (${amount++})"
                     }
-                    list.window.data.addConfiguration(NESSimulationConfiguration(name))
+                    list.window.data.addConfiguration(NESSimulationConfiguration(name, it.configuration))
                 }
             }
         }

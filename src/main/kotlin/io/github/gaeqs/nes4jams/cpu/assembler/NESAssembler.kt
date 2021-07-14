@@ -30,6 +30,7 @@ import io.github.gaeqs.nes4jams.utils.extension.toHex
 import net.jamsimulator.jams.gui.util.log.Log
 import net.jamsimulator.jams.mips.assembler.Macro
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
+import net.jamsimulator.jams.utils.RawFileData
 import kotlin.system.measureTimeMillis
 
 /**
@@ -137,7 +138,7 @@ import kotlin.system.measureTimeMillis
  * @param log the log or null. If present, information about the assembly will be written in this log.
  */
 class NESAssembler(
-    rawFiles: Map<String, String>,
+    rawFiles: Iterable<RawFileData>,
     bankBuilders: Iterable<NESMemoryBank>,
     val log: Log?
 ) {
@@ -145,7 +146,7 @@ class NESAssembler(
     /**
      * The files of this assembler. This list is immutable.
      */
-    val files = rawFiles.map { NESAssemblerFile(it.key, it.value, this) }
+    val files = rawFiles.map { NESAssemblerFile(it.file, it.data, this) }
 
     /**
      * The data bank of this assembler.

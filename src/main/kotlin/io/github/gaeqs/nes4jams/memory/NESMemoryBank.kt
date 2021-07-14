@@ -24,12 +24,33 @@
 
 package io.github.gaeqs.nes4jams.memory
 
-data class NESMemoryBank(val start: UShort, val size: UShort, val writable: Boolean)
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-class NESMemoryBankCollection(raw: Iterable<NESMemoryBank> = emptySet()) : ArrayList<NESMemoryBank>() {
+@Serializable
+data class NESMemoryBank(
+    @SerialName("bank_start") val start: UShort,
+    @SerialName("bank_size") val size: UShort,
+    @SerialName("writable") val writable: Boolean
+)
 
-    init {
-        addAll(raw)
-    }
+class NESMemoryBankCollection(raw: Iterable<NESMemoryBank> = emptyList()) : List<NESMemoryBank> {
 
+    private val list = raw.toList()
+
+    constructor(vararg values: NESMemoryBank) : this(values.toList())
+
+    override val size: Int = list.size
+    override fun contains(element: NESMemoryBank) = element in list
+    override fun containsAll(elements: Collection<NESMemoryBank>) = list.containsAll(elements)
+    override fun get(index: Int) = list[index]
+    override fun indexOf(element: NESMemoryBank) = list.indexOf(element)
+    override fun isEmpty() = list.isEmpty()
+    override fun iterator() = list.iterator()
+    override fun lastIndexOf(element: NESMemoryBank) = list.lastIndexOf(element)
+    override fun listIterator() = list.listIterator()
+    override fun listIterator(index: Int) = list.listIterator(index)
+    override fun subList(fromIndex: Int, toIndex: Int) = list.subList(fromIndex, toIndex)
+
+    operator fun plus(bank: NESMemoryBank) = NESMemoryBankCollection(list + bank)
 }

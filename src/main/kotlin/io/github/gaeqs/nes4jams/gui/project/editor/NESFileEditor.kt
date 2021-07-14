@@ -46,7 +46,7 @@ class NESFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
         val workingPane = tab.workingPane
         if (workingPane is NESStructurePane) {
             project = workingPane.project
-            elements = project.data.filesToAssemble.files[tab.file] ?: NESFileElements(project)
+            elements = project.data.filesToAssemble.fileElements[tab.file] ?: NESFileElements(project)
         } else {
             project = null
             elements = NESFileElements(null)

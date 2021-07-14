@@ -25,6 +25,8 @@
 package io.github.gaeqs.nes4jams
 
 import io.github.gaeqs.nes4jams.gui.project.editor.NESFileEditor
+import io.github.gaeqs.nes4jams.gui.util.converter.NESValueConverters
+import io.github.gaeqs.nes4jams.gui.util.value.NESValueEditors
 import io.github.gaeqs.nes4jams.project.NESProjectType
 import net.jamsimulator.jams.Jams
 import net.jamsimulator.jams.event.Listener
@@ -58,6 +60,10 @@ class NES4JAMS : Plugin() {
     private fun load() {
         loadLanguages()
         loadThemes()
+
+        NESValueConverters.setupConverters()
+        NESValueEditors.setupEditor()
+
         Jams.getProjectTypeManager() += NESProjectType.INSTANCE
         AssemblyFileType.INSTANCE.addBuilder(NESProjectType.INSTANCE) { NESFileEditor(it) }
         Jams.getLanguageManager().registerListeners(this, true)

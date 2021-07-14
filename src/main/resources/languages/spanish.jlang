@@ -2,3 +2,7 @@ Spanish
 
 NES4JAMS_DESCRIPTION=Entorno de desarrollo de NES para JAMS.
 NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY=Proyecto NES vacío.
+
+
+NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS=Bancos de memoria
+NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP=Los bancos de memoria son usados por el ensamblador para guardar datos en la ROM. Puedes cambiar entre bancos dentro de tu código con la directiva .bank. El ensamblador necesita como mínimo un banco de memoria para funcionar.

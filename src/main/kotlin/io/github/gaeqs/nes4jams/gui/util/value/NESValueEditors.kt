@@ -22,9 +22,23 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.data
+package io.github.gaeqs.nes4jams.gui.util.value
 
-val NES4JAMS_DESCRIPTION = "NES4JAMS_DESCRIPTION"
-val NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY = "NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY"
-val NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS = "NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS"
-val NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP = "NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP"
+import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
+import net.jamsimulator.jams.gui.util.value.ValueEditors
+
+class NESValueEditors private constructor() {
+
+    companion object {
+
+        fun setupEditor() {
+            // NES MEMORY BANK COLLECTION
+
+            val nesMemoryBankBuilder = NESMemoryBankCollectionValueEditor.Builder()
+            ValueEditors.addByType(NESMemoryBankCollection::class.java, nesMemoryBankBuilder)
+            ValueEditors.addByName(NESMemoryBankCollectionValueEditor.NAME, nesMemoryBankBuilder)
+        }
+
+    }
+
+}

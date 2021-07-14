@@ -24,6 +24,8 @@
 
 package io.github.gaeqs.nes4jams.project.configuration
 
+import io.github.gaeqs.nes4jams.data.NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS
+import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
 import net.jamsimulator.jams.language.Messages
 import net.jamsimulator.jams.utils.Validate
 import kotlin.reflect.KClass
@@ -53,6 +55,7 @@ data class NESSimulationConfigurationNodePreset(
     companion object {
         const val CALL_EVENTS = "call_events"
         const val UNDO_ENABLED = "undo_enabled"
+        const val MEMORY_BANKS = "memory_banks"
 
         val PRESETS = hashSetOf(
             NESSimulationConfigurationNodePreset(
@@ -69,6 +72,13 @@ data class NESSimulationConfigurationNodePreset(
                 Messages.SIMULATION_CONFIGURATION_ENABLE_UNDO,
                 true,
                 mapOf(CALL_EVENTS to arrayOf(true))
+            ),
+            NESSimulationConfigurationNodePreset(
+                MEMORY_BANKS,
+                NESMemoryBankCollection::class,
+                88,
+                NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS,
+                NESMemoryBankCollection()
             )
         )
     }

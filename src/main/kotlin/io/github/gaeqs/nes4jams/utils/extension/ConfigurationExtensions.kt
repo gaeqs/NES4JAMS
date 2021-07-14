@@ -22,9 +22,12 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.data
+package io.github.gaeqs.nes4jams.utils.extension
 
-val NES4JAMS_DESCRIPTION = "NES4JAMS_DESCRIPTION"
-val NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY = "NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY"
-val NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS = "NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS"
-val NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP = "NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP"
+import net.jamsimulator.jams.configuration.Configuration
+
+inline fun <reified T> Configuration.convertAndSet(key: String, value: T) =
+    convertAndSet(key, value, T::class.java)
+
+inline fun <reified T : Any> Configuration.getAndConvert(key: String) =
+    getAndConvert<T>(key, T::class.java).orNull()
