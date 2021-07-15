@@ -78,7 +78,8 @@ class NES4JAMS : Plugin() {
 
     private fun loadThemes() {
         val list = mutableListOf<InputStream>()
-        //resource("/themes/dark_theme.jtheme").ifPresent { list.add(it) }
+        resource("/gui/themes/dark_theme.jtheme").ifPresent { list.add(it) }
+        resource("/gui/themes/light_theme.jtheme").ifPresent { list.add(it) }
         JamsApplication.getThemeManager().loadThemes(list, true)
     }
 

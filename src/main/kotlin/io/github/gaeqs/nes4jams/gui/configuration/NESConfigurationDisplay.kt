@@ -29,7 +29,6 @@ import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfiguration
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationRefreshEvent
 import javafx.event.Event
 import javafx.geometry.Insets
-import javafx.geometry.Pos
 import javafx.scene.control.TextField
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
@@ -102,8 +101,9 @@ class NESConfigurationGeneral(val configuration: NESSimulationConfiguration) : V
     init {
         padding = Insets(5.0)
         spacing = 5.0
+        isFillWidth = true
         children += ConfigurationRegionDisplay(Messages.SIMULATION_CONFIGURATION_GENERAL_REGION)
-        representations.filter { it.isVisible }.forEach { children += it }
+        representations.filter { it.node.isVisible }.forEach { children += it.node }
         representations.forEach { it.refreshEnabled(representations) }
     }
 
@@ -112,23 +112,13 @@ class NESConfigurationGeneral(val configuration: NESSimulationConfiguration) : V
         representations.forEach { it.refreshEnabled(representations) }
     }
 
-    inner class Representation(val preset: NESSimulationConfigurationNodePreset, value: Any?) : HBox() {
+    inner class Representation(val preset: NESSimulationConfigurationNodePreset, value: Any?) {
 
         private val editor: ValueEditor<*> = ValueEditors.getByTypeUnsafe(preset.type.java).build()
+        val node = editor.buildConfigNode(LanguageLabel(preset.languageNode)
+            .apply { tooltip = LanguageTooltip(preset.languageNode + "_TOOLTIP") })
 
         init {
-            spacing = 5.0
-            alignment = Pos.CENTER_LEFT
-
-            val label = LanguageLabel(preset.languageNode)
-            label.tooltip = LanguageTooltip(preset.languageNode + "_TOOLTIP")
-
-            if (value is Boolean) {
-                label.setOnMouseClicked { editor.setCurrentValueUnsafe(!(editor.currentValue as Boolean)) }
-                children.addAll(editor.asNode, label)
-            } else {
-                children.addAll(label, editor.asNode)
-            }
             editor.setCurrentValueUnsafe(value)
             editor.addListener { update(preset, it) }
         }

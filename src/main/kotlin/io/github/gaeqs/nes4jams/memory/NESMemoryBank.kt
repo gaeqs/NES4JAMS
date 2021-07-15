@@ -53,4 +53,9 @@ class NESMemoryBankCollection(raw: Iterable<NESMemoryBank> = emptyList()) : List
     override fun subList(fromIndex: Int, toIndex: Int) = list.subList(fromIndex, toIndex)
 
     operator fun plus(bank: NESMemoryBank) = NESMemoryBankCollection(list + bank)
+    override fun toString(): String {
+        return "NESMemoryBankCollection$list"
+    }
+
+
 }

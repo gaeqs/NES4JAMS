@@ -27,4 +27,5 @@ package io.github.gaeqs.nes4jams.data
 import io.github.gaeqs.nes4jams.NES4JAMS
 import net.jamsimulator.jams.gui.image.icon.IconData
 
-val PLUGIN_ICON = IconData("nes4jams_icon", "/gui/icon/favicon.png", NES4JAMS.INSTANCE)
+val ICON_PLUGIN = IconData("nes4jams_plugin", "/gui/icons/favicon.png", NES4JAMS.INSTANCE)
+val ICON_DRAG = IconData("nes4jams_drag", "/gui/icons/drag.png", NES4JAMS.INSTANCE)

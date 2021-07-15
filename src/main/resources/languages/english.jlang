@@ -4,5 +4,9 @@ NES4JAMS_DESCRIPTION=NES developing environment for JAMS.
 NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY=Empty NES project.
 NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY=Empty NES project.
 
-NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS=Memory banks
+NES4JAMS_MEMORY_BANK_START=Start:
+NES4JAMS_MEMORY_BANK_SIZE=Size:
+NES4JAMS_MEMORY_BANK_WRITABLE=Writable:
+
+NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS=Memory banks:
 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP=The memory banks are used by the assembler to store the data into the ROM. You can change between banks in your code using the directive .bank. At least one memory bank is required for the assembler to work.

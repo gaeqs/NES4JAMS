@@ -24,15 +24,14 @@
 
 package io.github.gaeqs.nes4jams.gui.util.value
 
+import io.github.gaeqs.nes4jams.gui.util.converter.NESMemoryBankCollectionValueConverter
 import io.github.gaeqs.nes4jams.memory.NESMemoryBank
 import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
-import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.control.ListView
+import javafx.scene.input.DragEvent
 import javafx.scene.layout.HBox
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import net.jamsimulator.jams.gui.util.DraggableListCell
 import net.jamsimulator.jams.gui.util.value.ValueEditor
 import java.util.function.Consumer
@@ -41,24 +40,37 @@ class NESMemoryBankCollectionValueEditor : ListView<NESMemoryBank>(), ValueEdito
 
     companion object {
         const val NAME = "nes_memory_bank_collection"
+        const val STYLE_CLASS = "nes4jams-memory-bank-collection-value-editor"
     }
 
-    var listener: Consumer<NESMemoryBankCollection> = Consumer { }
-    var current = NESMemoryBankCollection()
+    private var listener: Consumer<NESMemoryBankCollection> = Consumer { }
+    private var current = NESMemoryBankCollection()
 
     init {
+        styleClass += STYLE_CLASS
         setCellFactory { Cell() }
+    }
+
+    private fun refreshValues() {
+        current = NESMemoryBankCollection(items)
+        listener.accept(current)
     }
 
     override fun getCurrentValue() = current
     override fun getAsNode() = this
-    override fun getLinkedConverter() = null
-    override fun buildConfigNode(label: Label) = HBox(label, this).apply { spacing = 5.0; alignment = Pos.CENTER_LEFT }
+    override fun getLinkedConverter() = NESMemoryBankCollectionValueConverter.INSTANCE
+    override fun buildConfigNode(label: Label) = HBox(label, this).apply {
+        spacing = 5.0;
+        alignment = Pos.CENTER_LEFT
+        this@NESMemoryBankCollectionValueEditor.prefWidthProperty()
+            .bind(widthProperty().subtract(label.widthProperty()).subtract(30.0))
+    }
 
     override fun setCurrentValue(collection: NESMemoryBankCollection) {
         current = collection
         items.clear()
         items += collection
+        listener.accept(current)
     }
 
     override fun addListener(consumer: Consumer<NESMemoryBankCollection>) {
@@ -69,7 +81,19 @@ class NESMemoryBankCollectionValueEditor : ListView<NESMemoryBank>(), ValueEdito
 
         override fun updateItem(item: NESMemoryBank?, empty: Boolean) {
             super.updateItem(item, empty)
-            graphic = if (item == null) null else Label(item.toString())
+            graphic =
+                if (item == null) null else NESMemoryBankValueEditor(drag = true).apply {
+                    setCurrentValueUnsafe(item)
+                    this.addListener {
+                        items[index] = it
+                        refreshValues()
+                    }
+                }
+        }
+
+        override fun onDragDropped(event: DragEvent?) {
+            super.onDragDropped(event)
+            refreshValues()
         }
 
     }

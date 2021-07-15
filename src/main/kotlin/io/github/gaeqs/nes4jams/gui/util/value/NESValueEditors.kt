@@ -24,6 +24,8 @@
 
 package io.github.gaeqs.nes4jams.gui.util.value
 
+import io.github.gaeqs.nes4jams.gui.util.converter.NESMemoryBankValueConverter
+import io.github.gaeqs.nes4jams.memory.NESMemoryBank
 import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
 import net.jamsimulator.jams.gui.util.value.ValueEditors
 
@@ -32,11 +34,15 @@ class NESValueEditors private constructor() {
     companion object {
 
         fun setupEditor() {
-            // NES MEMORY BANK COLLECTION
+            // NES MEMORY BANK
+            val nesMemoryBankBuilder = NESMemoryBankValueEditor.Builder()
+            ValueEditors.addByType(NESMemoryBank::class.java, nesMemoryBankBuilder)
+            ValueEditors.addByName(NESMemoryBankValueConverter.NAME, nesMemoryBankBuilder)
 
-            val nesMemoryBankBuilder = NESMemoryBankCollectionValueEditor.Builder()
-            ValueEditors.addByType(NESMemoryBankCollection::class.java, nesMemoryBankBuilder)
-            ValueEditors.addByName(NESMemoryBankCollectionValueEditor.NAME, nesMemoryBankBuilder)
+            // NES MEMORY BANK COLLECTION
+            val nesMemoryBankCollectionBuilder = NESMemoryBankCollectionValueEditor.Builder()
+            ValueEditors.addByType(NESMemoryBankCollection::class.java, nesMemoryBankCollectionBuilder)
+            ValueEditors.addByName(NESMemoryBankCollectionValueEditor.NAME, nesMemoryBankCollectionBuilder)
         }
 
     }

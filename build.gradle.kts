@@ -22,7 +22,7 @@ javafx {
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
 
-    implementation(files("lib/JAMS-0.2.jar"))
+    implementation(files("lib/JAMS.jar"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
     implementation(group = "no.tornado", name = "tornadofx", version = "1.7.20")
 }
@@ -36,8 +36,19 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    exclude("JAMS-0.2.jar")
+    exclude("JAMS.jar")
     dependencies {
         exclude(dependency("org.openjfx::"))
+    }
+}
+
+task("shadowAndRun") {
+    dependsOn("shadowJar")
+    doLast{
+        javaexec {
+            main="-jar"
+            args = listOf("lib/JAMS.jar", "-loadPlugin", "build/libs/NES4JAMS-$version.jar")
+        }
+        println(file("lib/JAMS").absolutePath)
     }
 }

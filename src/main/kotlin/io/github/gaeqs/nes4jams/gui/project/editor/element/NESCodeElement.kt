@@ -24,7 +24,7 @@
 
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
-import io.github.gaeqs.nes4jams.utils.extension.DEFAULT_LANGUAGE
+import io.github.gaeqs.nes4jams.utils.extension.SELECTED_LANGUAGE
 import io.github.gaeqs.nes4jams.utils.extension.get
 import net.jamsimulator.jams.language.Language
 
@@ -34,7 +34,7 @@ abstract class NESCodeElement(val line: NESLine, val text: String, var startInde
     abstract val simpleText: String
     abstract val styles: List<String>
 
-    val translatedName get() = getTranslatedName(DEFAULT_LANGUAGE)
+    val translatedName get() = getTranslatedName(SELECTED_LANGUAGE)
 
     fun getTranslatedName(language: Language): String {
         return language[translatedNameNode]

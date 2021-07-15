@@ -24,7 +24,7 @@
 
 package io.github.gaeqs.nes4jams.project
 
-import io.github.gaeqs.nes4jams.data.PLUGIN_ICON
+import io.github.gaeqs.nes4jams.data.ICON_PLUGIN
 import io.github.gaeqs.nes4jams.utils.extension.orNull
 import net.jamsimulator.jams.gui.image.icon.IconManager
 import net.jamsimulator.jams.project.ProjectType
@@ -34,7 +34,7 @@ class NESProjectType private constructor() : ProjectType<NESProject>(NAME, ICON)
 
     companion object {
         const val NAME = "NES"
-        val ICON = IconManager.INSTANCE.getOrLoadSafe(PLUGIN_ICON).orNull()
+        val ICON = IconManager.INSTANCE.getOrLoadSafe(ICON_PLUGIN).orNull()
         val INSTANCE = NESProjectType();
     }
 
