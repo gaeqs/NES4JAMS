@@ -50,6 +50,32 @@ data class CartridgeHeader(
     var flag15: UByte,
 ) {
 
+    constructor(ines2: Boolean) : this("NES\u001A",
+        0u,
+        0u,
+        0u,
+        if (ines2) 0x08u else 0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+    ) {
+        mirroring = Mirror.VERTICAL
+        mapper = 0u
+        consoleType = ConsoleType.NES
+        tvType = TVType.NTSC
+        hasBatteryComponents = false
+        hasTrainerData = false
+        hardWiredFourScreenMode = false
+        subMapper = 0u
+        setPrgRomBanks(1u)
+        setChrRomBanks(1u)
+    }
+
     constructor(inputStream: InputStream) : this(
         String(inputStream.readNBytes(4), 0, 4, StandardCharsets.US_ASCII),
         inputStream.read().toUByte(),

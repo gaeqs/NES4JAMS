@@ -52,7 +52,7 @@ class NESDirectiveSnapshot(val line: NESAssemblerLine, var address: UShort?, val
 
         directive = NESDirective.DIRECTIVES[mnemonic.lowercase()]
         if (directive == null) {
-            line.file.assembler.log?.printWarning("Couldn't find directive .$mnemonic!")
+            line.file.assembler.log?.printWarningLn("Couldn't find directive .$mnemonic!")
         }
     }
 
@@ -74,7 +74,7 @@ class NESDirectiveSnapshot(val line: NESAssemblerLine, var address: UShort?, val
     }
 
     fun callFourthPass() {
-        directive?.fourthPassExecute(line.file, line.index, address!!, parameters)
+        directive?.fourthPassExecute(line.file, line.index, address, parameters)
     }
 
 }

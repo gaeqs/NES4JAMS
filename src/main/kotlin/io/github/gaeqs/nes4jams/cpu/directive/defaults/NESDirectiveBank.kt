@@ -59,7 +59,7 @@ class NESDirectiveBank : NESDirective(NAME) {
     override fun fourthPassExecute(
         file: NESAssemblerFile,
         lineNumber: Int,
-        address: UShort,
+        address: UShort?,
         parameters: Array<String>
     ) {
     }

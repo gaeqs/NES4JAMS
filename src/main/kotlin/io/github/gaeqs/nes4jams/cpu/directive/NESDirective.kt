@@ -51,7 +51,7 @@ abstract class NESDirective(val mnemonic: String) {
     abstract fun fourthPassExecute(
         file: NESAssemblerFile,
         lineNumber: Int,
-        address: UShort,
+        address: UShort?,
         parameters: Array<String>
     )
 

@@ -24,19 +24,70 @@
 
 package io.github.gaeqs.nes4jams.project
 
+import io.github.gaeqs.nes4jams.cpu.assembler.NESAssembler
 import io.github.gaeqs.nes4jams.gui.project.NESStructurePane
+import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfigurationNodePreset
 import javafx.scene.control.Tab
 import net.jamsimulator.jams.gui.project.ProjectTab
 import net.jamsimulator.jams.gui.project.WorkingPane
 import net.jamsimulator.jams.gui.util.log.Log
+import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 import net.jamsimulator.jams.project.BasicProject
 import net.jamsimulator.jams.project.ProjectType
+import net.jamsimulator.jams.utils.RawFileData
 import java.io.File
+import kotlin.system.measureTimeMillis
 
 class NESProject(folder: File) : BasicProject(folder, true) {
 
-    override fun generateSimulation(p0: Log?) {
-        TODO("Not yet implemented")
+    fun assembleToFile(log: Log?) {
+        val configuration = getData().selectedConfiguration
+        if (configuration == null) {
+            log?.printErrorLn("Error! Configuration not found!")
+            throw AssemblerException("Configuration not found.")
+        }
+
+        log?.printInfoLn("Assembling NES project ${data.name} using configuration ${configuration.name}")
+        log?.println()
+        log?.printInfoLn("Files:")
+
+        val rootPath = folder.toPath()
+        val files = getData().filesToAssemble.files.map {
+            try {
+                log?.printInfoLn("- ${it.absolutePath}")
+                RawFileData(it, rootPath)
+            } catch (ex: Exception) {
+                throw AssemblerException("Error while loading file $it.", ex)
+            }
+        }
+
+        val millis = measureTimeMillis {
+            val assembler = NESAssembler(
+                files,
+                configuration.getNodeValue(NESSimulationConfigurationNodePreset.MEMORY_BANKS)!!,
+                log
+            )
+
+            log?.println()
+            log?.printInfoLn("Assembling...")
+            assembler.assemble()
+            log?.printDoneLn("Done! Writing to file...")
+
+            val header = configuration.generateCartridgeHeader()
+
+            val out = File(data.metadataFolder, "$name.nes").outputStream()
+            out.write(header.toByteArray())
+            assembler.banks.forEach { out.write(it.array.toByteArray()) }
+            //out.write(chrMemory)
+            out.close()
+        }
+
+        log?.printInfoLn("Assembly successful in $millis ms.")
+        return
+    }
+
+    override fun generateSimulation(log: Log?) {
+        assembleToFile(log)
     }
 
     override fun onClose() {

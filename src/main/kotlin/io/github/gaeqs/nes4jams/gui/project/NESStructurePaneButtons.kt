@@ -31,15 +31,19 @@ import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigu
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationRemoveEvent
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationSelectEvent
 import io.github.gaeqs.nes4jams.utils.extension.orNull
+import javafx.application.Platform
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
+import net.jamsimulator.jams.Jams
 import net.jamsimulator.jams.event.Listener
 import net.jamsimulator.jams.gui.JamsApplication
 import net.jamsimulator.jams.gui.action.defaults.general.GeneralActionAssemble
+import net.jamsimulator.jams.gui.bar.BarButton
 import net.jamsimulator.jams.gui.image.NearestImageView
 import net.jamsimulator.jams.gui.image.icon.Icons
 import net.jamsimulator.jams.gui.util.FixedButton
+import net.jamsimulator.jams.gui.util.log.Log
 
 class NESStructurePaneButtons(val project: NESProject) {
 
@@ -57,7 +61,8 @@ class NESStructurePaneButtons(val project: NESProject) {
         this.nodes = nodes
         this.configBox = ComboBox()
 
-        // Assemble button
+        // Run and assemble button
+        nodes += createRunButton()
         nodes += createAssembleButton()
 
         // Config box
@@ -73,12 +78,21 @@ class NESStructurePaneButtons(val project: NESProject) {
         project.data.registerListeners(this, true)
     }
 
+    private fun createRunButton(): Button {
+        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.SIMULATION_PLAY).orNull()
+        val assemble =
+            FixedButton("", NearestImageView(icon, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE), BUTTON_SIZE, BUTTON_SIZE)
+        assemble.styleClass += BUTTON_STYLE_CLASS
+        assemble.setOnAction { GeneralActionAssemble.compileAndShow(project) }
+        return assemble
+    }
+
     private fun createAssembleButton(): Button {
         val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.PROJECT_ASSEMBLE).orNull()
         val assemble =
             FixedButton("", NearestImageView(icon, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE), BUTTON_SIZE, BUTTON_SIZE)
         assemble.styleClass += BUTTON_STYLE_CLASS
-        assemble.setOnAction { GeneralActionAssemble.compileAndShow(project) }
+        assemble.setOnAction { assembleOnly() }
         return assemble
     }
 
@@ -89,6 +103,32 @@ class NESStructurePaneButtons(val project: NESProject) {
         settings.styleClass += BUTTON_STYLE_CLASS
         settings.setOnAction { NESConfigurationWindow.open(project.data) }
         return settings
+    }
+
+    private fun assembleOnly() {
+        val tab = project.projectTab.orNull() ?: return
+        val thread = Thread {
+            val pane = tab.projectTabPane.workingPane
+            pane.saveAllOpenedFiles()
+            if (Jams.getMainConfiguration().getOrElse("simulation.open_log_on_assemble", true)) {
+                Platform.runLater {
+                    pane.barMap.searchButton("log").ifPresent { obj: BarButton -> obj.show() }
+                }
+            }
+            val log = pane.barMap.getSnapshotNodeOfType(Log::class.java)
+            try {
+                project.assembleToFile(log.orNull())
+            } catch (var5: Exception) {
+                if (log.isPresent) {
+                    (log.get()).printErrorLn("ERROR:")
+                    (log.get()).printErrorLn(var5.message)
+                }
+                var5.printStackTrace()
+            }
+        }
+
+        thread.name = "Assembler"
+        thread.start()
     }
 
     @Listener

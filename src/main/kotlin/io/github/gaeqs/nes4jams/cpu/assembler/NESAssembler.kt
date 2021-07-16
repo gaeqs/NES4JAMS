@@ -287,13 +287,13 @@ class NESAssembler(
     fun assemble() {
         if (assembled) throw AssemblerException("The code was already assembled.")
         val duration = measureTimeMillis {
-            log?.printInfo("Scanning metadata...")
+            log?.printInfoLn("Scanning metadata...")
             files.forEach { it.scanMetadata() }
-            log?.printInfo("Executing macros...")
+            log?.printInfoLn("Executing macros...")
             files.forEach { it.executeMacros() }
-            log?.printInfo("Assigning addresses...")
+            log?.printInfoLn("Assigning addresses...")
             files.forEach { it.assignAddresses() }
-            log?.printInfo("Assigning values...")
+            log?.printInfoLn("Assigning values...")
             files.forEach { it.assignValues() }
         }
         log?.printDone("${files.size} files assembled in $duration milliseconds.")

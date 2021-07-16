@@ -91,10 +91,15 @@ class NESInstructionSnapshot(val line: NESAssemblerLine, var address: UShort?, v
     }
 
     fun calculateFinalValue(): Value {
-        if (value != null) return value!!
-        val (value, _) = line.file.evaluate(expression)
-        this.value = value
-        return value ?: throw AssemblerException(line.index, "Couldn't parse value for expression $expression!")
+        try {
+            if (value != null) return value!!
+            val (value, _) = line.file.evaluate(expression)
+            this.value = value
+            return value ?: throw AssemblerException(line.index, "Couldn't parse value for expression $expression!")
+        } catch (ex : UninitializedPropertyAccessException) {
+            println("Instruction : $mnemonic $parameters ($addressingMode)")
+            throw ex
+        }
     }
 
     fun writeValue() {

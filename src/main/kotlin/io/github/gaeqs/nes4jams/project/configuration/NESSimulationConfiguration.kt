@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams.project.configuration
 
+import io.github.gaeqs.nes4jams.cartridge.CartridgeHeader
 import net.jamsimulator.jams.configuration.Configuration
 import net.jamsimulator.jams.gui.util.converter.ValueConverters
 import net.jamsimulator.jams.utils.Validate
@@ -102,6 +103,14 @@ class NESSimulationConfiguration {
             nodes[preset] = value
         }
         return true
+    }
+
+    fun generateCartridgeHeader(): CartridgeHeader {
+        val header = CartridgeHeader(true)
+
+        //TODO
+
+        return header
     }
 
     fun save(configuration: Configuration, prefix: String) {

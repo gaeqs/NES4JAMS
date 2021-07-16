@@ -54,13 +54,13 @@ class NESDirectiveDb : NESDirective(NAME) {
     override fun fourthPassExecute(
         file: NESAssemblerFile,
         lineNumber: Int,
-        address: UShort,
+        address: UShort?,
         parameters: Array<String>
     ) {
         parameters.forEachIndexed { index, string ->
             val (value, _) = file.evaluate(string)
             if (value == null) throw AssemblerException(lineNumber, "Couldn't parse expression $string!")
-            file.assembler.write(lineNumber, (address + index.toUInt()).toUShort(), value.value.toUByte())
+            file.assembler.write(lineNumber, (address!! + index.toUInt()).toUShort(), value.value.toUByte())
         }
     }
 
