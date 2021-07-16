@@ -31,7 +31,8 @@ import kotlinx.serialization.Serializable
 data class NESMemoryBank(
     @SerialName("bank_start") val start: UShort,
     @SerialName("bank_size") val size: UShort,
-    @SerialName("writable") val writable: Boolean
+    @SerialName("writable") val writable: Boolean,
+    @SerialName("write_on_cartridge") val writeOnCartridge: Boolean
 )
 
 class NESMemoryBankCollection(raw: Iterable<NESMemoryBank> = emptyList()) : List<NESMemoryBank> {

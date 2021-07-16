@@ -151,7 +151,7 @@ class NESAssembler(
     /**
      * The data bank of this assembler.
      */
-    val dataBank = NESAssemblerMemoryBank(-1, 0u, 0x8000u, false)
+    val dataBank = NESAssemblerMemoryBank(-1, 0u, 0x8000u, false, false)
 
     /**
      * The memory banks of this assembler. This list is immutable.
@@ -296,7 +296,7 @@ class NESAssembler(
             log?.printInfoLn("Assigning values...")
             files.forEach { it.assignValues() }
         }
-        log?.printDone("${files.size} files assembled in $duration milliseconds.")
+        log?.printDoneLn("${files.size} files assembled in $duration milliseconds.")
         assembled = true
     }
 

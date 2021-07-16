@@ -31,13 +31,20 @@ import io.github.gaeqs.nes4jams.utils.extension.concatenate
 import io.github.gaeqs.nes4jams.utils.extension.toHex
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 
-class NESAssemblerMemoryBank(val id: Int, val start: UShort, val size: UShort, val writable: Boolean) {
+class NESAssemblerMemoryBank(
+    val id: Int,
+    val start: UShort,
+    val size: UShort,
+    val writable: Boolean,
+    val writeOnCartridge: Boolean
+) {
 
     constructor(id: Int, builder: NESMemoryBank) : this(
         id,
         builder.start,
         builder.size,
-        builder.writable
+        builder.writable,
+        builder.writeOnCartridge
     )
 
     var pointer = start

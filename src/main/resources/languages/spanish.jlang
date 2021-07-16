@@ -6,6 +6,7 @@ NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY=Proyecto NES vacío.
 NES4JAMS_MEMORY_BANK_START=Inicio:
 NES4JAMS_MEMORY_BANK_SIZE=Tamaño:
 NES4JAMS_MEMORY_BANK_WRITABLE=Escribible:
+NES4JAMS_MEMORY_BANK_WRITE_ON_CARTRIDGE=En cartucho:
 
 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS=Bancos de memoria:
 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP=Los bancos de memoria son usados por el ensamblador para guardar datos en la ROM. Puedes cambiar entre bancos dentro de tu código con la directiva .bank. El ensamblador necesita como mínimo un banco de memoria para funcionar.

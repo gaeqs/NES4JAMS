@@ -61,7 +61,7 @@ class NESMemoryBankCollectionValueEditor : ListView<NESMemoryBank>(), ValueEdito
         setCellFactory { Cell() }
 
         // Dummy element. Represents the addition button.
-        items += NESMemoryBank(0u, 0u, false)
+        items += NESMemoryBank(0u, 0u, false, false)
     }
 
     private fun refreshValues() {
@@ -86,7 +86,7 @@ class NESMemoryBankCollectionValueEditor : ListView<NESMemoryBank>(), ValueEdito
         items += collection
 
         // Dummy element. Represents the addition button.
-        items += NESMemoryBank(0u, 0u, false)
+        items += NESMemoryBank(0u, 0u, false, false)
 
         listener.accept(current)
     }
@@ -107,7 +107,7 @@ class NESMemoryBankCollectionValueEditor : ListView<NESMemoryBank>(), ValueEdito
                 }
                 else -> {
                     isDraggable = true
-                    NESMemoryBankValueEditor().apply {
+                    NESMemoryBankValueEditor(false).apply {
                         children.add(0, NearestImageView(DRAG_ICON, ICON_SIZE, ICON_SIZE))
                         children += createRemoveButton()
                         setCurrentValueUnsafe(item)
@@ -140,7 +140,7 @@ class NESMemoryBankCollectionValueEditor : ListView<NESMemoryBank>(), ValueEdito
             button.styleClass += "dark-2-bold-button"
             button.cursor = Cursor.HAND
             button.setOnAction {
-                items.add(items.size - 1, NESMemoryBank(0u, 0u, true))
+                items.add(items.size - 1, NESMemoryBank(0u, 0u, true, true))
                 refreshValues()
             }
             return HBox(button).apply { alignment = Pos.CENTER }

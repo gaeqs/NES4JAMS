@@ -27,6 +27,7 @@ package io.github.gaeqs.nes4jams.gui.util.value
 import io.github.gaeqs.nes4jams.data.NES4JAMS_MEMORY_BANK_SIZE
 import io.github.gaeqs.nes4jams.data.NES4JAMS_MEMORY_BANK_START
 import io.github.gaeqs.nes4jams.data.NES4JAMS_MEMORY_BANK_WRITABLE
+import io.github.gaeqs.nes4jams.data.NES4JAMS_MEMORY_BANK_WRITE_ON_CARTRIDGE
 import io.github.gaeqs.nes4jams.gui.util.converter.NESMemoryBankValueConverter
 import io.github.gaeqs.nes4jams.memory.NESMemoryBank
 import javafx.geometry.Pos
@@ -39,26 +40,31 @@ import net.jamsimulator.jams.gui.util.value.ValueEditor
 import net.jamsimulator.jams.language.wrapper.LanguageLabel
 import java.util.function.Consumer
 
-class NESMemoryBankValueEditor() : HBox(), ValueEditor<NESMemoryBank> {
+class NESMemoryBankValueEditor(showWritable: Boolean = true) : HBox(), ValueEditor<NESMemoryBank> {
     companion object {
         const val NAME = "nes_memory_bank"
         const val STYLE_CLASS = "nes4jams-memory-bank-value-editor"
     }
 
     private var listener: Consumer<NESMemoryBank> = Consumer { }
-    private var current = NESMemoryBank(0u, 0u, true)
+    private var current = NESMemoryBank(0u, 0u, true, true)
 
     private val start = RangedIntegerValueEditor()
     private val size = RangedIntegerValueEditor()
     private val writable = CheckBox().apply { isSelected = true; cursor = Cursor.HAND }
+    private val writeOnCartridge = CheckBox().apply { isSelected = true; cursor = Cursor.HAND }
 
     init {
         styleClass += STYLE_CLASS
         children.addAll(
             LanguageLabel(NES4JAMS_MEMORY_BANK_START), start,
             LanguageLabel(NES4JAMS_MEMORY_BANK_SIZE), size,
-            LanguageLabel(NES4JAMS_MEMORY_BANK_WRITABLE), writable
+            LanguageLabel(NES4JAMS_MEMORY_BANK_WRITE_ON_CARTRIDGE), writeOnCartridge
         )
+
+        if (showWritable) {
+            children.addAll(LanguageLabel(NES4JAMS_MEMORY_BANK_WRITABLE), writable)
+        }
 
         start.currentValue = current.start.toInt()
         size.currentValue = current.size.toInt()
@@ -71,10 +77,16 @@ class NESMemoryBankValueEditor() : HBox(), ValueEditor<NESMemoryBank> {
         start.addListener { refreshValue() }
         size.addListener { refreshValue() }
         writable.selectedProperty().addListener { _, _, _ -> refreshValue() }
+        writeOnCartridge.selectedProperty().addListener { _, _, _ -> refreshValue() }
     }
 
     private fun refreshValue() {
-        current = NESMemoryBank(start.currentValue.toUShort(), size.currentValue.toUShort(), writable.isSelected)
+        current = NESMemoryBank(
+            start.currentValue.toUShort(),
+            size.currentValue.toUShort(),
+            writable.isSelected,
+            writeOnCartridge.isSelected
+        )
         listener.accept(current)
     }
 
@@ -89,6 +101,7 @@ class NESMemoryBankValueEditor() : HBox(), ValueEditor<NESMemoryBank> {
         start.text = current.start.toString()
         size.text = current.size.toString()
         writable.isSelected = current.writable
+        writeOnCartridge.isSelected = current.writeOnCartridge
         listener.accept(current)
     }
 

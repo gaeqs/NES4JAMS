@@ -44,11 +44,25 @@ tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
 
 task("shadowAndRun") {
     dependsOn("shadowJar")
-    doLast{
+    doLast {
         javaexec {
-            main="-jar"
+            main = "-jar"
             args = listOf("lib/JAMS.jar", "-loadPlugin", "build/libs/NES4JAMS-$version.jar")
         }
-        println(file("lib/JAMS").absolutePath)
     }
+}
+
+task("shadowAndRunWithDebugger") {
+    dependsOn("shadowJar")
+
+    doLast {
+        javaexec {
+            debugOptions {
+                enabled.value(true)
+            }
+            main = "-jar"
+            args = listOf("lib/JAMS.jar", "-loadPlugin", "build/libs/NES4JAMS-$version.jar")
+        }
+    }
+    println(file("lib/JAMS").absolutePath)
 }

@@ -309,12 +309,11 @@ class NESAssemblerFile(val name: String, rawData: String, val assembler: NESAsse
                 if (it.label != null) {
                     assignLabelQueue += it.label
                 }
-                return
-            }
-
-            it.label?.address = address
-            while (!assignLabelQueue.isEmpty()) {
-                assignLabelQueue.poll().address = address
+            } else {
+                it.label?.address = address
+                while (!assignLabelQueue.isEmpty()) {
+                    assignLabelQueue.poll().address = address
+                }
             }
         }
     }

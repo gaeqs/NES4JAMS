@@ -75,14 +75,14 @@ class NESProject(folder: File) : BasicProject(folder, true) {
 
             val header = configuration.generateCartridgeHeader()
 
-            val out = File(data.metadataFolder, "$name.nes").outputStream()
+            val out = File(data.filesFolder, "$name.nes").outputStream()
             out.write(header.toByteArray())
-            assembler.banks.forEach { out.write(it.array.toByteArray()) }
+            assembler.banks.forEach { if (it.writeOnCartridge) out.write(it.array.toByteArray()) }
             //out.write(chrMemory)
             out.close()
         }
 
-        log?.printInfoLn("Assembly successful in $millis ms.")
+        log?.printDoneLn("Assembly successful in $millis ms.")
         return
     }
 
