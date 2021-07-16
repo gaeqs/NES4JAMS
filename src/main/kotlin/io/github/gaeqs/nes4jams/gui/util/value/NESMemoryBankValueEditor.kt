@@ -24,30 +24,25 @@
 
 package io.github.gaeqs.nes4jams.gui.util.value
 
-import io.github.gaeqs.nes4jams.data.ICON_DRAG
 import io.github.gaeqs.nes4jams.data.NES4JAMS_MEMORY_BANK_SIZE
 import io.github.gaeqs.nes4jams.data.NES4JAMS_MEMORY_BANK_START
 import io.github.gaeqs.nes4jams.data.NES4JAMS_MEMORY_BANK_WRITABLE
 import io.github.gaeqs.nes4jams.gui.util.converter.NESMemoryBankValueConverter
 import io.github.gaeqs.nes4jams.memory.NESMemoryBank
-import io.github.gaeqs.nes4jams.utils.extension.orNull
 import javafx.geometry.Pos
 import javafx.scene.Cursor
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
-import net.jamsimulator.jams.gui.JamsApplication
-import net.jamsimulator.jams.gui.image.NearestImageView
 import net.jamsimulator.jams.gui.util.value.RangedIntegerValueEditor
 import net.jamsimulator.jams.gui.util.value.ValueEditor
 import net.jamsimulator.jams.language.wrapper.LanguageLabel
 import java.util.function.Consumer
 
-class NESMemoryBankValueEditor(drag: Boolean = false) : HBox(), ValueEditor<NESMemoryBank> {
+class NESMemoryBankValueEditor() : HBox(), ValueEditor<NESMemoryBank> {
     companion object {
         const val NAME = "nes_memory_bank"
         const val STYLE_CLASS = "nes4jams-memory-bank-value-editor"
-        const val ICON_SIZE = 20.0
     }
 
     private var listener: Consumer<NESMemoryBank> = Consumer { }
@@ -59,10 +54,6 @@ class NESMemoryBankValueEditor(drag: Boolean = false) : HBox(), ValueEditor<NESM
 
     init {
         styleClass += STYLE_CLASS
-        if (drag) {
-            val icon = JamsApplication.getIconManager().getOrLoadSafe(ICON_DRAG).orNull()
-            children += NearestImageView(icon, ICON_SIZE, ICON_SIZE)
-        }
         children.addAll(
             LanguageLabel(NES4JAMS_MEMORY_BANK_START), start,
             LanguageLabel(NES4JAMS_MEMORY_BANK_SIZE), size,

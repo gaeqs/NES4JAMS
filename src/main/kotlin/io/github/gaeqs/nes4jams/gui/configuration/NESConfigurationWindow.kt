@@ -74,7 +74,7 @@ class NESConfigurationWindow(val data: NESProjectData) : SplitPane() {
 
     init {
         items.addAll(list, displayGroup)
-        Platform.runLater { setDividerPosition(0, 0.3) }
+        Platform.runLater { setDividerPosition(0, 0.23) }
         list.contents.selectFirst()
     }
 
