@@ -25,6 +25,7 @@
 package io.github.gaeqs.nes4jams.project
 
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssembler
+import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerMemoryBank
 import io.github.gaeqs.nes4jams.gui.project.NESStructurePane
 import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfigurationNodePreset
 import javafx.scene.control.Tab
@@ -36,6 +37,7 @@ import net.jamsimulator.jams.project.BasicProject
 import net.jamsimulator.jams.project.ProjectType
 import net.jamsimulator.jams.utils.RawFileData
 import java.io.File
+import java.io.OutputStream
 import kotlin.system.measureTimeMillis
 
 class NESProject(folder: File) : BasicProject(folder, true) {
@@ -76,14 +78,40 @@ class NESProject(folder: File) : BasicProject(folder, true) {
             val header = configuration.generateCartridgeHeader()
 
             val out = File(data.filesFolder, "$name.nes").outputStream()
+            val (banksAmount, extra) = calculateProgramBanks(assembler.banks)
+            header.setPrgRomBanks(banksAmount.toUShort())
+
             out.write(header.toByteArray())
-            assembler.banks.forEach { if (it.writeOnCartridge) out.write(it.array.toByteArray()) }
+            writeProgram(out, assembler.banks, extra)
             //out.write(chrMemory)
             out.close()
         }
 
         log?.printDoneLn("Assembly successful in $millis ms.")
         return
+    }
+
+    private fun calculateProgramBanks(banks: Iterable<NESAssemblerMemoryBank>): Pair<Int, Int> {
+        val total = banks.filter { it.writeOnCartridge }.sumOf { it.array.size }
+        val banksAmount = total shr 14
+        val extra = total - (banksAmount shl 14)
+        return if (extra > 0) Pair(banksAmount + 1, extra) else Pair(banksAmount, 0)
+    }
+
+    private fun writeProgram(
+        out: OutputStream,
+        banks: Iterable<NESAssemblerMemoryBank>,
+        extra: Int
+    ) {
+        var total = 0
+        banks.filter { it.writeOnCartridge }.forEach {
+            out.write(it.array.toByteArray())
+            total += it.array.size
+        }
+
+        if (extra > 0) {
+            repeat(0x4000 - extra) { out.write(0) }
+        }
     }
 
     override fun generateSimulation(log: Log?) {

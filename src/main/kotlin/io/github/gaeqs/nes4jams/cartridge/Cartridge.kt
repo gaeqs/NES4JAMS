@@ -24,5 +24,9 @@
 
 package io.github.gaeqs.nes4jams.cartridge
 
-class Cartridge {
+import java.io.File
+
+class Cartridge(val file: File) {
+
+
 }
