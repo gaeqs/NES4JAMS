@@ -26,7 +26,7 @@ package io.github.gaeqs.nes4jams.project
 
 import io.github.gaeqs.nes4jams.gui.project.editor.NESFileEditor
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESFileElements
-import io.github.gaeqs.nes4jams.utils.extension.orNull
+import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.application.Platform
 import net.jamsimulator.jams.collection.Bag
 import net.jamsimulator.jams.event.SimpleEventBroadcast

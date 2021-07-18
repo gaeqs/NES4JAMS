@@ -29,7 +29,7 @@ import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESCodeElement
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorDirective
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorInstruction
-import io.github.gaeqs.nes4jams.utils.extension.orNull
+import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.application.Platform
 import net.jamsimulator.jams.gui.JamsApplication
 import net.jamsimulator.jams.gui.editor.popup.AutocompletionPopup

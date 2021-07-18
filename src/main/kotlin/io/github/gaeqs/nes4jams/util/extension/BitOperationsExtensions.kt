@@ -22,7 +22,7 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.utils.extension
+package io.github.gaeqs.nes4jams.util.extension
 
 
 fun UByte.isZero(): Boolean {

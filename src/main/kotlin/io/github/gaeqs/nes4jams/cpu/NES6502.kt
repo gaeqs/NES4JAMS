@@ -26,10 +26,10 @@ package io.github.gaeqs.nes4jams.cpu
 
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAssembledInstruction
-import io.github.gaeqs.nes4jams.utils.extension.concatenate
-import io.github.gaeqs.nes4jams.utils.extension.isZero
-import io.github.gaeqs.nes4jams.utils.extension.shl
-import io.github.gaeqs.nes4jams.utils.extension.shr
+import io.github.gaeqs.nes4jams.util.extension.concatenate
+import io.github.gaeqs.nes4jams.util.extension.isZero
+import io.github.gaeqs.nes4jams.util.extension.shl
+import io.github.gaeqs.nes4jams.util.extension.shr
 
 class OLC6502 {
 

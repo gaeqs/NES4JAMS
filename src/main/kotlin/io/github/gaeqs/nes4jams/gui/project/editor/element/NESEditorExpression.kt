@@ -25,9 +25,9 @@
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
-import io.github.gaeqs.nes4jams.utils.RangeCollection
-import io.github.gaeqs.nes4jams.utils.extension.indexesOf
-import io.github.gaeqs.nes4jams.utils.extension.parseParameterExpressionWithInvalids
+import io.github.gaeqs.nes4jams.util.RangeCollection
+import io.github.gaeqs.nes4jams.util.extension.indexesOf
+import io.github.gaeqs.nes4jams.util.extension.parseParameterExpressionWithInvalids
 
 class NESEditorExpression(val line: NESLine, val text: String, val startIndex: Int, val endIndex: Int) {
 

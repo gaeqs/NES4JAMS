@@ -24,7 +24,7 @@
 
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
-import io.github.gaeqs.nes4jams.utils.extension.isLabelLegal
+import io.github.gaeqs.nes4jams.util.extension.isLabelLegal
 
 class NESEditorEquivalent(line: NESLine, text: String, startIndex: Int, endIndex: Int) :
     NESCodeElement(line, text, startIndex, endIndex) {

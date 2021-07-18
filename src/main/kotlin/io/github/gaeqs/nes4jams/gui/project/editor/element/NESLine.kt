@@ -24,7 +24,7 @@
 
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
-import io.github.gaeqs.nes4jams.utils.extension.getCommentIndex
+import io.github.gaeqs.nes4jams.util.extension.getCommentIndex
 import net.jamsimulator.jams.gui.editor.EditorHintBar
 import net.jamsimulator.jams.utils.LabelUtils
 import org.fxmisc.richtext.model.StyleSpansBuilder

@@ -25,12 +25,12 @@
 package io.github.gaeqs.nes4jams.cartridge
 
 import io.github.gaeqs.nes4jams.ppu.Mirror
-import io.github.gaeqs.nes4jams.utils.BIT0
-import io.github.gaeqs.nes4jams.utils.BIT1
-import io.github.gaeqs.nes4jams.utils.BIT2
-import io.github.gaeqs.nes4jams.utils.BIT3
-import io.github.gaeqs.nes4jams.utils.extension.shl
-import io.github.gaeqs.nes4jams.utils.extension.shr
+import io.github.gaeqs.nes4jams.util.BIT0
+import io.github.gaeqs.nes4jams.util.BIT1
+import io.github.gaeqs.nes4jams.util.BIT2
+import io.github.gaeqs.nes4jams.util.BIT3
+import io.github.gaeqs.nes4jams.util.extension.shl
+import io.github.gaeqs.nes4jams.util.extension.shr
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 

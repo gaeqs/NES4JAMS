@@ -25,8 +25,8 @@
 package io.github.gaeqs.nes4jams.gui.project
 
 import io.github.gaeqs.nes4jams.project.NESProject
-import io.github.gaeqs.nes4jams.utils.extension.fit
-import io.github.gaeqs.nes4jams.utils.extension.orNull
+import io.github.gaeqs.nes4jams.util.extension.fit
+import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.scene.control.Tab
 import javafx.scene.layout.HBox
 import net.jamsimulator.jams.gui.JamsApplication

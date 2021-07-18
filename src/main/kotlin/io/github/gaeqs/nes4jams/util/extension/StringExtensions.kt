@@ -22,11 +22,10 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.utils.extension
+package io.github.gaeqs.nes4jams.util.extension
 
-import io.github.gaeqs.nes4jams.utils.ParameterExpressionSolver
-import io.github.gaeqs.nes4jams.utils.Value
-import java.util.*
+import io.github.gaeqs.nes4jams.util.ParameterExpressionSolver
+import io.github.gaeqs.nes4jams.util.Value
 
 fun String.toIntOldWay(): Int {
     val trimmed = trim()

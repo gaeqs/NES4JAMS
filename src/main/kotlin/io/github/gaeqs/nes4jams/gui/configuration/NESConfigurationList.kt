@@ -27,7 +27,7 @@ package io.github.gaeqs.nes4jams.gui.configuration
 import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfiguration
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationAddEvent
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationRemoveEvent
-import io.github.gaeqs.nes4jams.utils.extension.fit
+import io.github.gaeqs.nes4jams.util.extension.fit
 import javafx.scene.control.Button
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.SplitPane

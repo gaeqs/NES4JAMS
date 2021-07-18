@@ -1,4 +1,4 @@
-package io.github.gaeqs.nes4jams.utils
+package io.github.gaeqs.nes4jams.util
 
 import org.junit.jupiter.api.Test
 

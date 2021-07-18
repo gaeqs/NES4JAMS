@@ -22,10 +22,10 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.utils
+package io.github.gaeqs.nes4jams.util
 
 import io.github.gaeqs.nes4jams.data.BYTE_RANGE
-import io.github.gaeqs.nes4jams.utils.extension.toIntOldWayOrNull
+import io.github.gaeqs.nes4jams.util.extension.toIntOldWayOrNull
 
 data class Value(val value: Int, val isWord: Boolean)
 

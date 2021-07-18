@@ -26,7 +26,7 @@ package io.github.gaeqs.nes4jams.cpu.assembler
 
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
-import io.github.gaeqs.nes4jams.utils.Value
+import io.github.gaeqs.nes4jams.util.Value
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 import kotlin.math.min
 

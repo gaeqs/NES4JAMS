@@ -25,7 +25,7 @@
 package io.github.gaeqs.nes4jams.cpu.assembler
 
 import io.github.gaeqs.nes4jams.cpu.label.NESLabel
-import io.github.gaeqs.nes4jams.utils.extension.isLabelLegal
+import io.github.gaeqs.nes4jams.util.extension.isLabelLegal
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 import net.jamsimulator.jams.utils.LabelUtils
 

@@ -24,7 +24,7 @@
 
 package io.github.gaeqs.nes4jams.cpu.assembler
 
-import io.github.gaeqs.nes4jams.utils.Value
+import io.github.gaeqs.nes4jams.util.Value
 
 /**
  * Represents an equivalent inside a [NESAssembler].

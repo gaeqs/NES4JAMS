@@ -22,7 +22,7 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.utils
+package io.github.gaeqs.nes4jams.util
 
 const val BIT0: UByte = 0b00000001u
 const val BIT1: UByte = 0b00000010u

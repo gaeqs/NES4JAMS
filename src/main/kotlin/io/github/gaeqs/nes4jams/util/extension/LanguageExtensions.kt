@@ -22,11 +22,11 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.utils.extension
+package io.github.gaeqs.nes4jams.util.extension
 
-import java.util.*
+import net.jamsimulator.jams.Jams
+import net.jamsimulator.jams.language.Language
 
-@Suppress("unused")
-fun <T> Optional<T>.orNull(): T? {
-    return orElse(null)
-}
+val SELECTED_LANGUAGE: Language get() = Jams.getLanguageManager().selected
+
+operator fun Language.get(node: String): String = getOrDefault(node)

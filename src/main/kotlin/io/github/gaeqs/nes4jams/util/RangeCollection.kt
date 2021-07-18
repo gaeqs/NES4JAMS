@@ -22,7 +22,7 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.utils
+package io.github.gaeqs.nes4jams.util
 
 class RangeCollection : Collection<IntRange> {
 

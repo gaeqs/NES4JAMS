@@ -28,7 +28,7 @@ import io.github.gaeqs.nes4jams.data.ICON_DRAG
 import io.github.gaeqs.nes4jams.gui.util.converter.NESMemoryBankCollectionValueConverter
 import io.github.gaeqs.nes4jams.memory.NESMemoryBank
 import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
-import io.github.gaeqs.nes4jams.utils.extension.orNull
+import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.geometry.Pos
 import javafx.scene.Cursor
 import javafx.scene.Node

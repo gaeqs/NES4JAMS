@@ -26,7 +26,7 @@ package io.github.gaeqs.nes4jams.project
 
 import io.github.gaeqs.nes4jams.data.NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY
 import io.github.gaeqs.nes4jams.data.ICON_PLUGIN
-import io.github.gaeqs.nes4jams.utils.extension.orNull
+import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.beans.property.BooleanProperty
 import javafx.scene.Node
 import javafx.scene.image.Image

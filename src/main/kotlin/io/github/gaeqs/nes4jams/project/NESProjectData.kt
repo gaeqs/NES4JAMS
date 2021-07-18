@@ -28,7 +28,7 @@ import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfiguration
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationAddEvent
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationRemoveEvent
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationSelectEvent
-import io.github.gaeqs.nes4jams.utils.extension.orNull
+import io.github.gaeqs.nes4jams.util.extension.orNull
 import net.jamsimulator.jams.configuration.Configuration
 import net.jamsimulator.jams.project.FilesToAssemble
 import net.jamsimulator.jams.project.FilesToAssemblerHolder

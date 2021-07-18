@@ -30,7 +30,7 @@ import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigu
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationRefreshEvent
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationRemoveEvent
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationSelectEvent
-import io.github.gaeqs.nes4jams.utils.extension.orNull
+import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.application.Platform
 import javafx.scene.Node
 import javafx.scene.control.Button
