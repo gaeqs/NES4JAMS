@@ -24,10 +24,12 @@
 
 package io.github.gaeqs.nes4jams.project
 
+import io.github.gaeqs.nes4jams.cartridge.CartridgeHeader
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssembler
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerMemoryBank
 import io.github.gaeqs.nes4jams.gui.project.NESStructurePane
 import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfigurationNodePreset
+import io.github.gaeqs.nes4jams.util.ExponentialPrgBanksFinder
 import javafx.scene.control.Tab
 import net.jamsimulator.jams.gui.project.ProjectTab
 import net.jamsimulator.jams.gui.project.WorkingPane
@@ -79,10 +81,10 @@ class NESProject(folder: File) : BasicProject(folder, true) {
 
             val out = File(data.filesFolder, "$name.nes").outputStream()
             val (banksAmount, extra) = calculateProgramBanks(assembler.banks)
-            header.setPrgRomBanks(banksAmount.toUShort())
+            val extraBanks = writeProgramBanksCountInHeader(banksAmount, header)
 
             out.write(header.toByteArray())
-            writeProgram(out, assembler.banks, extra)
+            writeProgram(out, assembler.banks, extra, extraBanks)
             //out.write(chrMemory)
             out.close()
         }
@@ -98,10 +100,26 @@ class NESProject(folder: File) : BasicProject(folder, true) {
         return if (extra > 0) Pair(banksAmount + 1, extra) else Pair(banksAmount, 0)
     }
 
+    private fun writeProgramBanksCountInHeader(banks: Int, header: CartridgeHeader): ULong {
+        // Ceil value. This is the first value the normal bank count can't handle
+        val ceil = 0b111100000000
+        return if (ceil <= banks) {
+            // EXPONENTIAL
+            val (match) = ExponentialPrgBanksFinder.findBestMatch(banks.toULong())
+            header.setPrgRomExponential(match.multiplier, match.exponent)
+            match.banks - banks.toULong()
+        } else {
+            // LINEAR
+            header.setPrgRomBanks(banks.toUShort())
+            0U
+        }
+    }
+
     private fun writeProgram(
         out: OutputStream,
         banks: Iterable<NESAssemblerMemoryBank>,
-        extra: Int
+        extra: Int,
+        extraBanks: ULong
     ) {
         var total = 0
         banks.filter { it.writeOnCartridge }.forEach {
@@ -111,6 +129,10 @@ class NESProject(folder: File) : BasicProject(folder, true) {
 
         if (extra > 0) {
             repeat(0x4000 - extra) { out.write(0) }
+        }
+
+        for (i in 0UL until extraBanks) {
+            repeat(0x4000) { out.write(0) }
         }
     }
 

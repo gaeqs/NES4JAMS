@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.File
 
-private val BANKS = listOf(NESMemoryBank(0x8000u, 0x8000u, true))
+private val BANKS = listOf(NESMemoryBank(0x8000u, 0x8000u, true, true))
 
 class CartridgeHeaderTest {
 

@@ -26,7 +26,7 @@ test:
     .db $0FE 20 20
 """
 
-private val BANKS = listOf(NESMemoryBank(0x8000u, 0x8000u, true))
+private val BANKS = listOf(NESMemoryBank(0x8000u, 0x8000u, true, true))
 
 class OLDNESAssemblerTest {
     @Test
