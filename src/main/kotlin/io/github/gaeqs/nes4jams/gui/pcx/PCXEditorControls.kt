@@ -29,6 +29,7 @@ import io.github.gaeqs.nes4jams.util.extension.ColorFxRGB
 import io.github.gaeqs.nes4jams.util.extension.toRGB
 import javafx.geometry.Pos
 import javafx.scene.input.MouseButton
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
 import javafx.scene.shape.Rectangle
@@ -62,29 +63,11 @@ class PCXEditorControls(val editor: PCXFileEditor) : HBox() {
             value.focusedProperty().addListener { _, _, _ -> popup?.hide(); popup = null }
             value.setOnMouseClicked {
                 when (it.button) {
-                    MouseButton.PRIMARY -> selectPrimaryColor(index)
-                    MouseButton.SECONDARY -> selectSecondaryColor(index)
-                    MouseButton.MIDDLE -> {
-                        val popup = Popup()
-                        val picker = PPUColorPicker()
-                        popup.content?.add(picker)
-                        popup.show(JamsApplication.getStage(), it.screenX, it.screenY)
-                        picker.colorProperty.addListener { _, _, new ->
-                            value.fill = new
-                            this.popup?.hide()
-                            this.popup = null
-
-                            val palette = editor.canvas.palette.toMutableList()
-                            palette[index] = new.toRGB()
-                            editor.canvas.palette = palette
-
-                            if (editor.canvas.primaryColor == index) primaryColor.fill = new
-                            if (editor.canvas.secondaryColor == index) secondaryColor.fill = new
-
-                        }
-                        value.requestFocus()
-                        this.popup = popup
+                    MouseButton.PRIMARY -> {
+                        if (it.isControlDown) openPopup(value, index, it) else selectPrimaryColor(index)
                     }
+                    MouseButton.SECONDARY -> selectSecondaryColor(index)
+                    MouseButton.MIDDLE -> openPopup(value, index, it)
                     else -> {
                     }
                 }
@@ -100,6 +83,28 @@ class PCXEditorControls(val editor: PCXFileEditor) : HBox() {
     fun selectSecondaryColor(index: Int) {
         editor.canvas.secondaryColor = index
         secondaryColor.fill = ColorFxRGB(editor.canvas.palette[editor.canvas.secondaryColor])
+    }
+
+    private fun openPopup(rectangle: Rectangle, index: Int, event: MouseEvent) {
+        val popup = Popup()
+        val picker = PPUColorPicker()
+        popup.content?.add(picker)
+        popup.show(JamsApplication.getStage(), event.screenX, event.screenY)
+        picker.colorProperty.addListener { _, _, new ->
+            rectangle.fill = new
+            this.popup?.hide()
+            this.popup = null
+
+            val palette = editor.canvas.palette.toMutableList()
+            palette[index] = new.toRGB()
+            editor.canvas.palette = palette
+
+            if (editor.canvas.primaryColor == index) primaryColor.fill = new
+            if (editor.canvas.secondaryColor == index) secondaryColor.fill = new
+
+        }
+        rectangle.requestFocus()
+        this.popup = popup
     }
 
 }

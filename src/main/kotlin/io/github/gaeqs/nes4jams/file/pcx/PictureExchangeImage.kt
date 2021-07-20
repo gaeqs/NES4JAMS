@@ -111,7 +111,7 @@ class PictureExchangeImage {
             stream.writeUShort(maxY)
             stream.writeUShort(hdpi)
             stream.writeUShort(ydpi)
-            egaPalette.write(stream)
+            egaPalette.write(stream, 16)
             stream.write(reserved.toInt())
             stream.write(colorPlanes.toInt())
             stream.writeUShort(bytesPerLine)
@@ -133,14 +133,50 @@ class PictureExchangeImage {
             stream.readColor()
         })
 
-        fun write(stream: OutputStream) {
+        fun write(stream: OutputStream, min: Int = 0) {
             rawPalette.forEach { stream.writeColor(it) }
+            repeat(min - rawPalette.size) { stream.writeColor(0) }
         }
 
         override fun toString(): String {
             return "ColorPalette[${
                 rawPalette.joinToString(separator = ", ") { "0x${StringUtils.addZeros(Integer.toHexString(it), 8)}" }
             }]"
+        }
+    }
+
+    companion object {
+        /**
+         * Creates an empty NES-optimized PCX file.
+         */
+        fun createEmpty(width: Int = 128, height: Int = 128): PictureExchangeImage {
+            val header = Header(
+                10u,
+                5u,
+                true,
+                2u,
+                0u,
+                0u,
+                (width - 1).toUShort(),
+                (height - 1).toUShort(),
+                0u,
+                0u,
+                ColorPalette(
+                    intArrayOf(
+                        0xFF000000.toInt(),
+                        0xFF555555.toInt(),
+                        0xFFAAAAAA.toInt(),
+                        0xFFFFFFFF.toInt()
+                    )
+                ),
+                0u,
+                1u,
+                ((width * 2 + 7) / 8).toUShort(),
+                1u,
+                width.toUShort(),
+                height.toUShort()
+            )
+            return PictureExchangeImage(header, header.egaPalette)
         }
     }
 

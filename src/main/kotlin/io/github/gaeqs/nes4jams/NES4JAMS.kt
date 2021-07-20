@@ -25,12 +25,14 @@
 package io.github.gaeqs.nes4jams
 
 import io.github.gaeqs.nes4jams.file.pcx.PCXFileType
+import io.github.gaeqs.nes4jams.gui.action.folder.FolderActionNewPCXFile
 import io.github.gaeqs.nes4jams.gui.project.editor.NESFileEditor
 import io.github.gaeqs.nes4jams.gui.util.converter.NESValueConverters
 import io.github.gaeqs.nes4jams.gui.util.value.NESValueEditors
 import io.github.gaeqs.nes4jams.project.NESProjectType
 import net.jamsimulator.jams.Jams
 import net.jamsimulator.jams.event.Listener
+import net.jamsimulator.jams.event.general.JAMSApplicationPostInitEvent
 import net.jamsimulator.jams.event.general.JAMSPostInitEvent
 import net.jamsimulator.jams.file.AssemblyFileType
 import net.jamsimulator.jams.gui.JamsApplication
@@ -48,15 +50,15 @@ class NES4JAMS : Plugin() {
         INSTANCE = this
         if (JamsApplication.isLoaded()) {
             load()
+            loadApplication()
         }
-    }
-
-    override fun onDisable() {
-        println("Bye!")
     }
 
     @Listener
     private fun onPostInit(event: JAMSPostInitEvent) = load()
+
+    @Listener
+    private fun onApplicationPostInit (event : JAMSApplicationPostInitEvent) = loadApplication()
 
     private fun load() {
         loadLanguages()
@@ -71,6 +73,10 @@ class NES4JAMS : Plugin() {
         Jams.getFileTypeManager() += PCXFileType.INSTANCE
 
         Jams.getLanguageManager().registerListeners(this, true)
+    }
+
+    private fun loadApplication () {
+        JamsApplication.getActionManager() += FolderActionNewPCXFile()
     }
 
     private fun loadLanguages() {
