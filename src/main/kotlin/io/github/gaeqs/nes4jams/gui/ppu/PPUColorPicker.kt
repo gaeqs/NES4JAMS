@@ -27,6 +27,7 @@ package io.github.gaeqs.nes4jams.gui.ppu
 import io.github.gaeqs.nes4jams.ppu.PPUColors
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.layout.GridPane
+import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 
 class PPUColorPicker : GridPane() {
@@ -35,7 +36,7 @@ class PPUColorPicker : GridPane() {
         const val STYLE_CLASS = "ppu-color-picker"
     }
 
-    val colorProperty = SimpleObjectProperty(PPUColors.COLORS[0])
+    val colorProperty = SimpleObjectProperty<Color>(null)
 
     init {
         styleClass += STYLE_CLASS
