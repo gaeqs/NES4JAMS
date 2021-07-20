@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams.file
 
+import io.github.gaeqs.nes4jams.cartridge.CartridgeHeader
 import io.github.gaeqs.nes4jams.file.pcx.PictureExchangeImage
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -81,7 +82,30 @@ class PictureExchangeImageTest {
             )
         )
         ImageIO.write(bufferedImage, "PNG", File("testImage.png"))
+    }
 
+    @Test
+    fun loadFromRom() {
+        if (!File("roms/smb.nes").isFile) return
+        val stream = File("roms/smb.nes").inputStream()
+        val header = CartridgeHeader(stream)
+
+        if (header.hasTrainerData) {
+            stream.skip(512)
+        }
+
+        stream.skip(header.prgRomSize.toLong())
+        val chrMemory = ByteArray(header.chrRomSize.toInt()) { stream.read().toByte() }
+        stream.close()
+
+        val pcx = PictureExchangeImage.fromCHRData(chrMemory)
+
+        val out = File("chr.pcx").outputStream()
+        pcx.write(out)
+        out.close()
+
+        val bufferedImage = pcx.toBufferedImage()
+        ImageIO.write(bufferedImage, "PNG", File("testImage.png"))
     }
 
 

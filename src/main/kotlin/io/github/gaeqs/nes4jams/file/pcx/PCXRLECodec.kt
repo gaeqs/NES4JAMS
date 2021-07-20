@@ -100,7 +100,7 @@ class PCXRLECodec(val compressed: Boolean) {
                     if (repeatCount > 0) {
                         writeCount(stream)
                     }
-                    previousByte = 0xFF.toByte() and element
+                    previousByte = element
                     repeatCount = 1
                 }
             }
@@ -127,7 +127,7 @@ class PCXRLECodec(val compressed: Boolean) {
         // We make sure the previous byte is not null!
         val byte = previousByte ?: return
 
-        if (repeatCount == 1 && (byte and 0xC0.toByte() == 0xC0.toByte())) {
+        if (repeatCount == 1 && (byte and 0xC0.toByte() != 0xC0.toByte())) {
             stream.write(byte.toInt())
         } else {
             stream.write(0xC0 or repeatCount)

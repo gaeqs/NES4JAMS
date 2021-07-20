@@ -25,6 +25,8 @@
 package io.github.gaeqs.nes4jams.file.pcx
 
 import io.github.gaeqs.nes4jams.util.extension.concatenate
+import io.github.gaeqs.nes4jams.util.extension.shl
+import io.github.gaeqs.nes4jams.util.extension.shr
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import net.jamsimulator.jams.utils.StringUtils
@@ -178,6 +180,35 @@ class PictureExchangeImage {
             )
             return PictureExchangeImage(header, header.egaPalette)
         }
+
+        fun fromCHRData(data: ByteArray): PictureExchangeImage {
+            // Width must be 128 pixels width and 8n pixels height.
+            // Each 8 pixels constitute 2 bytes (4 pixels per byte)
+            val pixels = data.size shl 2
+            if (pixels % 128 != 0)
+                throw IllegalStateException("Cannot convert PCX image to CHR. The width must be 128 pixels.")
+            val height = pixels / 128
+            if (height % 8 != 0)
+                throw IllegalStateException("Cannot convert PCX image to CHR. The width must be 8n pixels.")
+            val image = createEmpty(height = height)
+
+            for (y in 0 until height / 8) {
+                for (x in 0 until 16) {
+                    val offset = y * 256 + x * 16
+                    for (row in 0 until 8) {
+                        var most = data[offset + row].toUByte()
+                        var least = data[offset + row + 8].toUByte()
+                        for (column in 0 until 8) {
+                            val pixel = ((most and 0x01u shl 1) or (least and 0x01u)).toInt()
+                            most = most shr 1
+                            least = least shr 1
+                            image[x * 8 + (7 - column), y * 8 + row] = pixel
+                        }
+                    }
+                }
+            }
+            return image
+        }
     }
 
     val header: Header
@@ -289,13 +320,53 @@ class PictureExchangeImage {
         return PictureExchangeImage(newHeader, newHeader.egaPalette, to8BPPDataBuffer())
     }
 
-    fun toCHRData() {
-        TODO()
+    /**
+     * Transforms this PCX image into CHR data that can be written directly to a .nes file.
+     *
+     * @throws IllegalStateException if the width or the height of the image are not a multiple of 8.
+     */
+    fun toCHRData(): ByteArray {
+        if (header.width % 8 != 0)
+            throw IllegalStateException("Cannot convert PCX image to CHR. The width must be a multiple of 8.")
+        if (header.height % 8 != 0)
+            throw IllegalStateException("Cannot convert PCX image to CHR. The height must be a multiple of 8.")
+        val byteArray = ByteArray(2 * header.width / 8 * header.height) // Two bytes for 8 pixels!
+
+        for (y in 0 until header.height / 8) {
+            for (x in 0 until header.width / 8) {
+                val offset = (y * 256 + x * 16)
+
+                for (row in 0 until 8) {
+                    var least = 0
+                    var most = 0
+
+                    for (column in 0 until 8) {
+                        val pixelX = x * 8 + column
+                        val pixelY = y * 8 + row
+                        val value = get(pixelX, pixelY)
+                        least = (least shl 1) or (value and 0x1)
+                        most = (most shl 1) or (value shr 1 and 0x1)
+                    }
+
+                    byteArray[offset + row] = most.toByte()
+                    byteArray[offset + row + 8] = least.toByte()
+                }
+
+            }
+        }
+
+        return byteArray
     }
 
+    /**
+     * Saves this PCX image into the given [stream]
+     */
     fun write(stream: OutputStream) {
         header.write(stream)
-        stream.write(data)
+
+        val rle = PCXRLECodec(header.encoding)
+        rle.write(stream, data)
+        rle.flush(stream)
         if (palette.rawPalette.size == 256) {
             stream.write(12)
             palette.write(stream)

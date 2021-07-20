@@ -27,6 +27,7 @@ package io.github.gaeqs.nes4jams.project
 import io.github.gaeqs.nes4jams.cartridge.CartridgeHeader
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssembler
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerMemoryBank
+import io.github.gaeqs.nes4jams.file.pcx.PictureExchangeImage
 import io.github.gaeqs.nes4jams.gui.project.NESStructurePane
 import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfigurationNodePreset
 import io.github.gaeqs.nes4jams.util.ExponentialPrgBanksFinder
@@ -75,17 +76,27 @@ class NESProject(folder: File) : BasicProject(folder, true) {
             log?.println()
             log?.printInfoLn("Assembling...")
             assembler.assemble()
-            log?.printDoneLn("Done! Writing to file...")
+
+            log?.printInfoLn("Loading CHR data...")
+            val stream = File(folder, "chr.pcx").inputStream()
+            val pcx = PictureExchangeImage(stream)
+            stream.close()
+            val chrData = pcx.toCHRData()
+
+            log?.printInfoLn("Writing to file...")
 
             val header = configuration.generateCartridgeHeader()
 
             val out = File(data.filesFolder, "$name.nes").outputStream()
+
+            // Program banks
             val (banksAmount, extra) = calculateProgramBanks(assembler.banks)
             val extraBanks = writeProgramBanksCountInHeader(banksAmount, header)
-
             out.write(header.toByteArray())
             writeProgram(out, assembler.banks, extra, extraBanks)
-            //out.write(chrMemory)
+
+            out.write(chrData)
+
             out.close()
         }
 
