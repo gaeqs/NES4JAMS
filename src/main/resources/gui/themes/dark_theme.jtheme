@@ -22,3 +22,9 @@ Dark Theme
 .nes4jams-memory-bank-value-editor .text-field {
     -fx-pref-width: 60px;
 }
+
+.ppu-color-picker {
+    -fx-background-color: -theme-background-darker-2;
+    -fx-background-radius: 5;
+    -fx-padding: 10px;
+}

@@ -22,21 +22,24 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.pcx
+package io.github.gaeqs.nes4jams.file.pcx
 
-import org.junit.jupiter.api.Test
-import java.net.URL
+import io.github.gaeqs.nes4jams.gui.pcx.PCXFileEditor
+import net.jamsimulator.jams.file.FileType
+import net.jamsimulator.jams.gui.editor.FileEditor
+import net.jamsimulator.jams.gui.editor.FileEditorTab
+import net.jamsimulator.jams.gui.image.icon.Icons
 
-private const val TEST_FILE = "https://github.com/captainsouthbird/smb3/blob/master/CHR/chr000.pcx?raw=true"
+class PCXFileType private constructor() : FileType(NAME, Icons.FILE_IMAGE, EXTENSION) {
 
-class PictureExchangeImageTest {
+    companion object {
+        const val NAME = "Picture Exchange"
+        const val EXTENSION = "pcx"
+        val INSTANCE = PCXFileType()
+    }
 
-    @Test
-    fun checkHeader() {
-        val stream = URL(TEST_FILE).openStream()
-        val header = PictureExchangeImage.Header(stream)
-        stream.close()
-        println(header)
+    override fun createDisplayTab(tab: FileEditorTab): FileEditor {
+        return PCXFileEditor(tab)
     }
 
 }

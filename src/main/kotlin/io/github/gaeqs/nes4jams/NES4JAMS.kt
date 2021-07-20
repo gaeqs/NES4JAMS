@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams
 
+import io.github.gaeqs.nes4jams.file.pcx.PCXFileType
 import io.github.gaeqs.nes4jams.gui.project.editor.NESFileEditor
 import io.github.gaeqs.nes4jams.gui.util.converter.NESValueConverters
 import io.github.gaeqs.nes4jams.gui.util.value.NESValueEditors
@@ -65,7 +66,10 @@ class NES4JAMS : Plugin() {
         NESValueEditors.setupEditor()
 
         Jams.getProjectTypeManager() += NESProjectType.INSTANCE
+
         AssemblyFileType.INSTANCE.addBuilder(NESProjectType.INSTANCE) { NESFileEditor(it) }
+        Jams.getFileTypeManager() += PCXFileType.INSTANCE
+
         Jams.getLanguageManager().registerListeners(this, true)
     }
 
