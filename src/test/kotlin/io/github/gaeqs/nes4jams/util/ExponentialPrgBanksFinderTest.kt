@@ -33,7 +33,7 @@ class ExponentialPrgBanksFinderTest {
     fun testForEach() {
         ExponentialPrgBanksFinder.forEach {
             println(it)
-            assertTrue(it.banks == it.multiplier * (1UL shl it.exponent.toInt()))
+            assertTrue(it.bytes == it.multiplier * (1UL shl it.exponent.toInt()))
         }
     }
 
@@ -44,13 +44,13 @@ class ExponentialPrgBanksFinderTest {
         repeat(10000) {
             val (match, index) = ExponentialPrgBanksFinder.findBestMatch(it.toULong())
             assertTrue(
-                match.banks >= it.toULong(),
-                "${match.banks} < $it. Index $index"
+                match.bytes >= it.toULong(),
+                "${match.bytes} < $it. Index $index"
             )
             if (index > 0) {
                 assertTrue(
-                    values[index - 1].banks < it.toULong(),
-                    "${values[index - 1].banks} >= $it. Index $index"
+                    values[index - 1].bytes < it.toULong(),
+                    "${values[index - 1].bytes} >= $it. Index $index"
                 )
             }
         }
@@ -58,7 +58,7 @@ class ExponentialPrgBanksFinderTest {
         // Check max value
         val (match, index) = ExponentialPrgBanksFinder.findBestMatch(ULong.MAX_VALUE)
         assertTrue(index == values.lastIndex)
-        assertTrue(match.banks < ULong.MAX_VALUE)
+        assertTrue(match.bytes < ULong.MAX_VALUE)
 
     }
 }

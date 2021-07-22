@@ -50,7 +50,8 @@ data class CartridgeHeader(
     var flag15: UByte,
 ) {
 
-    constructor(ines2: Boolean) : this("NES\u001A",
+    constructor(ines2: Boolean) : this(
+        "NES\u001A",
         0u,
         0u,
         0u,
@@ -241,14 +242,14 @@ data class CartridgeHeader(
     fun setPrgRomBanks(banks: UShort) {
         prgRomData = banks.toUByte()
         if (isINES2) {
-            flag9 = flag9 and 0b11110000u or ((banks shl 8).toUByte() and 0b1111u)
+            flag9 = flag9 and 0b11110000u or ((banks shr 8).toUByte() and 0b1111u)
         }
     }
 
     fun setChrRomBanks(banks: UShort) {
         chrRomData = banks.toUByte()
         if (isINES2) {
-            flag9 = flag9 and 0b00001111u or ((banks shl 4).toUByte() and 0b11110000u)
+            flag9 = flag9 and 0b00001111u or ((banks shr 4).toUByte() and 0b11110000u)
         }
     }
 

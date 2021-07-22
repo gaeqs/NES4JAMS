@@ -78,26 +78,35 @@ class NESProject(folder: File) : BasicProject(folder, true) {
             assembler.assemble()
 
             log?.printInfoLn("Loading CHR data...")
-            val stream = File(folder, "chr.pcx").inputStream()
-            val pcx = PictureExchangeImage(stream)
-            stream.close()
-            val chrData = pcx.toCHRData()
+
+            val pcxFiles = getData().spritesToAssemble.files.map {
+                val stream = it.inputStream()
+                val pcx = PictureExchangeImage(stream)
+                stream.close()
+                pcx
+            }
 
             log?.printInfoLn("Writing to file...")
-
             val header = configuration.generateCartridgeHeader()
-
             val out = File(data.filesFolder, "$name.nes").outputStream()
 
             // Program banks
-            val (banksAmount, extra) = calculateProgramBanks(assembler.banks)
-            val extraBanks = writeProgramBanksCountInHeader(banksAmount, header)
+            val (prgBanksAmount, prgExtra) = calculateProgramBanks(assembler.banks)
+            val prgFillData = writeProgramBanksCountInHeader(prgBanksAmount, header)
+
+            // CHR data
+            val chrData = mergeCHRData(pcxFiles)
+            val (chrBanksAmount, chrExtra) = calculateCHRBanks(chrData.size)
+            val chrFillData = writeCHRBanksCountInHeader(chrBanksAmount, header)
+
+            // Write all
             out.write(header.toByteArray())
-            writeProgram(out, assembler.banks, extra, extraBanks)
-
-            out.write(chrData)
-
+            writeProgram(out, assembler.banks, prgExtra, prgFillData)
+            writeCHR(out, chrData, chrExtra, chrFillData)
             out.close()
+
+            log?.printInfoLn("PRG Size: ${header.prgRomSize} (${header.prgRomSize / 0x4000u} banks)")
+            log?.printInfoLn("CHR Size: ${header.chrRomSize} (${header.chrRomSize / 0x2000u} banks)")
         }
 
         log?.printDoneLn("Assembly successful in $millis ms.")
@@ -116,9 +125,9 @@ class NESProject(folder: File) : BasicProject(folder, true) {
         val ceil = 0b111100000000
         return if (ceil <= banks) {
             // EXPONENTIAL
-            val (match) = ExponentialPrgBanksFinder.findBestMatch(banks.toULong())
+            val (match) = ExponentialPrgBanksFinder.findBestMatch(banks.toULong() * 0x4000u)
             header.setPrgRomExponential(match.multiplier, match.exponent)
-            match.banks - banks.toULong()
+            match.bytes - (banks.toULong() * 0x4000u)
         } else {
             // LINEAR
             header.setPrgRomBanks(banks.toUShort())
@@ -130,20 +139,54 @@ class NESProject(folder: File) : BasicProject(folder, true) {
         out: OutputStream,
         banks: Iterable<NESAssemblerMemoryBank>,
         extra: Int,
-        extraBanks: ULong
+        fillData: ULong
     ) {
-        var total = 0
-        banks.filter { it.writeOnCartridge }.forEach {
-            out.write(it.array.toByteArray())
-            total += it.array.size
+        banks.filter { it.writeOnCartridge }.forEach { out.write(it.array.toByteArray()) }
+        if (extra > 0) repeat(0x4000 - extra) { out.write(0) }
+        for (i in 0UL until fillData) {
+            out.write(0)
+        }
+    }
+
+    private fun mergeCHRData(pcx: Iterable<PictureExchangeImage>): ByteArray {
+        val arrays = pcx.map { it.toCHRData() }
+        val result = ByteArray(arrays.sumOf { it.size })
+
+        var index = 0
+        arrays.forEach {
+            System.arraycopy(it, 0, result, index, it.size)
+            index += it.size
         }
 
-        if (extra > 0) {
-            repeat(0x4000 - extra) { out.write(0) }
-        }
+        return result
+    }
 
-        for (i in 0UL until extraBanks) {
-            repeat(0x4000) { out.write(0) }
+    private fun calculateCHRBanks(bytes: Int): Pair<Int, Int> {
+        val banksAmount = bytes shr 13
+        val extra = bytes - (banksAmount shl 13)
+        return if (extra > 0) Pair(banksAmount + 1, extra) else Pair(banksAmount, 0)
+    }
+
+    private fun writeCHRBanksCountInHeader(banks: Int, header: CartridgeHeader): ULong {
+        // Ceil value. This is the first value the normal bank count can't handle
+        val ceil = 0b111100000000
+        return if (ceil <= banks) {
+            // EXPONENTIAL
+            val (match) = ExponentialPrgBanksFinder.findBestMatch(banks.toULong() * 0x2000u)
+            header.setChrRomExponential(match.multiplier, match.exponent)
+            match.bytes - (banks.toULong() * 0x2000u)
+        } else {
+            // LINEAR
+            header.setChrRomBanks(banks.toUShort())
+            0U
+        }
+    }
+
+    private fun writeCHR(out: OutputStream, data: ByteArray, extra: Int, fillData: ULong) {
+        out.write(data)
+        if (extra > 0) repeat(0x2000 - extra) { out.write(0) }
+        for (i in 0UL until fillData) {
+            out.write(0)
         }
     }
 

@@ -45,6 +45,7 @@ class NESProjectData(project: NESProject) :
     }
 
     val filesToAssemble = NESFilesToAssemble(project)
+    val spritesToAssemble = NESSpritesToAssemble(project)
     var selectedConfiguration: NESSimulationConfiguration? = null
         private set
 
@@ -93,6 +94,7 @@ class NESProjectData(project: NESProject) :
         if (loaded) return
         super.load()
         filesToAssemble.load(metadataFolder)
+        spritesToAssemble.load(metadataFolder)
 
         data.get<Configuration>(NODE_CONFIGURATIONS).ifPresent {
             it.getAll(false).forEach { (name, data) ->
@@ -113,6 +115,7 @@ class NESProjectData(project: NESProject) :
 
     override fun save() {
         filesToAssemble.save(metadataFolder)
+        spritesToAssemble.save(metadataFolder)
         _configurations.forEach { it.save(data, NODE_CONFIGURATIONS) }
         data.set(NODE_SELECTED_CONFIGURATION, selectedConfiguration?.name)
         super.save()

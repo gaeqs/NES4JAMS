@@ -2,7 +2,8 @@ English
 
 NES4JAMS_DESCRIPTION=NES developing environment for JAMS.
 NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY=Empty NES project.
-NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY=Empty NES project.
+
+NES4JAMS_BAR_SPRITES_TO_ASSEMBLE=Sprites to assemble
 
 NES4JAMS_MEMORY_BANK_START=Start:
 NES4JAMS_MEMORY_BANK_SIZE=Size:
@@ -13,3 +14,7 @@ NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS=Memory banks:
 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP=The memory banks are used by the assembler to store the data into the ROM. You can change between banks in your code using the directive .bank. At least one memory bank is required for the assembler to work.
 
 ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE=PCX image
+ACTION_FOLDER_EXPLORER_ADD_SPRITE_TO_ASSEMBLER=Add sprite to assembler
+ACTION_FOLDER_EXPLORER_ADD_ALL_SPRITES_TO_ASSEMBLER=Add sprites to assembler
+ACTION_FOLDER_EXPLORER_REMOVE_SPRITE_FROM_ASSEMBLER=Remove sprite from assembler
+ACTION_FOLDER_EXPLORER_REMOVE_ALL_SPRITES_FROM_ASSEMBLER=Remove sprites from assembler

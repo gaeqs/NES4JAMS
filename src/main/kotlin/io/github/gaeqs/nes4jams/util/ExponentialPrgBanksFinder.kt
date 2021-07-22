@@ -24,7 +24,7 @@
 
 package io.github.gaeqs.nes4jams.util
 
-data class ExponentialPrgBanks(val banks: ULong, val multiplier: UByte, val exponent: UByte)
+data class ExponentialPrgBanks(val bytes: ULong, val multiplier: UByte, val exponent: UByte)
 
 class ExponentialPrgBanksFinder {
 
@@ -36,14 +36,14 @@ class ExponentialPrgBanksFinder {
             for (exponent in 0..63) {
                 val value = 1UL shl exponent
                 for (multiplier in 1..7 step 2) {
-                    val banks = multiplier.toULong() * value
+                    val bytes = multiplier.toULong() * value
                     //Check overflow
-                    if (banks / multiplier.toULong() == value) {
-                        values += ExponentialPrgBanks(banks, multiplier.toUByte(), exponent.toUByte())
+                    if (bytes / multiplier.toULong() == value) {
+                        values += ExponentialPrgBanks(bytes, multiplier.toUByte(), exponent.toUByte())
                     }
                 }
             }
-            values.sortBy { it.banks }
+            values.sortBy { it.bytes }
         }
 
         @JvmStatic
@@ -56,7 +56,7 @@ class ExponentialPrgBanksFinder {
 
         @JvmStatic
         fun findBestMatch(banks: ULong): Pair<ExponentialPrgBanks, Int> {
-            var i = values.binarySearch { it.banks.compareTo(banks) }
+            var i = values.binarySearch { it.bytes.compareTo(banks) }
             if (i < 0) i = -i - 1
             return if (i >= values.size) Pair(values.last(), values.lastIndex)
             else Pair(values[i], i)

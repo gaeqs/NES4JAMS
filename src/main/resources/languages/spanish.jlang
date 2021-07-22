@@ -3,6 +3,8 @@ Spanish
 NES4JAMS_DESCRIPTION=Entorno de desarrollo de NES para JAMS.
 NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY=Proyecto NES vacío.
 
+NES4JAMS_BAR_SPRITES_TO_ASSEMBLE=Sprites a ensamblar
+
 NES4JAMS_MEMORY_BANK_START=Inicio:
 NES4JAMS_MEMORY_BANK_SIZE=Tamaño:
 NES4JAMS_MEMORY_BANK_WRITABLE=Escribible:
@@ -12,3 +14,7 @@ NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS=Bancos de memoria:
 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP=Los bancos de memoria son usados por el ensamblador para guardar datos en la ROM. Puedes cambiar entre bancos dentro de tu código con la directiva .bank. El ensamblador necesita como mínimo un banco de memoria para funcionar.
 
 ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE=Imagen PCX
+ACTION_FOLDER_EXPLORER_ADD_SPRITE_TO_ASSEMBLER=Añadir sprite al ensamblador
+ACTION_FOLDER_EXPLORER_ADD_ALL_SPRITES_TO_ASSEMBLER=Añadir sprites al ensamblador
+ACTION_FOLDER_EXPLORER_REMOVE_SPRITE_FROM_ASSEMBLER=Quitar sprite del ensamblador
+ACTION_FOLDER_EXPLORER_REMOVE_ALL_SPRITES_FROM_ASSEMBLER=Quitar sprites del ensamblador

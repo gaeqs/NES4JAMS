@@ -25,7 +25,7 @@
 package io.github.gaeqs.nes4jams
 
 import io.github.gaeqs.nes4jams.file.pcx.PCXFileType
-import io.github.gaeqs.nes4jams.gui.action.folder.FolderActionNewPCXFile
+import io.github.gaeqs.nes4jams.gui.action.folder.*
 import io.github.gaeqs.nes4jams.gui.project.editor.NESFileEditor
 import io.github.gaeqs.nes4jams.gui.util.converter.NESValueConverters
 import io.github.gaeqs.nes4jams.gui.util.value.NESValueEditors
@@ -58,7 +58,7 @@ class NES4JAMS : Plugin() {
     private fun onPostInit(event: JAMSPostInitEvent) = load()
 
     @Listener
-    private fun onApplicationPostInit (event : JAMSApplicationPostInitEvent) = loadApplication()
+    private fun onApplicationPostInit(event: JAMSApplicationPostInitEvent) = loadApplication()
 
     private fun load() {
         loadLanguages()
@@ -75,8 +75,12 @@ class NES4JAMS : Plugin() {
         Jams.getLanguageManager().registerListeners(this, true)
     }
 
-    private fun loadApplication () {
+    private fun loadApplication() {
         JamsApplication.getActionManager() += FolderActionNewPCXFile()
+        JamsApplication.getActionManager() += FolderActionAddSpriteToAssembler()
+        JamsApplication.getActionManager() += FolderActionAddAllSpritesToAssembler()
+        JamsApplication.getActionManager() += FolderActionRemoveSpriteFromAssembler()
+        JamsApplication.getActionManager() += FolderActionRemoveAllSpritesFromAssembler()
     }
 
     private fun loadLanguages() {
