@@ -16,6 +16,8 @@ NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING=Mirroring:
 NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING_TOOLTIP=This field sets the nametable mirroring of the game. When mirroring is enable for a particular axis, the coordinates wrap arround on the current nametable.\n\nThis value may be overriden by the cartridge mapper.
 NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE=TV type:
 NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE_TOOLTIP=Sets the TV type this game runs on. This value is equivalent to the region of the game. There are three tv types:\n\nNTSC: valid for North America, Japan, South Korea and Taiwan NES / Famicon devices. Game runs at 1789773 Hz.\nPAL: valid for Western Europe and Australia NES devices. Game runs at 1662607 Hz.\nDENDY: NES clone popular in Easter Europe, Russia, Mainland China, India and Africa. Game runs at 1773448 Hz.
+NES4JAMS_SIMULATION_CONFIGURATION_CONSOLE_TYPE=Console type:
+NES4JAMS_SIMULATION_CONFIGURATION_CONSOLE_TYPE_TOOLTIP=There are some systems based on the NES hardware able to run special versions of NES games. There are two official modifications of this kind: the Nintendo VS. and the PlayChoice-10, both arcade boards.
 
 ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE=PCX image
 ACTION_FOLDER_EXPLORER_ADD_SPRITE_TO_ASSEMBLER=Add sprite to assembler

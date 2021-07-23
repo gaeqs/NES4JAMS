@@ -24,11 +24,9 @@
 
 package io.github.gaeqs.nes4jams.project.configuration
 
+import io.github.gaeqs.nes4jams.cartridge.ConsoleType
 import io.github.gaeqs.nes4jams.cartridge.TVType
-import io.github.gaeqs.nes4jams.data.NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS
-import io.github.gaeqs.nes4jams.data.NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING
-import io.github.gaeqs.nes4jams.data.NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE
-import io.github.gaeqs.nes4jams.data.NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE_TOOLTIP
+import io.github.gaeqs.nes4jams.data.*
 import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
 import io.github.gaeqs.nes4jams.ppu.Mirror
 import net.jamsimulator.jams.language.Messages
@@ -62,6 +60,7 @@ data class NESSimulationConfigurationNodePreset(
         const val UNDO_ENABLED = "undo_enabled"
         const val MIRRORING = "mirroring"
         const val TV_TYPE = "tv_type"
+        const val CONSOLE_TYPE = "console_type"
         const val MEMORY_BANKS = "memory_banks"
 
         val PRESETS = hashSetOf(
@@ -93,6 +92,13 @@ data class NESSimulationConfigurationNodePreset(
                 87,
                 NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE,
                 TVType.NTSC
+            ),
+            NESSimulationConfigurationNodePreset(
+                CONSOLE_TYPE,
+                ConsoleType::class,
+                86,
+                NES4JAMS_SIMULATION_CONFIGURATION_CONSOLE_TYPE,
+                ConsoleType.NES
             ),
             NESSimulationConfigurationNodePreset(
                 MEMORY_BANKS,

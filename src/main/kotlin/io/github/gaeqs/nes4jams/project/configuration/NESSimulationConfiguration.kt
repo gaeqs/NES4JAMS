@@ -25,6 +25,7 @@
 package io.github.gaeqs.nes4jams.project.configuration
 
 import io.github.gaeqs.nes4jams.cartridge.CartridgeHeader
+import io.github.gaeqs.nes4jams.cartridge.ConsoleType
 import io.github.gaeqs.nes4jams.cartridge.TVType
 import io.github.gaeqs.nes4jams.ppu.Mirror
 import net.jamsimulator.jams.configuration.Configuration
@@ -112,6 +113,7 @@ class NESSimulationConfiguration {
 
         header.mirroring = getNodeValue<Mirror>(Preset.MIRRORING) ?: Mirror.VERTICAL
         header.tvType = getNodeValue<TVType>(Preset.TV_TYPE) ?: TVType.NTSC
+        header.consoleType = getNodeValue<ConsoleType>(Preset.CONSOLE_TYPE) ?: ConsoleType.NES
 
         //TODO
 

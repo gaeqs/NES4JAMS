@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams.gui.util.value
 
+import io.github.gaeqs.nes4jams.cartridge.ConsoleType
 import io.github.gaeqs.nes4jams.cartridge.TVType
 import io.github.gaeqs.nes4jams.gui.util.converter.NESMemoryBankValueConverter
 import io.github.gaeqs.nes4jams.memory.NESMemoryBank
@@ -55,6 +56,11 @@ class NESValueEditors private constructor() {
             val tvTypeBuilder = TVTypeValueEditor.Builder()
             ValueEditors.addByType(TVType::class.java, tvTypeBuilder)
             ValueEditors.addByName(TVTypeValueEditor.NAME, tvTypeBuilder)
+
+            // CONSOLE TYPE
+            val consoleTypeBuilder = ConsoleTypeValueEditor.Builder()
+            ValueEditors.addByType(ConsoleType::class.java, consoleTypeBuilder)
+            ValueEditors.addByName(ConsoleTypeValueEditor.NAME, consoleTypeBuilder)
         }
 
     }
