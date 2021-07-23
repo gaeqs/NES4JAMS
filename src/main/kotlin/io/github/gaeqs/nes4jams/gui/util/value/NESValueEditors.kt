@@ -24,9 +24,11 @@
 
 package io.github.gaeqs.nes4jams.gui.util.value
 
+import io.github.gaeqs.nes4jams.cartridge.TVType
 import io.github.gaeqs.nes4jams.gui.util.converter.NESMemoryBankValueConverter
 import io.github.gaeqs.nes4jams.memory.NESMemoryBank
 import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
+import io.github.gaeqs.nes4jams.ppu.Mirror
 import net.jamsimulator.jams.gui.util.value.ValueEditors
 
 class NESValueEditors private constructor() {
@@ -43,6 +45,16 @@ class NESValueEditors private constructor() {
             val nesMemoryBankCollectionBuilder = NESMemoryBankCollectionValueEditor.Builder()
             ValueEditors.addByType(NESMemoryBankCollection::class.java, nesMemoryBankCollectionBuilder)
             ValueEditors.addByName(NESMemoryBankCollectionValueEditor.NAME, nesMemoryBankCollectionBuilder)
+
+            // MIRROR
+            val mirrorBuilder = MirrorValueEditor.Builder()
+            ValueEditors.addByType(Mirror::class.java, mirrorBuilder)
+            ValueEditors.addByName(MirrorValueEditor.NAME, mirrorBuilder)
+
+            // TV TYPE
+            val tvTypeBuilder = TVTypeValueEditor.Builder()
+            ValueEditors.addByType(TVType::class.java, tvTypeBuilder)
+            ValueEditors.addByName(TVTypeValueEditor.NAME, tvTypeBuilder)
         }
 
     }

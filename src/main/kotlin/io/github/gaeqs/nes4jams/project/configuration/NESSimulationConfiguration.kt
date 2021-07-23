@@ -25,6 +25,8 @@
 package io.github.gaeqs.nes4jams.project.configuration
 
 import io.github.gaeqs.nes4jams.cartridge.CartridgeHeader
+import io.github.gaeqs.nes4jams.cartridge.TVType
+import io.github.gaeqs.nes4jams.ppu.Mirror
 import net.jamsimulator.jams.configuration.Configuration
 import net.jamsimulator.jams.gui.util.converter.ValueConverters
 import net.jamsimulator.jams.utils.Validate
@@ -107,6 +109,9 @@ class NESSimulationConfiguration {
 
     fun generateCartridgeHeader(): CartridgeHeader {
         val header = CartridgeHeader(true)
+
+        header.mirroring = getNodeValue<Mirror>(Preset.MIRRORING) ?: Mirror.VERTICAL
+        header.tvType = getNodeValue<TVType>(Preset.TV_TYPE) ?: TVType.NTSC
 
         //TODO
 

@@ -12,6 +12,10 @@ NES4JAMS_MEMORY_BANK_WRITE_ON_CARTRIDGE=In cartridge:
 
 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS=Memory banks:
 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP=The memory banks are used by the assembler to store the data into the ROM. You can change between banks in your code using the directive .bank. At least one memory bank is required for the assembler to work.
+NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING=Mirroring:
+NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING_TOOLTIP=This field sets the nametable mirroring of the game. When mirroring is enable for a particular axis, the coordinates wrap arround on the current nametable.\n\nThis value may be overriden by the cartridge mapper.
+NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE=TV type:
+NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE_TOOLTIP=Sets the TV type this game runs on. This value is equivalent to the region of the game. There are three tv types:\n\nNTSC: valid for North America, Japan, South Korea and Taiwan NES / Famicon devices. Game runs at 1789773 Hz.\nPAL: valid for Western Europe and Australia NES devices. Game runs at 1662607 Hz.\nDENDY: NES clone popular in Easter Europe, Russia, Mainland China, India and Africa. Game runs at 1773448 Hz.
 
 ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE=PCX image
 ACTION_FOLDER_EXPLORER_ADD_SPRITE_TO_ASSEMBLER=Add sprite to assembler

@@ -12,6 +12,10 @@ NES4JAMS_MEMORY_BANK_WRITE_ON_CARTRIDGE=En cartucho:
 
 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS=Bancos de memoria:
 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP=Los bancos de memoria son usados por el ensamblador para guardar datos en la ROM. Puedes cambiar entre bancos dentro de tu código con la directiva .bank. El ensamblador necesita como mínimo un banco de memoria para funcionar.
+NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING=Modo espejo:
+NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING_TOOLTIP=Esta celda permite configurar el modo espejo del fondo del juego. Cuando el modo espejo está actuvado en un eje en particular, las coordenadas rotan, haciendo que el fondo se repita indefinidamente en dicho eje.\n\nEste valor puede ser sobreescrito por el MMC del cartucho.
+NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE=Tipo de TV:
+NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE_TOOLTIP=El tipo de televisión es equivalente a la región del juego. Para la NES existen tres regiones:\n\nNTSC: válido para los dispositivos NES / Famicon de América del Norte, Japón, Corea del Sur y Taiwan. Los juegos se ejecutan a 1789773 Hz.\nPAL: válido para los dispositivos NES de Europa del Oeste y Australia. Los juegos se ejecutan a 1662607 Hz.\nDENDY: clon de la NES popular en Europa del Este, Rusia, China, India y África. Los juegos se ejecutan a 1773448 Hz.
 
 ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE=Imagen PCX
 ACTION_FOLDER_EXPLORER_ADD_SPRITE_TO_ASSEMBLER=Añadir sprite al ensamblador

@@ -22,20 +22,33 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.data
+package io.github.gaeqs.nes4jams.gui.util.converter
 
-val NES4JAMS_DESCRIPTION = "NES4JAMS_DESCRIPTION"
-val NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY = "NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY"
+import io.github.gaeqs.nes4jams.cartridge.TVType
+import kotlinx.serialization.SerializationException
+import net.jamsimulator.jams.gui.util.converter.ValueConverter
+import java.util.*
 
-val NES4JAMS_BAR_SPRITES_TO_ASSEMBLE = "NES4JAMS_BAR_SPRITES_TO_ASSEMBLE"
+class TVTypeValueConverter : ValueConverter<TVType>() {
 
-val NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS = "NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS"
-val NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP = "NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP"
-val NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING = "NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING"
-val NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING_TOOLTIP = "NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING_TOOLTIP"
-val NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE = "NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE"
-val NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE_TOOLTIP = "NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE_TOOLTIP"
-val NES4JAMS_MEMORY_BANK_START = "NES4JAMS_MEMORY_BANK_START"
-val NES4JAMS_MEMORY_BANK_SIZE = "NES4JAMS_MEMORY_BANK_SIZE"
-val NES4JAMS_MEMORY_BANK_WRITABLE = "NES4JAMS_MEMORY_BANK_WRITABLE"
-val NES4JAMS_MEMORY_BANK_WRITE_ON_CARTRIDGE = "NES4JAMS_MEMORY_BANK_WRITE_ON_CARTRIDGE"
+    companion object {
+        val INSTANCE = TVTypeValueConverter()
+        const val NAME = "tv_type"
+    }
+
+    override fun toString(value: TVType): String {
+        return value.toString()
+    }
+
+    override fun fromStringSafe(raw: String): Optional<TVType> {
+        return try {
+            Optional.of(TVType.valueOf(raw))
+        } catch (ex: SerializationException) {
+            Optional.empty()
+        }
+    }
+
+    override fun conversionClass() = TVType::class.java
+
+
+}

@@ -24,8 +24,13 @@
 
 package io.github.gaeqs.nes4jams.project.configuration
 
+import io.github.gaeqs.nes4jams.cartridge.TVType
 import io.github.gaeqs.nes4jams.data.NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS
+import io.github.gaeqs.nes4jams.data.NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING
+import io.github.gaeqs.nes4jams.data.NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE
+import io.github.gaeqs.nes4jams.data.NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE_TOOLTIP
 import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
+import io.github.gaeqs.nes4jams.ppu.Mirror
 import net.jamsimulator.jams.language.Messages
 import net.jamsimulator.jams.utils.Validate
 import kotlin.reflect.KClass
@@ -55,6 +60,8 @@ data class NESSimulationConfigurationNodePreset(
     companion object {
         const val CALL_EVENTS = "call_events"
         const val UNDO_ENABLED = "undo_enabled"
+        const val MIRRORING = "mirroring"
+        const val TV_TYPE = "tv_type"
         const val MEMORY_BANKS = "memory_banks"
 
         val PRESETS = hashSetOf(
@@ -74,9 +81,23 @@ data class NESSimulationConfigurationNodePreset(
                 mapOf(CALL_EVENTS to arrayOf(true))
             ),
             NESSimulationConfigurationNodePreset(
+                MIRRORING,
+                Mirror::class,
+                 88,
+                NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING,
+                Mirror.VERTICAL
+            ),
+            NESSimulationConfigurationNodePreset(
+                TV_TYPE,
+                TVType::class,
+                87,
+                NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE,
+                TVType.NTSC
+            ),
+            NESSimulationConfigurationNodePreset(
                 MEMORY_BANKS,
                 NESMemoryBankCollection::class,
-                88,
+                80,
                 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS,
                 NESMemoryBankCollection()
             )

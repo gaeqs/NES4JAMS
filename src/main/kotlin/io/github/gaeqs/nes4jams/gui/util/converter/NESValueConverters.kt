@@ -24,7 +24,9 @@
 
 package io.github.gaeqs.nes4jams.gui.util.converter
 
+import io.github.gaeqs.nes4jams.cartridge.TVType
 import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
+import io.github.gaeqs.nes4jams.ppu.Mirror
 import net.jamsimulator.jams.gui.util.converter.ValueConverters
 
 class NESValueConverters private constructor() {
@@ -46,6 +48,13 @@ class NESValueConverters private constructor() {
                 NESMemoryBankCollectionValueConverter.INSTANCE
             )
 
+            // TV TYPE
+            ValueConverters.addByType(TVType::class.java, TVTypeValueConverter.INSTANCE)
+            ValueConverters.addByName(TVTypeValueConverter.NAME, TVTypeValueConverter.INSTANCE)
+
+            // MIRROR
+            ValueConverters.addByType(Mirror::class.java, MirrorValueConverter.INSTANCE)
+            ValueConverters.addByName(MirrorValueConverter.NAME, MirrorValueConverter.INSTANCE)
         }
 
     }
