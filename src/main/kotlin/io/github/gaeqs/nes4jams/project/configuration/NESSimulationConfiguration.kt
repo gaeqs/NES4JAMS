@@ -114,6 +114,7 @@ class NESSimulationConfiguration {
         header.mirroring = getNodeValue<Mirror>(Preset.MIRRORING) ?: Mirror.VERTICAL
         header.tvType = getNodeValue<TVType>(Preset.TV_TYPE) ?: TVType.NTSC
         header.consoleType = getNodeValue<ConsoleType>(Preset.CONSOLE_TYPE) ?: ConsoleType.NES
+        header.mapper = (getNodeValue<Int>(Preset.MAPPER) ?: 0).toUShort()
 
         //TODO
 

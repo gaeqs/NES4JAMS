@@ -62,6 +62,7 @@ data class NESSimulationConfigurationNodePreset(
         const val TV_TYPE = "tv_type"
         const val CONSOLE_TYPE = "console_type"
         const val MEMORY_BANKS = "memory_banks"
+        const val MAPPER = "mapper"
 
         val PRESETS = hashSetOf(
             NESSimulationConfigurationNodePreset(
@@ -82,7 +83,7 @@ data class NESSimulationConfigurationNodePreset(
             NESSimulationConfigurationNodePreset(
                 MIRRORING,
                 Mirror::class,
-                 88,
+                88,
                 NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING,
                 Mirror.VERTICAL
             ),
@@ -99,6 +100,13 @@ data class NESSimulationConfigurationNodePreset(
                 86,
                 NES4JAMS_SIMULATION_CONFIGURATION_CONSOLE_TYPE,
                 ConsoleType.NES
+            ),
+            NESSimulationConfigurationNodePreset(
+                MAPPER,
+                Int::class,
+                85,
+                NES4JAMS_SIMULATION_CONFIGURATION_MAPPER,
+                0
             ),
             NESSimulationConfigurationNodePreset(
                 MEMORY_BANKS,

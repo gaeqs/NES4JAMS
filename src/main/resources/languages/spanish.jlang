@@ -18,6 +18,8 @@ NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE=Tipo de TV:
 NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE_TOOLTIP=El tipo de televisión es equivalente a la región del juego. Para la NES existen tres regiones:\n\nNTSC: válido para los dispositivos NES / Famicon de América del Norte, Japón, Corea del Sur y Taiwan. Los juegos se ejecutan a 1789773 Hz.\nPAL: válido para los dispositivos NES de Europa del Oeste y Australia. Los juegos se ejecutan a 1662607 Hz.\nDENDY: clon de la NES popular en Europa del Este, Rusia, China, India y África. Los juegos se ejecutan a 1773448 Hz.
 NES4JAMS_SIMULATION_CONFIGURATION_CONSOLE_TYPE=Tipo de consola:
 NES4JAMS_SIMULATION_CONFIGURATION_CONSOLE_TYPE_TOOLTIP=Existen varios sistemas basados en el hardware de la NES capaces de ejecutar versiones especiales de diferentes juegos de la NES. Existen dos modificaciones oficiales de este tipo: la Nintendo Vs y la PlayChoice-10, ambas para arcades.
+NES4JAMS_SIMULATION_CONFIGURATION_MAPPER=Controlador de memoria:
+NES4JAMS_SIMULATION_CONFIGURATION_MAPPER_TOOLTIP=Los controladores de memoria son hardware dentro de un cartucho diseñados para extender ampliar las capacidades del sistema y sobrepasar las limitaciones de la NES. Permiten a un videojuego tener RAM extra, crear interrupciones personalizadas o simplemente extender la ROM del cartucho usando registros que permiten cambiar entre bancos de memoria.
 
 ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE=Imagen PCX
 ACTION_FOLDER_EXPLORER_ADD_SPRITE_TO_ASSEMBLER=Añadir sprite al ensamblador
