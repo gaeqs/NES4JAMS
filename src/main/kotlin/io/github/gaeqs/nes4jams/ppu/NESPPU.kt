@@ -236,7 +236,7 @@ class NESPPU(val simulation: NESSimulation) {
             status.verticalBlank = 0u
             status.spriteOverflow = 0u
             status.verticalZeroHit = 0u
-            spriteRenderer.reset()
+            spriteRenderer.resetShifter()
         }
 
         val (bgPixel, bgPalette) = backgroundRenderer.clock(scanline, cycle)
@@ -297,6 +297,26 @@ class NESPPU(val simulation: NESSimulation) {
                 }
             }
         }
+    }
+
+    fun reset() {
+        nameTables.forEach { it.fill(0u) }
+        palette.fill(0u)
+        patternTables.forEach { it.fill(0u) }
+        objectAttributeMemory.forEach { it.attribute = 0u; it.id = 0u; it.x = 0u; it.y = 0u }
+        oamAddress = 0u
+        control.value = 0u
+        status.value = 0u
+        mask.value = 0u
+        nmiRequest = false
+        addressLatch = false
+        ppuDataBuffer = 0u
+        scanline = 0
+        cycle = 0
+        frameCompleted = false
+        screen.fill(0)
+        backgroundRenderer.reset()
+        spriteRenderer.reset()
     }
 
 }

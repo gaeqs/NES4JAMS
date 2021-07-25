@@ -153,4 +153,18 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
             shifterAttributeHigh = shifterAttributeHigh shl 1
         }
     }
+
+    fun reset() {
+        fineX = 0u
+        vRamAddress.value = 0u
+        tRamAddress.value = 0u
+        nextTileId = 0u
+        nextTileAttribute = 0u
+        nextTileLSB = 0u
+        nextTileMSB = 0u
+        shifterPatternLow = 0u
+        shifterPatternHigh = 0u
+        shifterAttributeLow = 0u
+        shifterAttributeHigh = 0u
+    }
 }

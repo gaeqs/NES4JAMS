@@ -23,7 +23,6 @@ class Beeper(sampleRate: Int, tvType: TVType) {
         val audioFormat = AudioFormat(sampleRate.toFloat(), 16, 2, true, false)
         line = AudioSystem.getSourceDataLine(audioFormat)
         line.open(audioFormat, sampleRate / 2)
-        line.start()
     }
 
     fun flush(waitIfFull: Boolean) {
@@ -57,6 +56,12 @@ class Beeper(sampleRate: Int, tvType: TVType) {
     fun destroy() {
         line.stop()
         line.close()
+    }
+
+    fun reset() {
+        line.flush()
+        amount = 0
+        volume = 0.8
     }
 
 }

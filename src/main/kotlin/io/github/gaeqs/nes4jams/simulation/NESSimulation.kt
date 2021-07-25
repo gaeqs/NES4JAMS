@@ -128,7 +128,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     fun destroy() {
         stop()
         waitForExecutionFinish()
-        apu.beeper.destroy()
+        apu.destroy()
     }
 
     private fun velocitySleep() {
@@ -264,7 +264,26 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         stop()
         waitForExecutionFinish()
 
+        clock = 0L
+
+        // Reset controllers
+        controllers.fill(0u)
+        controllersSnapshot.fill(0u)
+        nextControllers.fill(NESControllerMap())
+
+        // Reset RAM
+        cpuRAM.fill(0u)
+
+        // Reset DMA
+        dmaAddress = 0u
+        dmaData = 0u
+        dmaPage = 0u
+        dmaTransfer = false
+        dmaWaitForSync = true
+
         cpu.reset()
+        ppu.reset()
+        apu.reset()
         cartridge.reset()
         clock = 0
     }
@@ -272,7 +291,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     override fun waitForExecutionFinish() {
         finishedRunningLock.withLock {
             try {
-                if(running) {
+                if (running) {
                     finishedRunningLockCondition.await()
                 }
             } catch (ex: InterruptedException) {
@@ -287,11 +306,13 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         interrupted = false
 
         thread = Thread {
+            apu.resume()
             val before = callEvent(SimulationCycleEvent.Before(this, cycles))
             if (before.isCancelled) return@Thread
             clock()
             callEvent(SimulationCycleEvent.After(this, cycles))
             manageSimulationFinish()
+            apu.pause()
         }.apply { priority = Thread.MAX_PRIORITY }
         callEvent(SimulationStartEvent(this))
         thread?.start()
@@ -302,13 +323,14 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         running = true
         interrupted = false
         thread = Thread {
+            apu.resume()
             val clockStart = clock
-
             val millis = measureTimeMillis {
                 lastTick = System.nanoTime()
                 if (data.callEvents) executeAllWithEvents()
                 else executeAllWithoutEvents()
             }
+            apu.pause()
 
             console?.apply {
                 println()

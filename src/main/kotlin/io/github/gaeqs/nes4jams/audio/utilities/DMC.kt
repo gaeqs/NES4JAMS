@@ -75,4 +75,21 @@ class DMC(private val apu: NESAPU) {
         silence = false
     }
 
+    fun reset() {
+        rate = 0x36
+        position = 0
+        shiftRegister = 0u
+        buffer = 0u
+        sampleLength = 1
+        samplesLeft = 0
+        startAddress = 0xC000u
+        address = startAddress
+        bitsLeft = 8
+        silence = true
+        irq = false
+        loop = false
+        bufferEmpty = true
+        interrupt = false
+    }
+
 }

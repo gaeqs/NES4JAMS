@@ -356,4 +356,18 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int, val soundFilter
         }
     }
 
+    fun reset() {
+        apuClocks = 0
+        clocksAfterSample = 0
+        frameCounter.reset()
+        dmc.reset()
+        filter.reset()
+        timers.forEach { it.reset() }
+        interruptFlag = false
+        linearCounterFlag = false
+        linearCounterReload = 0
+        accumulator = 0
+        beeper.reset()
+    }
+
 }

@@ -206,7 +206,7 @@ class NESProject(folder: File) : BasicProject(folder, true) {
     // endregion
 
     fun openSimulationForNESFile(file: File) {
-        var cartridge = Cartridge(file)
+        val cartridge = Cartridge(file)
 
         val configuration = getData().selectedConfiguration
         val data = if (configuration != null) {

@@ -18,4 +18,10 @@ class FrameCounter(private val tvType: TVType, private val run: () -> Unit) {
         }
     }
 
+    fun reset() {
+        value = 7456
+        mode = 4
+        frame = 0
+    }
+
 }

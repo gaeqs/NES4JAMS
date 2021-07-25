@@ -20,6 +20,12 @@ class PPUSpriteRenderer(private val ppu: NESPPU) {
     var spriteZeroBeingRendered = false
 
     fun reset() {
+        scanlineSprites.forEach { it.attribute = 0u; it.id = 0u; it.x = 0u; it.y = 0u }
+        spriteCount = 0
+        resetShifter()
+    }
+
+    fun resetShifter() {
         shifterPatternLow.fill(0u)
         shifterPatternHigh.fill(0u)
     }

@@ -12,4 +12,9 @@ class Filter {
         return linearPointAccumulator
     }
 
+    fun reset() {
+        dcKiller = -6392
+        linearPointAccumulator = 0
+    }
+
 }
