@@ -22,31 +22,25 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.ppu
+package io.github.gaeqs.nes4jams.cartridge.mapper.event
 
-enum class Mirror(private val mapper: (Array<UByteArray>, UShort) -> UByte) {
-    HARDWARE({ nameTables, address ->
-        0u
-    }),
-    VERTICAL({ nameTables, address ->
-        when (address and 0x0FFFu) {
-            in 0x0000u..0x03FFu,
-            in 0x0800u..0x0BFFu -> nameTables[0][(address and 0x03FFu).toInt()]
-            else -> nameTables[1][(address and 0x03FFu).toInt()]
-        }
-    }),
-    HORIZONTAL({ nameTables, address ->
-        when (address and 0x0FFFu) {
-            in 0x0000u..0x07FFu -> nameTables[0][(address and 0x03FFu).toInt()]
-            else -> nameTables[1][(address and 0x03FFu).toInt()]
-        }
-    }),
-    ONESCREEN_LO({ nameTables, address ->
-        nameTables[0][(address and 0x03FFu).toInt()]
-    }),
-    ONESCREEN_HI({ nameTables, address ->
-        nameTables[1][(address and 0x03FFu).toInt()]
-    });
+import io.github.gaeqs.nes4jams.cartridge.mapper.MapperBuilder
+import net.jamsimulator.jams.event.Cancellable
+import net.jamsimulator.jams.event.Event
 
-    fun map(nameTables: Array<UByteArray>, address: UShort): UByte = mapper(nameTables, address)
+sealed class MapperBuilderRegisterEvent private constructor(val builder: MapperBuilder<*>) : Event() {
+
+    class Before(builder: MapperBuilder<*>) : MapperBuilderRegisterEvent(builder), Cancellable {
+
+        private var cancelled = false
+
+        override fun isCancelled() = cancelled
+        override fun setCancelled(cancelled: Boolean) {
+            this.cancelled = cancelled
+        }
+
+    }
+
+    class After(builder: MapperBuilder<*>) : MapperBuilderRegisterEvent(builder)
+
 }

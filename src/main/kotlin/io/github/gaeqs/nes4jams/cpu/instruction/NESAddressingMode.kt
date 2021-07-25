@@ -24,7 +24,7 @@
 
 package io.github.gaeqs.nes4jams.cpu.instruction
 
-import io.github.gaeqs.nes4jams.cpu.OLC6502
+import io.github.gaeqs.nes4jams.cpu.NESCPU
 import kotlin.reflect.KFunction
 
 enum class NESAddressingMode(
@@ -32,18 +32,18 @@ enum class NESAddressingMode(
     val bytesUsed: Int,
     val addressingFunction: KFunction<Boolean>
 ) {
-    IMPLIED(false, 0, OLC6502::imp),
-    IMMEDIATE(false, 1, OLC6502::imm),
-    ZERO_PAGE(false, 1, OLC6502::zp0),
-    ZERO_PAGE_X(false, 1, OLC6502::zpx),
-    ZERO_PAGE_Y(false, 1, OLC6502::zpy),
-    RELATIVE(true, 1, OLC6502::rel),
-    ABSOLUTE(true, 2, OLC6502::abs),
-    ABSOLUTE_X(true, 2, OLC6502::abx),
-    ABSOLUTE_Y(true, 2, OLC6502::aby),
-    INDIRECT(true, 2, OLC6502::ind),
-    INDIRECT_X(false, 1, OLC6502::inx),
-    INDIRECT_Y(false, 1, OLC6502::iny);
+    IMPLIED(false, 0, NESCPU::imp),
+    IMMEDIATE(false, 1, NESCPU::imm),
+    ZERO_PAGE(false, 1, NESCPU::zp0),
+    ZERO_PAGE_X(false, 1, NESCPU::zpx),
+    ZERO_PAGE_Y(false, 1, NESCPU::zpy),
+    RELATIVE(true, 1, NESCPU::rel),
+    ABSOLUTE(true, 2, NESCPU::abs),
+    ABSOLUTE_X(true, 2, NESCPU::abx),
+    ABSOLUTE_Y(true, 2, NESCPU::aby),
+    INDIRECT(true, 2, NESCPU::ind),
+    INDIRECT_X(false, 1, NESCPU::izx),
+    INDIRECT_Y(false, 1, NESCPU::izy);
 
     companion object {
 

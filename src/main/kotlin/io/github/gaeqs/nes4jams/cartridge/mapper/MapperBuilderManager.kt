@@ -22,31 +22,24 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.ppu
+package io.github.gaeqs.nes4jams.cartridge.mapper
 
-enum class Mirror(private val mapper: (Array<UByteArray>, UShort) -> UByte) {
-    HARDWARE({ nameTables, address ->
-        0u
-    }),
-    VERTICAL({ nameTables, address ->
-        when (address and 0x0FFFu) {
-            in 0x0000u..0x03FFu,
-            in 0x0800u..0x0BFFu -> nameTables[0][(address and 0x03FFu).toInt()]
-            else -> nameTables[1][(address and 0x03FFu).toInt()]
-        }
-    }),
-    HORIZONTAL({ nameTables, address ->
-        when (address and 0x0FFFu) {
-            in 0x0000u..0x07FFu -> nameTables[0][(address and 0x03FFu).toInt()]
-            else -> nameTables[1][(address and 0x03FFu).toInt()]
-        }
-    }),
-    ONESCREEN_LO({ nameTables, address ->
-        nameTables[0][(address and 0x03FFu).toInt()]
-    }),
-    ONESCREEN_HI({ nameTables, address ->
-        nameTables[1][(address and 0x03FFu).toInt()]
-    });
+import io.github.gaeqs.nes4jams.cartridge.mapper.defaults.Mapper000
+import io.github.gaeqs.nes4jams.cartridge.mapper.event.MapperBuilderRegisterEvent
+import io.github.gaeqs.nes4jams.cartridge.mapper.event.MapperBuilderUnregisterEvent
+import net.jamsimulator.jams.manager.Manager
 
-    fun map(nameTables: Array<UByteArray>, address: UShort): UByte = mapper(nameTables, address)
+class MapperBuilderManager private constructor() : Manager<MapperBuilder<*>>(
+    { MapperBuilderRegisterEvent.Before(it) },
+    { MapperBuilderRegisterEvent.After(it) },
+    { MapperBuilderUnregisterEvent.Before(it) },
+    { MapperBuilderUnregisterEvent.After(it) }) {
+
+    companion object {
+        val INSTANCE = MapperBuilderManager()
+    }
+
+    override fun loadDefaultElements() {
+        add(Mapper000.Builder.INSTANCE)
+    }
 }

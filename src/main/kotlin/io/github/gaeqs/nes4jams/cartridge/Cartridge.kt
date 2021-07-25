@@ -24,9 +24,92 @@
 
 package io.github.gaeqs.nes4jams.cartridge
 
+import io.github.gaeqs.nes4jams.cartridge.mapper.Mapper
+import io.github.gaeqs.nes4jams.cartridge.mapper.MapperBuilderManager
+import io.github.gaeqs.nes4jams.ppu.Mirror
+import io.github.gaeqs.nes4jams.util.extension.orNull
 import java.io.File
+import kotlin.math.ceil
 
 class Cartridge(val file: File) {
+
+    val header: CartridgeHeader
+    val prgMemory: UByteArray
+    val chrMemory: UByteArray
+
+    val prgBanks: Int
+    val chrBanks: Int
+
+    val mapper: Mapper
+
+    val mirroring: Mirror
+        get() {
+            val mirror = mapper.mirroring
+            return if (mirror == Mirror.HARDWARE) field else mirror
+        }
+
+    init {
+        val stream = file.inputStream()
+        header = CartridgeHeader(stream)
+
+        prgMemory = UByteArray(header.prgRomSize.toInt()) { stream.read().toUByte() }
+        chrMemory = UByteArray(header.chrRomSize.toInt()) { stream.read().toUByte() }
+
+        prgBanks = ceil(prgMemory.size.toDouble() / 0x4000).toInt()
+        chrBanks = ceil(chrMemory.size.toDouble() / 0x2000).toInt()
+
+        mirroring = header.mirroring
+
+        mapper = (MapperBuilderManager.INSTANCE[header.mapper.toString()].orNull()
+            ?: throw NoSuchElementException("Couldn't find mapper ${header.mapper}!")).build(this)
+        stream.close()
+    }
+
+    fun cpuRead(address: UShort): Pair<Boolean, UByte> {
+        val result = mapper.cpuMapRead(address)
+        return when {
+            result.isIntrinsic -> Pair(true, result.intrinsicValue)
+            result.isInArray -> Pair(true, prgMemory[result.arrayAddress])
+            else -> Pair(false, 0u)
+        }
+    }
+
+    fun cpuWrite(address: UShort, data: UByte): Boolean {
+        val result = mapper.cpuMapWrite(address, data)
+        return when {
+            result.isIntrinsic -> true
+            result.isInArray -> {
+                prgMemory[result.arrayAddress] = data
+                true
+            }
+            else -> false
+        }
+    }
+
+    fun ppuRead(address: UShort): Pair<Boolean, UByte> {
+        val result = mapper.ppuMapRead(address)
+        return when {
+            result.isIntrinsic -> Pair(true, result.intrinsicValue)
+            result.isInArray -> Pair(true, chrMemory[result.arrayAddress])
+            else -> Pair(false, 0u)
+        }
+    }
+
+    fun ppuWrite(address: UShort, data: UByte): Boolean {
+        val result = mapper.ppuMapWrite(address, data)
+        return when {
+            result.isIntrinsic -> true
+            result.isInArray -> {
+                chrMemory[result.arrayAddress] = data
+                true
+            }
+            else -> false
+        }
+    }
+
+    fun reset() {
+        mapper.reset()
+    }
 
 
 }

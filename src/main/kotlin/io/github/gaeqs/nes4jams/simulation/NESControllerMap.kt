@@ -22,31 +22,30 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.ppu
+package io.github.gaeqs.nes4jams.simulation
 
-enum class Mirror(private val mapper: (Array<UByteArray>, UShort) -> UByte) {
-    HARDWARE({ nameTables, address ->
-        0u
-    }),
-    VERTICAL({ nameTables, address ->
-        when (address and 0x0FFFu) {
-            in 0x0000u..0x03FFu,
-            in 0x0800u..0x0BFFu -> nameTables[0][(address and 0x03FFu).toInt()]
-            else -> nameTables[1][(address and 0x03FFu).toInt()]
-        }
-    }),
-    HORIZONTAL({ nameTables, address ->
-        when (address and 0x0FFFu) {
-            in 0x0000u..0x07FFu -> nameTables[0][(address and 0x03FFu).toInt()]
-            else -> nameTables[1][(address and 0x03FFu).toInt()]
-        }
-    }),
-    ONESCREEN_LO({ nameTables, address ->
-        nameTables[0][(address and 0x03FFu).toInt()]
-    }),
-    ONESCREEN_HI({ nameTables, address ->
-        nameTables[1][(address and 0x03FFu).toInt()]
-    });
+data class NESControllerMap(
+    val a: Boolean = false,
+    val b: Boolean = false,
+    val select: Boolean = false,
+    val start: Boolean = false,
+    val up: Boolean = false,
+    val down: Boolean = false,
+    val left: Boolean = false,
+    val right: Boolean = false
+) {
 
-    fun map(nameTables: Array<UByteArray>, address: UShort): UByte = mapper(nameTables, address)
+    fun toByte(): UByte {
+        var byte: UByte = 0u
+        byte = byte or if (a) 0x80u else 0x0u
+        byte = byte or if (b) 0x40u else 0x0u
+        byte = byte or if (select) 0x20u else 0x0u
+        byte = byte or if (start) 0x10u else 0x0u
+        byte = byte or if (up) 0x08u else 0x0u
+        byte = byte or if (down) 0x04u else 0x0u
+        byte = byte or if (left) 0x02u else 0x0u
+        byte = byte or if (right) 0x01u else 0x0u
+        return byte
+    }
+
 }

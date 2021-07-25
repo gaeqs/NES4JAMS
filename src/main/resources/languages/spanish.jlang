@@ -21,6 +21,9 @@ NES4JAMS_SIMULATION_CONFIGURATION_CONSOLE_TYPE_TOOLTIP=Existen varios sistemas b
 NES4JAMS_SIMULATION_CONFIGURATION_MAPPER=Controlador de memoria:
 NES4JAMS_SIMULATION_CONFIGURATION_MAPPER_TOOLTIP=Los controladores de memoria son hardware dentro de un cartucho diseñados para extender ampliar las capacidades del sistema y sobrepasar las limitaciones de la NES. Permiten a un videojuego tener RAM extra, crear interrupciones personalizadas o simplemente extender la ROM del cartucho usando registros que permiten cambiar entre bancos de memoria.
 
+NES4JAMS_BAR_FIRST_CONTROLLER=Mando J1
+NES4JAMS_BAR_SECOND_CONTROLLER=Mando J2
+
 ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE=Imagen PCX
 ACTION_FOLDER_EXPLORER_ADD_SPRITE_TO_ASSEMBLER=Añadir sprite al ensamblador
 ACTION_FOLDER_EXPLORER_ADD_ALL_SPRITES_TO_ASSEMBLER=Añadir sprites al ensamblador

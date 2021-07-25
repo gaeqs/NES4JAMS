@@ -24,16 +24,23 @@
 
 package io.github.gaeqs.nes4jams.project
 
+import io.github.gaeqs.nes4jams.cartridge.Cartridge
 import io.github.gaeqs.nes4jams.cartridge.CartridgeHeader
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssembler
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerMemoryBank
 import io.github.gaeqs.nes4jams.file.pcx.PictureExchangeImage
+import io.github.gaeqs.nes4jams.gui.project.NESSimulationPane
 import io.github.gaeqs.nes4jams.gui.project.NESStructurePane
+import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfiguration
 import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfigurationNodePreset
+import io.github.gaeqs.nes4jams.simulation.NESSimulation
+import io.github.gaeqs.nes4jams.simulation.NESSimulationData
 import io.github.gaeqs.nes4jams.util.ExponentialPrgBanksFinder
+import javafx.application.Platform
 import javafx.scene.control.Tab
 import net.jamsimulator.jams.gui.project.ProjectTab
 import net.jamsimulator.jams.gui.project.WorkingPane
+import net.jamsimulator.jams.gui.util.log.Console
 import net.jamsimulator.jams.gui.util.log.Log
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 import net.jamsimulator.jams.project.BasicProject
@@ -45,7 +52,9 @@ import kotlin.system.measureTimeMillis
 
 class NESProject(folder: File) : BasicProject(folder, true) {
 
-    fun assembleToFile(log: Log?) {
+    // region assemble
+
+    fun assembleToFile(log: Log?): Triple<NESSimulationConfiguration, NESAssembler, File> {
         val configuration = getData().selectedConfiguration
         if (configuration == null) {
             log?.printErrorLn("Error! Configuration not found!")
@@ -66,12 +75,15 @@ class NESProject(folder: File) : BasicProject(folder, true) {
             }
         }
 
+        val file = File(data.filesFolder, "$name.nes")
+        val assembler = NESAssembler(
+            files,
+            configuration.getNodeValue(NESSimulationConfigurationNodePreset.MEMORY_BANKS)!!,
+            log
+        )
+
         val millis = measureTimeMillis {
-            val assembler = NESAssembler(
-                files,
-                configuration.getNodeValue(NESSimulationConfigurationNodePreset.MEMORY_BANKS)!!,
-                log
-            )
+
 
             log?.println()
             log?.printInfoLn("Assembling...")
@@ -88,7 +100,7 @@ class NESProject(folder: File) : BasicProject(folder, true) {
 
             log?.printInfoLn("Writing to file...")
             val header = configuration.generateCartridgeHeader()
-            val out = File(data.filesFolder, "$name.nes").outputStream()
+            val out = file.outputStream()
 
             // Program banks
             val (prgBanksAmount, prgExtra) = calculateProgramBanks(assembler.banks)
@@ -110,7 +122,7 @@ class NESProject(folder: File) : BasicProject(folder, true) {
         }
 
         log?.printDoneLn("Assembly successful in $millis ms.")
-        return
+        return Triple(configuration, assembler, file)
     }
 
     private fun calculateProgramBanks(banks: Iterable<NESAssemblerMemoryBank>): Pair<Int, Int> {
@@ -190,8 +202,25 @@ class NESProject(folder: File) : BasicProject(folder, true) {
         }
     }
 
+    // endregion
+
     override fun generateSimulation(log: Log?) {
-        assembleToFile(log)
+        val (configuration, assembler, file) = assembleToFile(log)
+        val test = File(data.filesFolder, "nestest.nes")
+        val cartridge = Cartridge(if(test.isFile) test else file)
+        val data = NESSimulationData(
+            cartridge, Console(), emptyMap(),
+            assembler.globalLabels.values.toSet(), configuration
+        )
+
+        val simulation = NESSimulation(data)
+        Platform.runLater {
+            getProjectTab().ifPresent {
+                it.projectTabPane.createProjectPane(
+                    { t, pt -> NESSimulationPane(t, pt, this, simulation) }, true
+                )
+            }
+        }
     }
 
     override fun onClose() {

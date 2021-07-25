@@ -26,12 +26,10 @@ package io.github.gaeqs.nes4jams.cpu
 
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAssembledInstruction
-import io.github.gaeqs.nes4jams.util.extension.concatenate
-import io.github.gaeqs.nes4jams.util.extension.isZero
-import io.github.gaeqs.nes4jams.util.extension.shl
-import io.github.gaeqs.nes4jams.util.extension.shr
+import io.github.gaeqs.nes4jams.simulation.NESSimulation
+import io.github.gaeqs.nes4jams.util.extension.*
 
-class OLC6502 {
+class NESCPU(val simulation: NESSimulation) {
 
     var accumulator: UByte = 0u
     var xRegister: UByte = 0u
@@ -108,7 +106,7 @@ class OLC6502 {
         if (instruction.addressingMode != NESAddressingMode.IMPLIED) {
             fetched = read(absoluteAddress)
         }
-        return fetched;
+        return fetched
     }
 
     // region OPCODES
@@ -676,9 +674,9 @@ class OLC6502 {
         pc = absoluteAddress
     }
 
-    private fun read(address: UShort) = (0u).toUByte()//bus!!.cpuRead(address, false)
+    private fun read(address: UShort) = simulation.cpuRead(address, false)
 
-    private fun write(address: UShort, data: UByte) = (0u).toUByte()//bus!!.cpuWrite(address, data)
+    private fun write(address: UShort, data: UByte) = simulation.cpuWrite(address, data)
 
     fun getFlag(flag: StatusFlag) = status and flag.mask > 0u
 

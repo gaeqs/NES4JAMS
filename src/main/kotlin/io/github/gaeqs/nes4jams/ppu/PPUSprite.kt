@@ -24,29 +24,40 @@
 
 package io.github.gaeqs.nes4jams.ppu
 
-enum class Mirror(private val mapper: (Array<UByteArray>, UShort) -> UByte) {
-    HARDWARE({ nameTables, address ->
-        0u
-    }),
-    VERTICAL({ nameTables, address ->
-        when (address and 0x0FFFu) {
-            in 0x0000u..0x03FFu,
-            in 0x0800u..0x0BFFu -> nameTables[0][(address and 0x03FFu).toInt()]
-            else -> nameTables[1][(address and 0x03FFu).toInt()]
-        }
-    }),
-    HORIZONTAL({ nameTables, address ->
-        when (address and 0x0FFFu) {
-            in 0x0000u..0x07FFu -> nameTables[0][(address and 0x03FFu).toInt()]
-            else -> nameTables[1][(address and 0x03FFu).toInt()]
-        }
-    }),
-    ONESCREEN_LO({ nameTables, address ->
-        nameTables[0][(address and 0x03FFu).toInt()]
-    }),
-    ONESCREEN_HI({ nameTables, address ->
-        nameTables[1][(address and 0x03FFu).toInt()]
-    });
+class PPUSprite(var y: UByte = 0u, var id: UByte = 0u, var attribute: UByte = 0u, var x: UByte = 0u) {
 
-    fun map(nameTables: Array<UByteArray>, address: UShort): UByte = mapper(nameTables, address)
+    fun fill(value: UByte) {
+        y = value
+        id = value
+        attribute = value
+        x = value
+    }
+
+    fun moveFrom(sprite : PPUSprite) {
+        y = sprite.y
+        id = sprite.id
+        attribute = sprite.attribute
+        x = sprite.x
+    }
+
+    operator fun get(i: Int): UByte {
+        return when (i) {
+            0 -> y
+            1 -> id
+            2 -> attribute
+            3 -> x
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+    operator fun set(i: Int, value: UByte) {
+        when (i) {
+            0 -> y = value
+            1 -> id = value
+            2 -> attribute = value
+            3 -> x = value
+            else -> throw IllegalArgumentException()
+        }
+    }
+
 }

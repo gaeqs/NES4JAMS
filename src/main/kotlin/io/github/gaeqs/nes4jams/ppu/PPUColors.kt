@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams.ppu
 
+import io.github.gaeqs.nes4jams.util.extension.toRGB
 import javafx.scene.paint.Color
 
 class PPUColors {
@@ -96,6 +97,8 @@ class PPUColors {
             Color.rgb(0, 0, 0),
             Color.rgb(0, 0, 0),
         )
+
+        val INT_COLORS = IntArray(COLORS.size) { COLORS[it].toRGB() }
 
     }
 
