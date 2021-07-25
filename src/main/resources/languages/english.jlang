@@ -21,9 +21,6 @@ NES4JAMS_SIMULATION_CONFIGURATION_CONSOLE_TYPE_TOOLTIP=There are some systems ba
 NES4JAMS_SIMULATION_CONFIGURATION_MAPPER=Mapper:
 NES4JAMS_SIMULATION_CONFIGURATION_MAPPER_TOOLTIP=Mappers are hardware inside a cartridge designed to extend the system and bypass the NES limitations. They allow a game to have extra RAM, can create custom interrupts or can simply extends the cartridge ROM using registers to change between memory banks.
 
-NES4JAMS_BAR_FIRST_CONTROLLER=P1 Controller
-NES4JAMS_BAR_SECOND_CONTROLLER=P2 Controller
-
 ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE=PCX image
 ACTION_FOLDER_EXPLORER_ADD_SPRITE_TO_ASSEMBLER=Add sprite to assembler
 ACTION_FOLDER_EXPLORER_ADD_ALL_SPRITES_TO_ASSEMBLER=Add sprites to assembler

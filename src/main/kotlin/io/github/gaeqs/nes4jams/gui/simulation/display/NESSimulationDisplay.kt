@@ -26,11 +26,16 @@ package io.github.gaeqs.nes4jams.gui.simulation.display
 
 import io.github.gaeqs.nes4jams.ppu.NESPPU
 import io.github.gaeqs.nes4jams.ppu.PPUColors
+import io.github.gaeqs.nes4jams.simulation.NESControllerMap
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import javafx.animation.AnimationTimer
 import javafx.scene.canvas.Canvas
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
+import javafx.scene.input.KeyCode
+import javafx.scene.layout.Background
+import javafx.scene.layout.BackgroundFill
+import javafx.scene.paint.Color
 
 class NESSimulationDisplay(val simulation: NESSimulation) :
     Canvas(0.0, 0.0) {
@@ -42,8 +47,14 @@ class NESSimulationDisplay(val simulation: NESSimulation) :
     private val image = WritableImage(NESPPU.SCREEN_WIDTH, NESPPU.SCREEN_HEIGHT)
     private val handler = RedrawHandler().apply { start() }
 
+    private var controller = NESControllerMap()
+
     init {
         graphicsContext2D.isImageSmoothing = false
+
+        setOnMouseClicked { requestFocus(); it.consume() }
+        setOnKeyPressed { update(it.code, true); it.consume() }
+        setOnKeyReleased { update(it.code, false); it.consume() }
     }
 
     fun stop() {
@@ -59,6 +70,24 @@ class NESSimulationDisplay(val simulation: NESSimulation) :
         } else {
             this.width = width
             this.height = width / ASPECT_RATIO
+        }
+    }
+
+    private fun update(key: KeyCode, pressed: Boolean) {
+        when (key) {
+            KeyCode.X -> controller = controller.copy(a = pressed)
+            KeyCode.Z -> controller = controller.copy(b = pressed)
+            KeyCode.A -> controller = controller.copy(start = pressed)
+            KeyCode.S -> controller = controller.copy(select = pressed)
+            KeyCode.UP -> controller = controller.copy(up = pressed)
+            KeyCode.DOWN -> controller = controller.copy(down = pressed)
+            KeyCode.LEFT -> controller = controller.copy(left = pressed)
+            KeyCode.RIGHT -> controller = controller.copy(right = pressed)
+            else -> {
+            }
+        }
+        simulation.runSynchronized {
+            simulation.sendNextControllerData(controller, false)
         }
     }
 

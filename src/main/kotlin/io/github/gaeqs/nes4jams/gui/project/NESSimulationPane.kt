@@ -24,10 +24,6 @@
 
 package io.github.gaeqs.nes4jams.gui.project
 
-import io.github.gaeqs.nes4jams.data.ICON_PLUGIN
-import io.github.gaeqs.nes4jams.data.NES4JAMS_BAR_FIRST_CONTROLLER
-import io.github.gaeqs.nes4jams.data.NES4JAMS_BAR_SECOND_CONTROLLER
-import io.github.gaeqs.nes4jams.gui.simulation.display.NESSimulationControllerInput
 import io.github.gaeqs.nes4jams.gui.simulation.display.NESSimulationDisplay
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
@@ -80,8 +76,6 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
 
         init()
         loadConsole()
-        loadFirstController()
-        loadSecondController()
     }
 
     override fun getLanguageNode() = Messages.PROJECT_TAB_SIMULATION
@@ -118,38 +112,5 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
             )
         )
     }
-
-    private fun loadFirstController() {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(ICON_PLUGIN).orNull()
-        val controller = NESSimulationControllerInput(simulation, false)
-        barMap.registerSnapshot(
-            BarSnapshot(
-                "first_controller",
-                controller,
-                BarPosition.BOTTOM_LEFT,
-                BarSnapshotViewModePane.INSTANCE,
-                true,
-                icon,
-                NES4JAMS_BAR_FIRST_CONTROLLER,
-            )
-        )
-    }
-
-    private fun loadSecondController() {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(ICON_PLUGIN).orNull()
-        val controller = NESSimulationControllerInput(simulation, true)
-        barMap.registerSnapshot(
-            BarSnapshot(
-                "second_controller",
-                controller,
-                BarPosition.BOTTOM_RIGHT,
-                BarSnapshotViewModePane.INSTANCE,
-                true,
-                icon,
-                NES4JAMS_BAR_SECOND_CONTROLLER,
-            )
-        )
-    }
-
 
 }
