@@ -125,6 +125,7 @@ class NESProject(folder: File) : BasicProject(folder, true) {
         return Triple(configuration, assembler, file)
     }
 
+
     private fun calculateProgramBanks(banks: Iterable<NESAssemblerMemoryBank>): Pair<Int, Int> {
         val total = banks.filter { it.writeOnCartridge }.sumOf { it.array.size }
         val banksAmount = total shr 14
@@ -204,10 +205,29 @@ class NESProject(folder: File) : BasicProject(folder, true) {
 
     // endregion
 
+    fun openSimulationForNESFile(file: File) {
+        var cartridge = Cartridge(file)
+
+        val configuration = getData().selectedConfiguration
+        val data = if (configuration != null) {
+            NESSimulationData(cartridge, Console(), emptyMap(), emptySet(), configuration)
+        } else {
+            NESSimulationData(cartridge, Console(), emptyMap(), emptySet(), callEvents = true, undoEnabled = true)
+        }
+
+        val simulation = NESSimulation(data)
+        Platform.runLater {
+            getProjectTab().ifPresent {
+                it.projectTabPane.createProjectPane(
+                    { t, pt -> NESSimulationPane(t, pt, this, simulation) }, true
+                )
+            }
+        }
+    }
+
     override fun generateSimulation(log: Log?) {
         val (configuration, assembler, file) = assembleToFile(log)
-        val test = File(data.filesFolder, "nestest.nes")
-        val cartridge = Cartridge(if(test.isFile) test else file)
+        val cartridge = Cartridge(file)
         val data = NESSimulationData(
             cartridge, Console(), emptyMap(),
             assembler.globalLabels.values.toSet(), configuration

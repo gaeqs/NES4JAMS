@@ -24,7 +24,7 @@
 
 package io.github.gaeqs.nes4jams.project
 
-import io.github.gaeqs.nes4jams.gui.project.editor.NESFileEditor
+import io.github.gaeqs.nes4jams.gui.project.editor.NESAssemblyFileEditor
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESFileElements
 import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.application.Platform
@@ -93,10 +93,10 @@ class NESFilesToAssemble(val project: NESProject) : SimpleEventBroadcast(), File
 
     override fun addFile(file: File, holder: FileEditorHolder, refreshGlobalLabels: Boolean) {
         val tab = holder.getFileDisplayTab(file, true)
-        if (tab.isEmpty || tab.get().display !is NESFileEditor) {
+        if (tab.isEmpty || tab.get().display !is NESAssemblyFileEditor) {
             addFile(file, refreshGlobalLabels)
         } else {
-            val editor = tab.get().display as NESFileEditor
+            val editor = tab.get().display as NESAssemblyFileEditor
             addFile(file, editor.elements, refreshGlobalLabels)
         }
     }
@@ -142,7 +142,7 @@ class NESFilesToAssemble(val project: NESProject) : SimpleEventBroadcast(), File
             elements.searchForLabelsUpdates(requiresUpdate)
             val fileTab = node.getFileDisplayTab(file, true).orNull() ?: return@forEach
             val display = fileTab.display
-            if (display is NESFileEditor) {
+            if (display is NESAssemblyFileEditor) {
                 elements.update(display)
             }
         }
@@ -180,7 +180,7 @@ class NESFilesToAssemble(val project: NESProject) : SimpleEventBroadcast(), File
         if (node !is FileEditorHolder) return
         val fileTab = node.getFileDisplayTab(file, true).orNull() ?: return
         val display = fileTab.display
-        if (display is NESFileEditor) {
+        if (display is NESAssemblyFileEditor) {
             elements.update(display)
         }
     }

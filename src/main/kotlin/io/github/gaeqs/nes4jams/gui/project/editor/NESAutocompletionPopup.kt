@@ -35,7 +35,7 @@ import net.jamsimulator.jams.gui.JamsApplication
 import net.jamsimulator.jams.gui.editor.popup.AutocompletionPopup
 import net.jamsimulator.jams.gui.image.icon.Icons
 
-class NESAutocompletionPopup(display: NESFileEditor) : AutocompletionPopup(display) {
+class NESAutocompletionPopup(display: NESAssemblyFileEditor) : AutocompletionPopup(display) {
 
     companion object {
         private val ICON_DIRECTIVE =
@@ -44,7 +44,7 @@ class NESAutocompletionPopup(display: NESFileEditor) : AutocompletionPopup(displ
             JamsApplication.getIconManager().getOrLoadSafe(Icons.AUTOCOMPLETION_INSTRUCTION).orNull()
     }
 
-    override fun getDisplay() = super.getDisplay() as NESFileEditor
+    override fun getDisplay() = super.getDisplay() as NESAssemblyFileEditor
 
     private val nesElements = display.elements
     private var element: NESCodeElement? = null

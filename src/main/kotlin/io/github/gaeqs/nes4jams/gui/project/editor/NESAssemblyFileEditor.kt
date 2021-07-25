@@ -37,7 +37,7 @@ import org.fxmisc.richtext.model.PlainTextChange
 import kotlin.math.max
 import kotlin.math.min
 
-class NESFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
+class NESAssemblyFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
 
     val project: NESProject?
     val elements: NESFileElements

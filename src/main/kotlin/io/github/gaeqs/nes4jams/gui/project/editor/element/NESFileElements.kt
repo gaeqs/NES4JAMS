@@ -24,7 +24,7 @@
 
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
-import io.github.gaeqs.nes4jams.gui.project.editor.NESFileEditor
+import io.github.gaeqs.nes4jams.gui.project.editor.NESAssemblyFileEditor
 import io.github.gaeqs.nes4jams.project.NESFilesToAssemble
 import io.github.gaeqs.nes4jams.project.NESProject
 import net.jamsimulator.jams.collection.Bag
@@ -198,7 +198,7 @@ class NESFileElements(val project: NESProject?, var filesToAssemble: NESFilesToA
         }
     }
 
-    fun update(editor: NESFileEditor) {
+    fun update(editor: NESAssemblyFileEditor) {
         if (requiresUpdate.isEmpty()) return
         val bar = editor.hintBar
 

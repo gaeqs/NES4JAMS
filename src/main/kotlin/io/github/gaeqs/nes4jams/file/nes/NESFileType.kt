@@ -22,11 +22,24 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.data
+package io.github.gaeqs.nes4jams.file.nes
 
-import io.github.gaeqs.nes4jams.NES4JAMS
-import net.jamsimulator.jams.gui.image.icon.IconData
+import io.github.gaeqs.nes4jams.data.ICON_FILE_NES
+import io.github.gaeqs.nes4jams.gui.nes.NESFileEditor
+import net.jamsimulator.jams.file.FileType
+import net.jamsimulator.jams.gui.editor.FileEditor
+import net.jamsimulator.jams.gui.editor.FileEditorTab
 
-val ICON_PLUGIN = IconData("nes4jams_plugin", "/gui/icons/favicon.png", NES4JAMS.INSTANCE)
-val ICON_DRAG = IconData("nes4jams_drag", "/gui/icons/drag.png", NES4JAMS.INSTANCE)
-val ICON_FILE_NES = IconData("nes4jams_file_nes", "/gui/icons/file/nes.png", NES4JAMS.INSTANCE)
+class NESFileType private constructor() : FileType(NAME, ICON_FILE_NES, EXTENSION) {
+
+    companion object {
+        const val NAME = "NES"
+        const val EXTENSION = "nes"
+        val INSTANCE = NESFileType()
+    }
+
+    override fun createDisplayTab(tab: FileEditorTab): FileEditor {
+        return NESFileEditor(tab)
+    }
+
+}

@@ -262,6 +262,8 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
     override fun reset() {
         stop()
+        waitForExecutionFinish()
+
         cpu.reset()
         cartridge.reset()
         clock = 0
@@ -270,7 +272,9 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     override fun waitForExecutionFinish() {
         finishedRunningLock.withLock {
             try {
-                finishedRunningLockCondition.await()
+                if(running) {
+                    finishedRunningLockCondition.await()
+                }
             } catch (ex: InterruptedException) {
                 ex.printStackTrace()
             }
