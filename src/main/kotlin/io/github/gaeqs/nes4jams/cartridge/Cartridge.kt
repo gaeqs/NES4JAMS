@@ -52,11 +52,14 @@ class Cartridge(val file: File) {
         val stream = file.inputStream()
         header = CartridgeHeader(stream)
 
-        prgMemory = UByteArray(header.prgRomSize.toInt()) { stream.read().toUByte() }
-        chrMemory = UByteArray(header.chrRomSize.toInt()) { stream.read().toUByte() }
+        val prgSize = header.prgRomSize.toInt()
+        val chrSize = header.chrRomSize.toInt()
 
-        prgBanks = ceil(prgMemory.size.toDouble() / 0x4000).toInt()
-        chrBanks = ceil(chrMemory.size.toDouble() / 0x2000).toInt()
+        prgMemory = UByteArray(if (prgSize == 0) 0x4000 else header.prgRomSize.toInt()) { stream.read().toUByte() }
+        chrMemory = UByteArray(if (chrSize == 0) 0x2000 else header.chrRomSize.toInt()) { stream.read().toUByte() }
+
+        prgBanks = ceil(prgSize.toDouble() / 0x4000).toInt()
+        chrBanks = ceil(chrSize.toDouble() / 0x2000).toInt()
 
         mirroring = header.mirroring
 
