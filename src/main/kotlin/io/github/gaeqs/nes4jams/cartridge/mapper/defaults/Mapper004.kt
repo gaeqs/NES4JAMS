@@ -30,6 +30,7 @@ import io.github.gaeqs.nes4jams.cartridge.mapper.MapperBuilder
 import io.github.gaeqs.nes4jams.cartridge.mapper.MapperReadResult
 import io.github.gaeqs.nes4jams.cartridge.mapper.MapperWriteResult
 import io.github.gaeqs.nes4jams.ppu.Mirror
+import io.github.gaeqs.nes4jams.util.BIT12
 import io.github.gaeqs.nes4jams.util.extension.isZero
 import io.github.gaeqs.nes4jams.util.extension.shr
 
@@ -51,24 +52,19 @@ class Mapper004(override val cartridge: Cartridge) : Mapper {
     private var irqCounter: UShort = 0u
     private var irqReload: UShort = 0u
 
+    private var lastA12: Boolean = false
+    private var a12Timer = 0
+
     private val staticVRAM = UByteArray(0x2000)
 
     override fun cpuMapRead(address: UShort): MapperReadResult {
         return when (address) {
             in 0x6000u..0x7FFFu -> {
-                return MapperReadResult.intrinsic(staticVRAM[address.toInt() and 0x1FFF])
+                MapperReadResult.intrinsic(staticVRAM[address.toInt() and 0x1FFF])
             }
-            in 0x8000u..0x9FFFu -> {
-                return MapperReadResult.array(prgBank[0] + (address and 0x1FFFu).toInt())
-            }
-            in 0xA000u..0xBFFFu -> {
-                return MapperReadResult.array(prgBank[1] + (address and 0x1FFFu).toInt())
-            }
-            in 0xC000u..0xDFFFu -> {
-                return MapperReadResult.array(prgBank[2] + (address and 0x1FFFu).toInt())
-            }
-            in 0xE000u..0xFFFFu -> {
-                return MapperReadResult.array(prgBank[3] + (address and 0x1FFFu).toInt())
+            in 0x8000u..0xFFFFu -> {
+                val index = address.toInt() / 0x2000 - 4
+                MapperReadResult.array(prgBank[index] + (address and 0x1FFFu).toInt())
             }
             else -> MapperReadResult.empty()
         }
@@ -152,6 +148,7 @@ class Mapper004(override val cartridge: Cartridge) : Mapper {
     }
 
     override fun ppuMapRead(address: UShort): MapperReadResult {
+        onA12Notification(address)
         if (address in 0x0000u..0x1FFFu) {
             val index = address shr 10 and 0x7u
             return MapperReadResult.array(chrBank[index.toInt()] + (address and 0x03FFu).toInt())
@@ -160,6 +157,7 @@ class Mapper004(override val cartridge: Cartridge) : Mapper {
     }
 
     override fun ppuMapWrite(address: UShort, data: UByte): MapperWriteResult {
+        onA12Notification(address)
         return MapperWriteResult.empty()
     }
 
@@ -189,13 +187,32 @@ class Mapper004(override val cartridge: Cartridge) : Mapper {
     }
 
     override fun onScanLine() {
+
+    }
+
+    override fun onA12Notification(address: UShort) {
+        val a12 = address and BIT12 > 0u
+        if (a12 && !lastA12) {
+            if (a12Timer <= 0) {
+                a12scanLine()
+            }
+        } else if (!a12 && lastA12) {
+            a12Timer = 8
+        }
+        if (a12Timer > 0) {
+            a12Timer--
+        }
+        lastA12 = a12
+    }
+
+    private fun a12scanLine() {
         if (irqCounter.isZero()) {
             irqCounter = irqReload
         } else {
             irqCounter--
         }
 
-        if (irqCounter.isZero() && irqEnabled) {
+        if (irqCounter.isZero() && irqEnabled && !requestingInterrupt) {
             requestingInterrupt = true
         }
     }

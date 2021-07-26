@@ -26,7 +26,6 @@ package io.github.gaeqs.nes4jams.cartridge.mapper
 
 import io.github.gaeqs.nes4jams.cartridge.Cartridge
 import io.github.gaeqs.nes4jams.ppu.Mirror
-import net.jamsimulator.jams.manager.Labeled
 
 interface Mapper {
 
@@ -42,5 +41,6 @@ interface Mapper {
     fun reset()
     fun clearInterruptRequest()
     fun onScanLine()
+    fun onA12Notification(address: UShort)
 
 }

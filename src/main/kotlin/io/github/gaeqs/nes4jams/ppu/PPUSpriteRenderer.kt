@@ -39,20 +39,23 @@ class PPUSpriteRenderer(private val ppu: NESPPU) {
                 257 -> if (scanline >= 0) populateSpriteArray(scanline)
                 340 -> repeat(spriteCount) { generateSpriteShifters(scanline, it) }
             }
-            if (cycle in 3 until 258) updateShifters()
-        }
+            if (cycle in 1 until 258) updateShifters()
 
-        spriteZeroBeingRendered = false
-        for (i in 0 until spriteCount) {
-            if (scanlineSprites[i].x.isZero()) {
-                val pixel = (shifterPatternHigh[i] and 0x80u > 0u) concatenate (shifterPatternLow[i] and 0x80u > 0u)
-                val palette = ((scanlineSprites[i].attribute and 0x03u) + 0x04u).toUByte()
-                val priority = (scanlineSprites[i].attribute and 0x20u).isZero()
+            spriteZeroBeingRendered = false
+            if (ppu.mask.showSprites > 0u) {
+                for (i in 0 until spriteCount) {
+                    if (scanlineSprites[i].x.isZero()) {
+                        val pixel = (shifterPatternHigh[i] and 0x80u > 0u) concatenate
+                                (shifterPatternLow[i] and 0x80u > 0u)
+                        val palette = ((scanlineSprites[i].attribute and 0x03u) + 0x04u).toUByte()
+                        val priority = (scanlineSprites[i].attribute and 0x20u).isZero()
 
-                // Pixel found, break
-                if (pixel > 0u) {
-                    if (i == 0) spriteZeroBeingRendered = true
-                    return Triple(pixel, palette, priority)
+                        // Pixel found, break
+                        if (pixel > 0u) {
+                            if (i == 0) spriteZeroBeingRendered = true
+                            return Triple(pixel, palette, priority)
+                        }
+                    }
                 }
             }
         }

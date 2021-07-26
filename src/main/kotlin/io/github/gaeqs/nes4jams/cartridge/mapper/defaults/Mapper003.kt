@@ -72,6 +72,7 @@ class Mapper003(override val cartridge: Cartridge) : Mapper {
     override fun reset() {}
     override fun clearInterruptRequest() {}
     override fun onScanLine() {}
+    override fun onA12Notification(address: UShort) {}
 
     class Builder private constructor() : MapperBuilder<Mapper003> {
         companion object {

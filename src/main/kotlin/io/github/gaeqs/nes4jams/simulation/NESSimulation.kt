@@ -30,6 +30,7 @@ import io.github.gaeqs.nes4jams.ppu.NESPPU
 import io.github.gaeqs.nes4jams.util.extension.concatenate
 import io.github.gaeqs.nes4jams.util.extension.isZero
 import io.github.gaeqs.nes4jams.util.extension.shl
+import io.github.gaeqs.nes4jams.util.extension.shr
 import net.jamsimulator.jams.event.SimpleEventBroadcast
 import net.jamsimulator.jams.mips.simulation.Simulation
 import net.jamsimulator.jams.mips.simulation.event.*
@@ -115,9 +116,9 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
                 if (!readOnly) {
                     controllersSnapshot[(address and 0x1u).toInt()] = value shl 1
                 }
-                result
+                result or 0x40u
             }
-            else -> 0u
+            else -> (address shr 8).toUByte() // Open bus
         }
     }
 
@@ -137,6 +138,10 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
                 Thread.sleep(cycleDelay.toLong())
             } catch (ex: InterruptedException) {
                 interruptThread()
+            }
+            if (ppu.frameCompleted) {
+                // We don't have to do nothing.
+                ppu.frameCompleted = false
             }
         } else {
             // Run till frame completed
@@ -162,6 +167,10 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     private fun clock() {
         ppu.clock()
 
+        if (ppu.frameCompleted) {
+            apu.onFrameFinish()
+        }
+
         if (clock % 3 == 0L) {
             if (dmaTransfer) {
                 manageDMA()
@@ -171,7 +180,6 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         }
 
         if (ppu.nmiRequest) {
-            apu.onFrameFinish()
             ppu.nmiRequest = false
             cpu.nonMaskableInterrupt()
         }

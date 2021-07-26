@@ -284,6 +284,10 @@ class NESPPU(val simulation: NESSimulation) {
             }
         }
 
+        if (!mask.isRendering || scanline > 240) {
+            simulation.cartridge.mapper.onA12Notification(backgroundRenderer.vRamAddress.value and 0x3FFFu)
+        }
+
         val (pixel: UByte, palette: UByte) = when {
             bgPixel0 && fgPixel0 -> ZERO_PAIR
             bgPixel0 && !fgPixel0 -> Pair(fgPixel, fgPalette)
@@ -306,6 +310,7 @@ class NESPPU(val simulation: NESSimulation) {
         }
 
         cycle++
+
         if (cycle > 340) {
             cycle = 0
             scanline++
