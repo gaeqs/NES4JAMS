@@ -1,5 +1,6 @@
 package io.github.gaeqs.nes4jams.ppu
 
+import io.github.gaeqs.nes4jams.cartridge.TVType
 import io.github.gaeqs.nes4jams.util.extension.shl
 import io.github.gaeqs.nes4jams.util.extension.shr
 
@@ -67,10 +68,12 @@ data class PPUMaskRegister(var value: UByte) {
             return value shr 1 and 0x1u
         }
 
-    val greyscale: UByte
+    val grayscale: UByte
         get() {
             return value and 0x1u
         }
+
+    val isRendering: Boolean get() = showBackground > 0u || showSprites > 0u
 }
 
 data class PPUControlRegister(var value: UByte) {

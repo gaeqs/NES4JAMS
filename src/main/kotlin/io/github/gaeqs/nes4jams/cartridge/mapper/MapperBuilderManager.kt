@@ -24,10 +24,7 @@
 
 package io.github.gaeqs.nes4jams.cartridge.mapper
 
-import io.github.gaeqs.nes4jams.cartridge.mapper.defaults.Mapper000
-import io.github.gaeqs.nes4jams.cartridge.mapper.defaults.Mapper001
-import io.github.gaeqs.nes4jams.cartridge.mapper.defaults.Mapper002
-import io.github.gaeqs.nes4jams.cartridge.mapper.defaults.Mapper004
+import io.github.gaeqs.nes4jams.cartridge.mapper.defaults.*
 import io.github.gaeqs.nes4jams.cartridge.mapper.event.MapperBuilderRegisterEvent
 import io.github.gaeqs.nes4jams.cartridge.mapper.event.MapperBuilderUnregisterEvent
 import net.jamsimulator.jams.manager.Manager
@@ -46,6 +43,7 @@ class MapperBuilderManager private constructor() : Manager<MapperBuilder<*>>(
         add(Mapper000.Builder.INSTANCE)
         add(Mapper001.Builder.INSTANCE)
         add(Mapper002.Builder.INSTANCE)
+        add(Mapper003.Builder.INSTANCE)
         add(Mapper004.Builder.INSTANCE)
     }
 }

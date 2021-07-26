@@ -92,7 +92,7 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
     }
 
     private fun incrementScrollX() {
-        if (ppu.mask.showBackground > 0u || ppu.mask.showSprites > 0u) {
+        if (ppu.mask.isRendering) {
             if (vRamAddress.coarseX.toUInt() == 31u) {
                 vRamAddress.coarseX = 0u
                 vRamAddress.nameTableX = vRamAddress.nameTableX.inv()
@@ -103,7 +103,7 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
     }
 
     private fun incrementScrollY() {
-        if (ppu.mask.showBackground > 0u || ppu.mask.showSprites > 0u) {
+        if (ppu.mask.isRendering) {
             if (vRamAddress.fineY < 7u) {
                 vRamAddress.fineY++
             } else {
@@ -121,14 +121,14 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
     }
 
     private fun transferAddressX() {
-        if (ppu.mask.showBackground > 0u || ppu.mask.showSprites > 0u) {
+        if (ppu.mask.isRendering) {
             vRamAddress.nameTableX = tRamAddress.nameTableX
             vRamAddress.coarseX = tRamAddress.coarseX
         }
     }
 
     private fun transferAddressY() {
-        if (ppu.mask.showBackground > 0u || ppu.mask.showSprites > 0u) {
+        if (ppu.mask.isRendering) {
             vRamAddress.fineY = tRamAddress.fineY
             vRamAddress.nameTableY = tRamAddress.nameTableY
             vRamAddress.coarseY = tRamAddress.coarseY

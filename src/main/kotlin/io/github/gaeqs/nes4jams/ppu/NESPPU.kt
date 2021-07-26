@@ -28,6 +28,7 @@ import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import io.github.gaeqs.nes4jams.util.extension.isZero
 import io.github.gaeqs.nes4jams.util.extension.shl
 import io.github.gaeqs.nes4jams.util.extension.shr
+import kotlin.experimental.and
 
 class NESPPU(val simulation: NESSimulation) {
 
@@ -58,6 +59,8 @@ class NESPPU(val simulation: NESSimulation) {
         private set
     var cycle = 0
         private set
+    var oddFrame = false
+        private set
     var frameCompleted = false
 
     val screen = ByteArray(SCREEN_WIDTH * SCREEN_HEIGHT)
@@ -85,6 +88,7 @@ class NESPPU(val simulation: NESSimulation) {
             // OAM Data
             0x0004u -> {
                 objectAttributeMemory[oamAddress.toInt() shr 2][oamAddress.toInt() and 0x3] = data
+                oamAddress++
             }
             // Scroll
             0x0005u -> {
@@ -113,9 +117,23 @@ class NESPPU(val simulation: NESSimulation) {
             }
             // PPU Data
             0x0007u -> {
-                ppuWrite(backgroundRenderer.vRamAddress.value, data)
-                backgroundRenderer.vRamAddress.value =
-                    (backgroundRenderer.vRamAddress.value + (if (control.incrementMode > 0u) 32u else 1u)).toUShort()
+                val value = backgroundRenderer.vRamAddress.value
+                ppuWrite(value and 0x3FFFu, data)
+                if (!mask.isRendering || scanline in 241..tvType.videoScanlines) {
+                    val increment: UShort = if (control.incrementMode > 0u) 32u else 1u
+                    backgroundRenderer.vRamAddress.value = (value + increment).toUShort()
+                } else if (value.toUInt() and 0x7000u == 0x7000u) {
+                    val yScroll = (value and 0x3E0u).toUInt()
+                    backgroundRenderer.vRamAddress.value = value and 0xFFFu
+                    val nValue = backgroundRenderer.vRamAddress.value
+                    when (yScroll) {
+                        0x3A0u -> backgroundRenderer.vRamAddress.value = nValue xor 0xBA0u
+                        0x3E0u -> backgroundRenderer.vRamAddress.value = nValue xor 0x3E0u
+                        else -> backgroundRenderer.vRamAddress.value = (nValue + 0x20u).toUShort()
+                    }
+                } else {
+                    backgroundRenderer.vRamAddress.value = (value + 0x1000u).toUShort()
+                }
             }
         }
     }
@@ -231,12 +249,26 @@ class NESPPU(val simulation: NESSimulation) {
     }
 
     fun clock() {
-        if (scanline == 0 && cycle == 0) cycle = 1 // Odd frame cycle skip
+        // Skip on odd frame
+        if (scanline == 0 && cycle == 0 && mask.isRendering && oddFrame) cycle = 1
+
+
         if (scanline == -1 && cycle == 1) {
             status.verticalBlank = 0u
             status.spriteOverflow = 0u
             status.verticalZeroHit = 0u
             spriteRenderer.resetShifter()
+        }
+
+        if (scanline == -1 && cycle in 280..304 && mask.isRendering) {
+            backgroundRenderer.vRamAddress.value = backgroundRenderer.tRamAddress.value
+        }
+
+        // On render updates
+        if (scanline in -1 until 240) {
+            if (cycle in 258..341) {
+                oamAddress = 0u
+            }
         }
 
         val (bgPixel, bgPalette) = backgroundRenderer.clock(scanline, cycle)
@@ -263,22 +295,24 @@ class NESPPU(val simulation: NESSimulation) {
         }
 
         if (cycle - 1 in 0 until SCREEN_WIDTH && scanline in 0 until SCREEN_HEIGHT) {
-            screen[cycle - 1 + scanline * SCREEN_WIDTH] =
-                ppuRead((0x03F00u + (palette shl 2) + pixel).toUShort()).toByte()
+            val pointer = cycle - 1 + scanline * SCREEN_WIDTH
+            var value = ppuRead((0x03F00u + (palette shl 2) + pixel).toUShort()).toByte()
+            if (mask.grayscale > 0u) value = value and 0x30
+            screen[pointer] = value and 0x3F
         }
 
-        cycle++
-
-        if (cycle == 260 && scanline < 240 && (mask.showBackground > 0u || mask.showSprites > 0u)) {
+        if (cycle == 257) {
             simulation.cartridge.mapper.onScanLine()
         }
 
+        cycle++
         if (cycle > 340) {
             cycle = 0
             scanline++
-            if (scanline >= 260) {
+            if (scanline >= tvType.videoScanlines) {
                 scanline = -1
                 frameCompleted = true
+                oddFrame = !oddFrame
             }
         }
     }

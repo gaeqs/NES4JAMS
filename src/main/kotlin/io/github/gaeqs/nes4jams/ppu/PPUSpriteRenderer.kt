@@ -31,7 +31,9 @@ class PPUSpriteRenderer(private val ppu: NESPPU) {
     }
 
     fun clock(scanline: Int, cycle: Int): Triple<UByte, UByte, Boolean> {
-        if (ppu.mask.showSprites.isZero()) return ZERO_TRIPLE
+        // Sprite renderer should work even if the show sprite flag is not set.
+        // If both sprites and background are not being rendered, this code shouldn't be executed.
+        if (!ppu.mask.isRendering) return ZERO_TRIPLE
         if (scanline in -1 until 240) {
             when (cycle) {
                 257 -> if (scanline >= 0) populateSpriteArray(scanline)
@@ -73,20 +75,23 @@ class PPUSpriteRenderer(private val ppu: NESPPU) {
         spriteZeroHitPossible = false
         scanlineSprites.forEach { it.fill(0xFFu) }
         spriteCount = 0
-        ppu.status.spriteOverflow = 0u
         var entry = 0
         var overflow = false
         while (entry < 64 && !overflow) {
             val diff = (scanline.toShort() - ppu.objectAttributeMemory[entry].y.toShort())
+
             if (diff >= 0 && diff < if (ppu.control.spriteSize > 0u) 16 else 8) {
+
                 if (spriteCount < 8) {
                     if (entry == 0) spriteZeroHitPossible = true
-                    scanlineSprites[spriteCount++].moveFrom(ppu.objectAttributeMemory[entry])
+                    scanlineSprites[spriteCount].moveFrom(ppu.objectAttributeMemory[entry])
+                    spriteCount++
                 } else {
-                    ppu.status.spriteOverflow = 1u
                     overflow = true
+                    ppu.status.spriteOverflow = 1u
                 }
             }
+
             entry++
         }
     }
