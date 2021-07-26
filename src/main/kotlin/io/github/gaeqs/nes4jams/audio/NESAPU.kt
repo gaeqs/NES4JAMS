@@ -5,6 +5,8 @@ import io.github.gaeqs.nes4jams.audio.utilities.DMC
 import io.github.gaeqs.nes4jams.audio.utilities.Filter
 import io.github.gaeqs.nes4jams.audio.utilities.FrameCounter
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
+import io.github.gaeqs.nes4jams.util.BIT6
+import io.github.gaeqs.nes4jams.util.BIT7
 import io.github.gaeqs.nes4jams.util.extension.shr
 
 class NESAPU(val simulation: NESSimulation, val sampleRate: Int, val soundFiltering: Boolean) {
@@ -58,6 +60,8 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int, val soundFilter
     fun destroy() {
         beeper.destroy()
     }
+
+    fun isRequestingInterrupt() = dmc.interrupt || frameCounter.interrupt
 
     /**
      * CPU bus communication
@@ -181,8 +185,8 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int, val soundFilter
                 dmc.interrupt = false
             }
             0x4017u -> {
-                frameCounter.mode = if (data and 0b10000000u > 0u) 5 else 4
-                interruptFlag = data and 0b01000000u > 0u
+                frameCounter.mode = if (data and BIT7 > 0u) 5 else 4
+                interruptFlag = data and BIT6 > 0u
                 frameCounter.frame = 0
                 frameCounter.value = tvType.audioFrameCounterReload
                 if (interruptFlag && frameCounter.interrupt) {
@@ -276,7 +280,6 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int, val soundFilter
         }
 
         if (!interruptFlag && frameCounter.frame == 3 && frameCounter.mode == 4 && !frameCounter.interrupt) {
-            simulation.cpu.interruptRequest()
             frameCounter.interrupt = true
         }
 

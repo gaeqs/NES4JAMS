@@ -54,6 +54,7 @@ class NESPPU(val simulation: NESSimulation) {
 
     var addressLatch = false
     var ppuDataBuffer: UByte = 0u
+    var openbus : UByte = 0u
 
     var scanline = 0
         private set
@@ -69,6 +70,7 @@ class NESPPU(val simulation: NESSimulation) {
     private val spriteRenderer = PPUSpriteRenderer(this)
 
     fun cpuWrite(address: UShort, data: UByte) {
+        openbus = data
         when (address.toUInt()) {
             // Control
             0x0000u -> {
@@ -139,11 +141,7 @@ class NESPPU(val simulation: NESSimulation) {
     }
 
     fun cpuRead(address: UShort, readOnly: Boolean = false): UByte {
-        return when (address.toUInt()) {
-            // Control
-            0x0000u -> 0u
-            // Mask
-            0x0001u -> 0u
+        openbus = when (address.toUInt()) {
             // Status
             0x0002u -> {
                 val data = (status.value and 0xE0u) or (ppuDataBuffer and 0x1Fu)
@@ -151,21 +149,9 @@ class NESPPU(val simulation: NESSimulation) {
                 addressLatch = false
                 data
             }
-            // OAM Address
-            0x0003u -> {
-                0u
-            }
             // OAM Data
             0x0004u -> {
                 objectAttributeMemory[oamAddress.toInt() shr 2][oamAddress.toInt() and 0x3]
-            }
-            // Scroll
-            0x0005u -> {
-                0u
-            }
-            // PPU Address
-            0x0006u -> {
-                0u
             }
             // PPU Data
             0x0007u -> {
@@ -179,8 +165,9 @@ class NESPPU(val simulation: NESSimulation) {
                     (backgroundRenderer.vRamAddress.value + (if (control.incrementMode > 0u) 32u else 1u)).toUShort()
                 data
             }
-            else -> 0u
+            else -> openbus
         }
+        return openbus
     }
 
     fun ppuWrite(address: UShort, data: UByte) {

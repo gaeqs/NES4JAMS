@@ -189,6 +189,10 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             cpu.interruptRequest()
         }
 
+        //if(apu.isRequestingInterrupt()) {
+        //    cpu.interruptRequest()
+        //}
+
         clock++
     }
 

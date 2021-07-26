@@ -60,7 +60,6 @@ class DMC(private val apu: NESAPU) {
             if (--samplesLeft == 0) {
                 if (loop) restart()
                 else if (irq && !interrupt) {
-                    apu.simulation.cpu.interruptRequest()
                     interrupt = true
                 }
             }
