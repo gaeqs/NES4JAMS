@@ -27,7 +27,10 @@ package io.github.gaeqs.nes4jams.cpu
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAssembledInstruction
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
-import io.github.gaeqs.nes4jams.util.extension.*
+import io.github.gaeqs.nes4jams.util.extension.concatenate
+import io.github.gaeqs.nes4jams.util.extension.isZero
+import io.github.gaeqs.nes4jams.util.extension.shl
+import io.github.gaeqs.nes4jams.util.extension.shr
 
 class NESCPU(val simulation: NESSimulation) {
 
@@ -81,7 +84,7 @@ class NESCPU(val simulation: NESSimulation) {
         pushToStack(pc.toUByte())
 
         setFlag(StatusFlag.BREAK, true)
-        setFlag(StatusFlag.UNUSED, true)
+        setFlag(StatusFlag.UNUSED, false)
         setFlag(StatusFlag.DISABLE_INTERRUPTS, true)
         pushToStack(status)
 
@@ -93,7 +96,7 @@ class NESCPU(val simulation: NESSimulation) {
         pushToStack((pc shr 8).toUByte())
         pushToStack(pc.toUByte())
         setFlag(StatusFlag.BREAK, true)
-        setFlag(StatusFlag.UNUSED, true)
+        setFlag(StatusFlag.UNUSED, false)
         setFlag(StatusFlag.DISABLE_INTERRUPTS, true)
         pushToStack(status)
 
@@ -190,13 +193,12 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun brk(): Boolean {
-        pc++
+        // Perform dummy fetch
+        read(pc)
         setFlag(StatusFlag.DISABLE_INTERRUPTS, true)
         pushToStack((pc shr 8).toUByte())
         pushToStack(pc.toUByte())
-        setFlag(StatusFlag.BREAK, true)
-        pushToStack(status)
-        setFlag(StatusFlag.BREAK, false)
+        pushToStack(status or StatusFlag.BREAK.mask or StatusFlag.UNUSED.mask)
         pc = read(0xFFFFu) concatenate read(0xFFFEu)
         return false
     }
@@ -319,6 +321,8 @@ class NESCPU(val simulation: NESSimulation) {
 
     fun jsr(): Boolean {
         pc--
+        // Perform dummy fetch
+        read(pc)
 
         pushToStack((pc shr 8).toUByte())
         pushToStack(pc.toUByte())
@@ -391,11 +395,15 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun pha(): Boolean {
+        // Perform dummy fetch
+        read(pc)
         pushToStack(accumulator)
         return false
     }
 
     fun php(): Boolean {
+        // Perform dummy fetch
+        read(pc)
         pushToStack(status or StatusFlag.BREAK.mask or StatusFlag.UNUSED.mask)
         setFlag(StatusFlag.BREAK, false)
         setFlag(StatusFlag.UNUSED, false)
@@ -403,6 +411,8 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun pla(): Boolean {
+        // Perform dummy fetch
+        read(pc)
         accumulator = popFromStack()
         setFlag(StatusFlag.ZERO, accumulator.isZero())
         setFlag(StatusFlag.NEGATIVE, accumulator and 0x80u > 0u)
@@ -410,6 +420,8 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun plp(): Boolean {
+        // Perform dummy fetch
+        read(pc)
         status = popFromStack()
         setFlag(StatusFlag.UNUSED, true)
         return false
@@ -449,6 +461,8 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun rti(): Boolean {
+        // Perform dummy fetch
+        read(pc)
         status = popFromStack()
         status = status and StatusFlag.BREAK.mask.inv()
         status = status and StatusFlag.UNUSED.mask.inv()
@@ -461,6 +475,8 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun rts(): Boolean {
+        // Perform dummy fetch
+        read(pc)
         val low = popFromStack()
         val high = popFromStack()
         pc = high concatenate low
