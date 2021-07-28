@@ -33,8 +33,6 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import javafx.scene.input.KeyCode
-import javafx.scene.layout.Background
-import javafx.scene.layout.BackgroundFill
 import javafx.scene.paint.Color
 
 class NESSimulationDisplay(val simulation: NESSimulation) :
@@ -113,6 +111,17 @@ class NESSimulationDisplay(val simulation: NESSimulation) :
             )
 
             graphicsContext2D.drawImage(image, 0.0, 0.0, width, height)
+
+            val nanos = simulation.lastFrameDelayInNanos.toDouble()
+            val default = 1000000000.0 / simulation.cartridge.header.tvType.framerate
+            val percentage = (nanos / default) * 100
+
+            graphicsContext2D.fill = Color.RED
+
+            graphicsContext2D.fillText(String.format("%.2f", percentage), 0.0, 100.0)
+            graphicsContext2D.fillText(String.format("%.2f", nanos), 0.0, 120.0)
+            graphicsContext2D.fillText(String.format("%.2f", default), 0.0, 140.0)
+
         }
 
     }

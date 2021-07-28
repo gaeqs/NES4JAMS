@@ -49,11 +49,14 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     private var running = false
     private var cycleDelay = 0
 
+    var lastFrameDelayInNanos = 0L
+        private set
+
     // region NES
 
     val cpu = NESCPU(this)
     val ppu = NESPPU(this)
-    val apu = NESAPU(this, 44100, true)
+    val apu = NESAPU(this, 9600, true)
     val controllers = ubyteArrayOf(0u, 0u)
     private val controllersSnapshot = ubyteArrayOf(0u, 0u)
     private val nextControllers = Array(2) { NESControllerMap() }
@@ -147,11 +150,12 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             // Run till frame completed
             if (ppu.frameCompleted) {
                 ppu.frameCompleted = false
+                // Get the delay
+                lastFrameDelayInNanos = System.nanoTime() - lastTick
 
                 // Active wait. Thread.sleep() has too much delay.
                 val nextTick = lastTick + 1000000000L / (apu.tvType.framerate + 1)
                 while (System.nanoTime() < nextTick);
-
                 lastTick = System.nanoTime()
                 updateControllers()
             }
