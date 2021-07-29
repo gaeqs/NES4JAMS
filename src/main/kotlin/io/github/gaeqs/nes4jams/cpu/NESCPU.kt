@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams.cpu
 
+import io.github.gaeqs.nes4jams.cpu.instruction.DummyRead
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAssembledInstruction
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
@@ -49,6 +50,7 @@ class NESCPU(val simulation: NESSimulation) {
     var cyclesLeft: UByte = 0u
 
     var requestingNMI = false
+    private var nmiOnNextInstruction = false
     private var previousRequestingNMI = false
     private var previousInterruptFlag = false
 
@@ -61,19 +63,24 @@ class NESCPU(val simulation: NESSimulation) {
             return
         }
 
-        if (requestingNMI && !previousRequestingNMI) {
+        if (nmiOnNextInstruction) {
+            nmiOnNextInstruction = false
             nonMaskableInterrupt()
             previousRequestingNMI = requestingNMI
             return
         }
+
+        if (requestingNMI && !previousRequestingNMI) {
+            nmiOnNextInstruction = true
+        }
         previousRequestingNMI = requestingNMI
 
-        if(checkInterruptRequest()) return
+        if (checkInterruptRequest()) return
 
         currentOpcode = read(pc++)
         val instruction = NESAssembledInstruction.INSTRUCTIONS[currentOpcode.toInt()]
         cyclesLeft = instruction.cycles
-        val addCycleOne = instruction.addressingMode.addressingFunction.call(this)
+        val addCycleOne = instruction.addressingMode.addressingFunction.call(this, instruction.dummyRead)
         val addCycleTwo = instruction.operation.call(this)
         if (!addCycleOne || !addCycleTwo) cyclesLeft--
     }
@@ -99,10 +106,8 @@ class NESCPU(val simulation: NESSimulation) {
         pushToStack((pc shr 8).toUByte())
         pushToStack(pc.toUByte())
 
-        setFlag(StatusFlag.BREAK, true)
-        setFlag(StatusFlag.UNUSED, false)
+        pushToStack(status and StatusFlag.BREAK.mask.inv())
         setFlag(StatusFlag.DISABLE_INTERRUPTS, true)
-        pushToStack(status)
 
         pc = read(0xFFFFu) concatenate read(0xFFFEu)
         cyclesLeft = 7u
@@ -111,10 +116,9 @@ class NESCPU(val simulation: NESSimulation) {
     private fun nonMaskableInterrupt() {
         pushToStack((pc shr 8).toUByte())
         pushToStack(pc.toUByte())
-        setFlag(StatusFlag.BREAK, true)
-        setFlag(StatusFlag.UNUSED, false)
+
+        pushToStack(status and StatusFlag.BREAK.mask.inv())
         setFlag(StatusFlag.DISABLE_INTERRUPTS, true)
-        pushToStack(status)
 
         pc = read(0xFFFBu) concatenate read(0xFFFAu)
         cyclesLeft = 8u
@@ -126,7 +130,7 @@ class NESCPU(val simulation: NESSimulation) {
 
         if (!requestingInterrupt) return false
 
-        if(delay && !previousInterruptFlag || !delay && !getFlag(StatusFlag.DISABLE_INTERRUPTS)) {
+        if (delay && !previousInterruptFlag || !delay && !getFlag(StatusFlag.DISABLE_INTERRUPTS)) {
             interruptRequest()
             return true
         }
@@ -227,13 +231,11 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun brk(): Boolean {
-        // Perform dummy fetch
-        read(pc)
-        setFlag(StatusFlag.DISABLE_INTERRUPTS, true)
         pushToStack((pc shr 8).toUByte())
         pushToStack(pc.toUByte())
         pushToStack(status or StatusFlag.BREAK.mask or StatusFlag.UNUSED.mask)
         pc = read(0xFFFFu) concatenate read(0xFFFEu)
+        setFlag(StatusFlag.DISABLE_INTERRUPTS, true)
         return false
     }
 
@@ -356,7 +358,7 @@ class NESCPU(val simulation: NESSimulation) {
 
     fun jsr(): Boolean {
         pc--
-        // Perform dummy fetch
+        // Perform dummy fetch. This dummy fetch is special: it should be performed in the previous PC address.
         read(pc)
 
         pushToStack((pc shr 8).toUByte())
@@ -430,15 +432,11 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun pha(): Boolean {
-        // Perform dummy fetch
-        read(pc)
         pushToStack(accumulator)
         return false
     }
 
     fun php(): Boolean {
-        // Perform dummy fetch
-        read(pc)
         pushToStack(status or StatusFlag.BREAK.mask or StatusFlag.UNUSED.mask)
         setFlag(StatusFlag.BREAK, false)
         setFlag(StatusFlag.UNUSED, false)
@@ -446,8 +444,6 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun pla(): Boolean {
-        // Perform dummy fetch
-        read(pc)
         accumulator = popFromStack()
         setFlag(StatusFlag.ZERO, accumulator.isZero())
         setFlag(StatusFlag.NEGATIVE, accumulator and 0x80u > 0u)
@@ -456,10 +452,9 @@ class NESCPU(val simulation: NESSimulation) {
 
     fun plp(): Boolean {
         delayInterrupt()
-        // Perform dummy fetch
-        read(pc)
         status = popFromStack()
-        setFlag(StatusFlag.UNUSED, true)
+        setFlag(StatusFlag.UNUSED, false)
+        setFlag(StatusFlag.BREAK, false)
         return false
     }
 
@@ -497,11 +492,9 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun rti(): Boolean {
-        // Perform dummy fetch
-        read(pc)
         status = popFromStack()
-        status = status and StatusFlag.BREAK.mask.inv()
-        status = status and StatusFlag.UNUSED.mask.inv()
+        setFlag(StatusFlag.UNUSED, false)
+        setFlag(StatusFlag.BREAK, false)
 
         val low = popFromStack()
         val high = popFromStack()
@@ -511,8 +504,6 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun rts(): Boolean {
-        // Perform dummy fetch
-        read(pc)
         val low = popFromStack()
         val high = popFromStack()
         pc = high concatenate low
@@ -609,39 +600,45 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun ill(): Boolean {
-        return false
+        throw IllegalStateException("ILLEGAL INSTRUCTION!")
     }
 
     //endregion
 
     // region ADDRESSING MODES
 
-    fun imp(): Boolean {
+    fun imp(dummy: DummyRead): Boolean {
         fetched = accumulator
+        if (dummy == DummyRead.ALWAYS) read(pc)
         return false
     }
 
-    fun imm(): Boolean {
+    fun imm(dummy: DummyRead): Boolean {
+        // This addressing mode has no dummy reads.
         absoluteAddress = pc++
         return false
     }
 
-    fun zp0(): Boolean {
+    fun zp0(dummy: DummyRead): Boolean {
+        // This addressing mode has no dummy reads.
         absoluteAddress = read(pc++).toUShort()
         return false
     }
 
-    fun zpx(): Boolean {
+    fun zpx(dummy: DummyRead): Boolean {
+        // This addressing mode has no dummy reads.
         absoluteAddress = (read(pc++) + xRegister).toUShort() and 0x00FFu
         return false
     }
 
-    fun zpy(): Boolean {
+    fun zpy(dummy: DummyRead): Boolean {
+        // This addressing mode has no dummy reads.
         absoluteAddress = (read(pc++) + yRegister).toUShort() and 0x00FFu
         return false
     }
 
-    fun rel(): Boolean {
+    fun rel(dummy: DummyRead): Boolean {
+        // This addressing mode has no dummy reads.
         relativeAddress = read(pc++).toUShort()
 
         //If negative, extend the sign
@@ -651,32 +648,46 @@ class NESCPU(val simulation: NESSimulation) {
         return false
     }
 
-    fun abs(): Boolean {
+    fun abs(dummy: DummyRead): Boolean {
         val low = read(pc++)
         val high = read(pc++)
         absoluteAddress = high concatenate low
+
+        if (dummy == DummyRead.ALWAYS) read(absoluteAddress)
+
         return false
     }
 
-    fun abx(): Boolean {
+    fun abx(dummy: DummyRead): Boolean {
         val low = read(pc++)
         val high = read(pc++)
         absoluteAddress = high concatenate low
         absoluteAddress = (absoluteAddress + xRegister).toUShort()
 
-        return absoluteAddress and 0xFF00u != high.toUShort() shl 8
+        val carry = absoluteAddress and 0xFF00u != high.toUShort() shl 8
+        if (dummy == DummyRead.ALWAYS || dummy == DummyRead.ON_CARRY && carry) {
+            read(high.toUShort() shl 8 or (absoluteAddress and 0xFFu))
+        }
+
+        return carry
     }
 
-    fun aby(): Boolean {
+    fun aby(dummy: DummyRead): Boolean {
         val low = read(pc++)
         val high = read(pc++)
         absoluteAddress = high concatenate low
         absoluteAddress = (absoluteAddress + yRegister).toUShort()
 
-        return absoluteAddress and 0xFF00u != high.toUShort() shl 8
+        val carry = absoluteAddress and 0xFF00u != high.toUShort() shl 8
+        if (dummy == DummyRead.ALWAYS || dummy == DummyRead.ON_CARRY && carry) {
+            read(high.toUShort() shl 8 or (absoluteAddress and 0xFFu))
+        }
+
+        return carry
     }
 
-    fun ind(): Boolean {
+    fun ind(dummy: DummyRead): Boolean {
+        // This addressing mode has no dummy reads.
         val low = read(pc++)
         val high = read(pc++)
 
@@ -692,7 +703,8 @@ class NESCPU(val simulation: NESSimulation) {
         return false
     }
 
-    fun izx(): Boolean {
+    fun izx(dummy: DummyRead): Boolean {
+        // This addressing mode has no dummy reads.
         val temp = (read(pc++) + xRegister).toUShort()
 
         val low = read(temp and 0x00FFu)
@@ -702,13 +714,18 @@ class NESCPU(val simulation: NESSimulation) {
         return false
     }
 
-    fun izy(): Boolean {
+    fun izy(dummy: DummyRead): Boolean {
         val temp = read(pc++).toUShort()
 
         val low = read(temp and 0x00FFu)
         val high = read((temp + 1u).toUShort() and 0x00FFu)
         absoluteAddress = high concatenate low
         absoluteAddress = (absoluteAddress + yRegister).toUShort()
+
+        val carry = absoluteAddress and 0xFF00u != high.toUShort() shl 8
+        if (dummy == DummyRead.ALWAYS || dummy == DummyRead.ON_CARRY && carry) {
+            read(high.toUShort() shl 8 or (absoluteAddress and 0xFFu))
+        }
 
         return absoluteAddress and 0xFF00u != high.toUShort() shl 8
     }

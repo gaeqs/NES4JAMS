@@ -31,6 +31,7 @@ import io.github.gaeqs.nes4jams.gui.project.editor.NESAssemblyFileEditor
 import io.github.gaeqs.nes4jams.gui.util.converter.NESValueConverters
 import io.github.gaeqs.nes4jams.gui.util.value.NESValueEditors
 import io.github.gaeqs.nes4jams.project.NESProjectType
+import io.github.gaeqs.nes4jams.util.extension.toHex
 import net.jamsimulator.jams.Jams
 import net.jamsimulator.jams.event.Listener
 import net.jamsimulator.jams.event.general.JAMSApplicationPostInitEvent
