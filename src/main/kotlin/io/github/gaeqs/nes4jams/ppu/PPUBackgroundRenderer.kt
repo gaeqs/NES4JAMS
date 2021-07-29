@@ -101,7 +101,7 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
         nextTileMSB = ppu.ppuRead(address)
     }
 
-    private fun incrementScrollX() {
+    fun incrementScrollX() {
         if (ppu.mask.isRendering) {
             if (vRamAddress.coarseX.toUInt() == 31u) {
                 vRamAddress.coarseX = 0u
@@ -112,7 +112,7 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
         }
     }
 
-    private fun incrementScrollY() {
+    fun incrementScrollY() {
         if (ppu.mask.isRendering) {
             if (vRamAddress.fineY < 7u) {
                 vRamAddress.fineY++

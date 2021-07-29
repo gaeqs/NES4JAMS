@@ -181,12 +181,27 @@ class NESPPU(val simulation: NESSimulation) {
             }
             // PPU Data
             0x0007u -> {
-                var data = ppuDataBuffer
 
-                ppuDataBuffer = ppuRead(backgroundRenderer.vRamAddress.value)
-                data = if (backgroundRenderer.vRamAddress.value >= 0x3F00u) ppuDataBuffer else data
-                backgroundRenderer.vRamAddress.value =
-                    (backgroundRenderer.vRamAddress.value + (if (control.incrementMode > 0u) 32u else 1u)).toUShort()
+                val data = if (backgroundRenderer.vRamAddress.value and 0x3FFFu < 0x3F00u) {
+                    val temp = ppuDataBuffer
+                    ppuDataBuffer = ppuRead(backgroundRenderer.vRamAddress.value and 0x3FFFu)
+                    temp
+                } else {
+                    ppuDataBuffer = ppuRead(((backgroundRenderer.vRamAddress.value and 0x3FFFu) - 0x1000u).toUShort())
+                    ppuRead(backgroundRenderer.vRamAddress.value and 0x3FFFu)
+                }
+
+                if (!mask.isRendering || scanline > 240) {
+                    if (control.incrementMode > 0u) {
+                        backgroundRenderer.vRamAddress.value = (backgroundRenderer.vRamAddress.value + 32u).toUShort()
+                    } else {
+                        backgroundRenderer.vRamAddress.value++
+                    }
+                } else {
+                    backgroundRenderer.incrementScrollX()
+                    backgroundRenderer.incrementScrollY()
+                }
+
                 data
             }
             else -> openbus

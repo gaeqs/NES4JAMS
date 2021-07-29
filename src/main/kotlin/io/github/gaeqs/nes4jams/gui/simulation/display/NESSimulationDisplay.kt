@@ -89,7 +89,6 @@ class NESSimulationDisplay(val simulation: NESSimulation) :
 
     private inner class RedrawHandler : AnimationTimer() {
 
-        val delay = 1000000000L / simulation.cartridge.header.tvType.framerate
         val screen = ByteArray(NESPPU.SCREEN_WIDTH * NESPPU.SCREEN_HEIGHT)
         var drawnFrame = -1L
 
@@ -119,11 +118,4 @@ class NESSimulationDisplay(val simulation: NESSimulation) :
         }
 
     }
-
-
-    class Test : Region() {
-
-
-    }
-
 }

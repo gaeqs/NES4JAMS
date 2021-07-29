@@ -213,7 +213,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             if (clock and 0x1 == 0L) {
                 dmaData = cpuRead(dmaPage concatenate dmaAddress)
             } else {
-                ppu.objectAttributeMemory[dmaAddress.toInt() shr 2][dmaAddress.toInt() and 0x3] = dmaData
+                ppu.cpuWrite(4u, dmaData)
                 dmaAddress++
                 if (dmaAddress.isZero()) {
                     dmaTransfer = false
