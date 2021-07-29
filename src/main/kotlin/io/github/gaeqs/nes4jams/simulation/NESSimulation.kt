@@ -69,6 +69,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
     var clock: Long = 0
         private set
+    private var clocksTillCPU: Int = 0
 
     private val cpuRAM = UByteArray(2048)
     private var lastTick = 0L
@@ -127,6 +128,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
     fun stealCycles(cycles: Int) {
         clock += cycles
+        clocksTillCPU = (clock % 3).toInt()
     }
 
     fun destroy() {
@@ -170,7 +172,9 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     @Synchronized
     private fun clock() {
         ppu.clock()
-        apu.clockTo(clock)
+        if (clocksTillCPU == 0) {
+            apu.clock()
+        }
 
         if (ppu.frameCompleted) {
             apu.onFrameFinish()
@@ -179,13 +183,14 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         cpu.requestingNMI = ppu.isRequestingNMI()
         cpu.requestingInterrupt = cartridge.mapper.requestingInterrupt || apu.isRequestingInterrupt()
 
-        if (clock % 3 == 0L) {
+        if (clocksTillCPU == 0) {
             if (dmaTransfer) {
                 manageDMA()
             } else {
                 cpu.clock()
             }
-        }
+            clocksTillCPU = 2
+        } else clocksTillCPU--
 
 
 

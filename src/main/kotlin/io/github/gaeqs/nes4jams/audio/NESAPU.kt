@@ -26,7 +26,6 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
 
     val beeper = Beeper(sampleRate, tvType)
 
-    var apuClocks = 0L
     var clocksAfterSample = 0L
 
     private val frameCounter = FrameCounter(tvType, this::clockFrameCounter)
@@ -219,27 +218,23 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
         return 0x40u
     }
 
-    fun clockTo(ppuClocks: Long) {
-        while (apuClocks < ppuClocks) {
-            clocksAfterSample++
+    fun clock() {
+        clocksAfterSample++
 
-            dmc.clock()
-            frameCounter.clock()
+        dmc.clock()
+        frameCounter.clock()
 
-            timers.forEachIndexed { i, timer ->
-                if (i != 2 || timer.counterLength > 0 && linearCounter > 0) {
-                    timer.clock()
-                }
+        timers.forEachIndexed { i, timer ->
+            if (i != 2 || timer.counterLength > 0 && linearCounter > 0) {
+                timer.clock()
             }
+        }
 
-            accumulator += getOutputLevel()
-            while (clocksAfterSample >= cyclesPerSample) {
-                beeper.sample(filter.filter((accumulator / clocksAfterSample).toInt()))
-                clocksAfterSample -= cyclesPerSample.toInt()
-                accumulator = 0
-            }
-
-            apuClocks += 3
+        accumulator += getOutputLevel()
+        while (clocksAfterSample >= cyclesPerSample) {
+            beeper.sample(filter.filter((accumulator / clocksAfterSample).toInt()))
+            clocksAfterSample -= cyclesPerSample.toInt()
+            accumulator = 0
         }
     }
 
@@ -351,7 +346,6 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
     }
 
     fun reset() {
-        apuClocks = 0
         clocksAfterSample = 0
         frameCounter.reset()
         dmc.reset()
