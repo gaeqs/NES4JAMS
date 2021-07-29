@@ -29,11 +29,10 @@ import io.github.gaeqs.nes4jams.ppu.PPUColors
 import io.github.gaeqs.nes4jams.simulation.NESControllerMap
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import javafx.animation.AnimationTimer
-import javafx.scene.canvas.Canvas
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import javafx.scene.input.KeyCode
-import javafx.scene.paint.Color
+import javafx.scene.layout.Region
 import net.jamsimulator.jams.gui.image.NearestImageView
 
 class NESSimulationDisplay(val simulation: NESSimulation) :
@@ -49,8 +48,6 @@ class NESSimulationDisplay(val simulation: NESSimulation) :
     private var controller = NESControllerMap()
 
     init {
-        //graphicsContext2D.isImageSmoothing = false
-
         setOnMouseClicked { requestFocus(); it.consume() }
         setOnKeyPressed { update(it.code, true); it.consume() }
         setOnKeyReleased { update(it.code, false); it.consume() }
@@ -94,11 +91,11 @@ class NESSimulationDisplay(val simulation: NESSimulation) :
 
         val delay = 1000000000L / simulation.cartridge.header.tvType.framerate
         val screen = ByteArray(NESPPU.SCREEN_WIDTH * NESPPU.SCREEN_HEIGHT)
-        var lastTick = System.nanoTime()
+        var drawnFrame = -1L
 
         override fun handle(now: Long) {
-            if (now - lastTick < delay) return
-            lastTick = now
+            if (drawnFrame == simulation.frame) return
+            drawnFrame = simulation.frame
             simulation.runSynchronized {
                 // Let's copy it to let the simulation free
                 simulation.ppu.screen.copyInto(screen)
@@ -115,21 +112,17 @@ class NESSimulationDisplay(val simulation: NESSimulation) :
                 NESPPU.SCREEN_WIDTH
             )
 
-            //graphicsContext2D.drawImage(image, 0.0, 0.0, width, height)
-
-            val nanos = simulation.lastFrameDelayInNanos.toDouble()
-            val default = 1000000000.0 / simulation.cartridge.header.tvType.framerate
-            val percentage = (nanos / default) * 100
-
-            println("OVERHEAD: ${String.format("%.2f", percentage)}%")
-
-            //graphicsContext2D.fill = Color.RED
-//
-            //graphicsContext2D.fillText(String.format("%.2f", percentage), 0.0, 100.0)
-            //graphicsContext2D.fillText(String.format("%.2f", nanos), 0.0, 120.0)
-            //graphicsContext2D.fillText(String.format("%.2f", default), 0.0, 140.0)
-
+            //val nanos = simulation.lastFrameDelayInNanos.toDouble()
+            //val default = 1000000000.0 / simulation.cartridge.header.tvType.framerate
+            //val percentage = (nanos / default) * 100
+            //println("OVERHEAD: ${String.format("%.2f", percentage)}%")
         }
+
+    }
+
+
+    class Test : Region() {
+
 
     }
 

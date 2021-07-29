@@ -52,6 +52,10 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     var lastFrameDelayInNanos = 0L
         private set
 
+    @Volatile
+    var frame = 0L
+        private set
+
     // region NES
 
     val cpu = NESCPU(this)
@@ -147,6 +151,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             if (ppu.frameCompleted) {
                 // We don't have to do nothing.
                 ppu.frameCompleted = false
+                frame++
             }
         } else {
             // Run till frame completed
@@ -160,6 +165,8 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
                 while (System.nanoTime() < nextTick);
                 lastTick = System.nanoTime()
                 updateControllers()
+
+                frame++
             }
         }
     }
