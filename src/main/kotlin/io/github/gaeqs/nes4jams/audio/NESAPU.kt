@@ -9,7 +9,7 @@ import io.github.gaeqs.nes4jams.util.BIT6
 import io.github.gaeqs.nes4jams.util.BIT7
 import io.github.gaeqs.nes4jams.util.extension.shr
 
-class NESAPU(val simulation: NESSimulation, val sampleRate: Int, val soundFiltering: Boolean) {
+class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
 
     companion object {
         private val TND_LOOKUP = IntArray(203 * 2) { ((163.67 / (24329.0 / it + 100.0)) * 49151.0).toInt() }
@@ -67,7 +67,6 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int, val soundFilter
      * CPU bus communication
      */
     fun cpuWrite(address: UShort, data: UByte) {
-        clockTo(simulation.clock)
         when (address.toUInt()) {
             0x4000u -> {
                 val t = timers[0] as SquareTimer
@@ -206,7 +205,6 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int, val soundFilter
      * CPU bus communication
      */
     fun cpuRead(address: UShort, readOnly: Boolean = false): UByte {
-        clockTo(simulation.clock)
         if (address.toUInt() == 0x4015u) {
             var value: UByte = 0u
             timers.forEachIndexed { i, timer ->
@@ -222,19 +220,9 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int, val soundFilter
     }
 
     fun clockTo(ppuClocks: Long) {
-        if (soundFiltering) {
-            clockToUsingFiltering(ppuClocks)
-        }
-    }
-
-    fun onFrameFinish() {
-        clockTo(simulation.clock)
-        beeper.flush(true)
-    }
-
-    private fun clockToUsingFiltering(ppuClocks: Long) {
-        while (apuClocks < ppuClocks / 3) {
+        while (apuClocks < ppuClocks) {
             clocksAfterSample++
+
             dmc.clock()
             frameCounter.clock()
 
@@ -245,15 +233,18 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int, val soundFilter
             }
 
             accumulator += getOutputLevel()
-
             while (clocksAfterSample >= cyclesPerSample) {
                 beeper.sample(filter.filter((accumulator / clocksAfterSample).toInt()))
                 clocksAfterSample -= cyclesPerSample.toInt()
                 accumulator = 0
             }
 
-            apuClocks++
+            apuClocks += 3
         }
+    }
+
+    fun onFrameFinish() {
+        beeper.flush(true)
     }
 
     private fun getOutputLevel(): Int {

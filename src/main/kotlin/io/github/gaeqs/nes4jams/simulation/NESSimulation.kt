@@ -56,7 +56,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
     val cpu = NESCPU(this)
     val ppu = NESPPU(this)
-    val apu = NESAPU(this, 9600, true)
+    val apu = NESAPU(this, 9600)
     val controllers = ubyteArrayOf(0u, 0u)
     private val controllersSnapshot = ubyteArrayOf(0u, 0u)
     private val nextControllers = Array(2) { NESControllerMap() }
@@ -170,6 +170,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     @Synchronized
     private fun clock() {
         ppu.clock()
+        apu.clockTo(clock)
 
         if (ppu.frameCompleted) {
             apu.onFrameFinish()
@@ -193,9 +194,9 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             cpu.interruptRequest()
         }
 
-        //if(apu.isRequestingInterrupt()) {
-        //    cpu.interruptRequest()
-        //}
+        if (apu.isRequestingInterrupt()) {
+            cpu.interruptRequest()
+        }
 
         clock++
     }
@@ -329,7 +330,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             callEvent(SimulationCycleEvent.After(this, cycles))
             manageSimulationFinish()
             apu.pause()
-        }.apply { priority = Thread.MAX_PRIORITY }
+        }.apply { priority = Thread.MAX_PRIORITY; name = "NES Simulation (${cartridge.file.name})" }
         callEvent(SimulationStartEvent(this))
         thread?.start()
     }
@@ -357,7 +358,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
             manageSimulationFinish()
 
-        }.apply { priority = Thread.MAX_PRIORITY }
+        }.apply { priority = Thread.MAX_PRIORITY; name = "NES Simulation (${cartridge.file.name})" }
         callEvent(SimulationStartEvent(this))
         thread?.start()
     }

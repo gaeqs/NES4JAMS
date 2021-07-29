@@ -1,6 +1,5 @@
 package io.github.gaeqs.nes4jams.ppu
 
-import io.github.gaeqs.nes4jams.cartridge.TVType
 import io.github.gaeqs.nes4jams.util.extension.shl
 import io.github.gaeqs.nes4jams.util.extension.shr
 
@@ -31,49 +30,61 @@ data class PPUStatusRegister(var value: UByte) {
         }
 }
 
-data class PPUMaskRegister(var value: UByte) {
+class PPUMaskRegister(value: UByte) {
 
-    val emphasizeBlue: UByte
-        get() {
-            return value shr 7
+    var emphasizeBlue: Boolean = value shr 7 > 0u
+        private set
+    var emphasizeGreen: Boolean = value shr 6 and 0x1u > 0u
+        private set
+    var emphasizeRed: Boolean = value shr 5 and 0x1u > 0u
+        private set
+    var showSprites: Boolean = value shr 4 and 0x1u > 0u
+        private set
+    var showBackground: Boolean = value shr 3 and 0x1u > 0u
+        private set
+    var showSpritesInLeft: Boolean = value shr 2 and 0x1u > 0u
+        private set
+    var showBackgroundInLeftmost: Boolean = value shr 1 and 0x1u > 0u
+        private set
+    var grayscale: Boolean = value and 0x1u > 0u
+        private set
+    var isRendering: Boolean = showBackground || showSprites
+        private set
+
+    var value: UByte = value
+        set(value) {
+            field = value
+            emphasizeBlue = value shr 7 > 0u
+            emphasizeGreen = value shr 6 and 0x1u > 0u
+            emphasizeRed = value shr 5 and 0x1u > 0u
+            showSprites = value shr 4 and 0x1u > 0u
+            showBackground = value shr 3 and 0x1u > 0u
+            showSpritesInLeft = value shr 2 and 0x1u > 0u
+            showBackgroundInLeftmost = value shr 1 and 0x1u > 0u
+            grayscale = value and 0x1u > 0u
+            isRendering = showBackground || showSprites
         }
 
-    val emphasizeGreen: UByte
-        get() {
-            return value shr 6 and 0x1u
-        }
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-    val emphasizeRed: UByte
-        get() {
-            return value shr 5 and 0x1u
-        }
+        other as PPUMaskRegister
 
-    val showSprites: UByte
-        get() {
-            return value shr 4 and 0x1u
-        }
+        if (value != other.value) return false
 
-    val showBackground: UByte
-        get() {
-            return value shr 3 and 0x1u
-        }
+        return true
+    }
 
-    val showSpritesInLeft: UByte
-        get() {
-            return value shr 2 and 0x1u
-        }
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
 
-    val showBackgroundInLeftmost: UByte
-        get() {
-            return value shr 1 and 0x1u
-        }
+    override fun toString(): String {
+        return "PPUMaskRegister(emphasizeBlue=$emphasizeBlue, emphasizeGreen=$emphasizeGreen, emphasizeRed=$emphasizeRed, showSprites=$showSprites, showBackground=$showBackground, showSpritesInLeft=$showSpritesInLeft, showBackgroundInLeftmost=$showBackgroundInLeftmost, grayscale=$grayscale, isRendering=$isRendering, value=$value)"
+    }
 
-    val grayscale: UByte
-        get() {
-            return value and 0x1u
-        }
 
-    val isRendering: Boolean get() = showBackground > 0u || showSprites > 0u
 }
 
 data class PPUControlRegister(var value: UByte) {

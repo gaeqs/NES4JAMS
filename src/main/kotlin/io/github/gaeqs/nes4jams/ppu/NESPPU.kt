@@ -34,6 +34,7 @@ class NESPPU(val simulation: NESSimulation) {
 
     companion object {
         val SCREEN_WIDTH = 256
+        val SCREEN_WIDTH_SHIFT = 8
         val SCREEN_HEIGHT = 240
         private val ZERO_PAIR = Pair<UByte, UByte>(0u, 0u)
     }
@@ -54,7 +55,7 @@ class NESPPU(val simulation: NESSimulation) {
 
     var addressLatch = false
     var ppuDataBuffer: UByte = 0u
-    var openbus : UByte = 0u
+    var openbus: UByte = 0u
 
     var scanline = 0
         private set
@@ -222,14 +223,8 @@ class NESPPU(val simulation: NESSimulation) {
                 simulation.cartridge.mirroring.map(nameTables, address) ?: 0u
             }
             in 0x3F00u..0x3FFFu -> {
-                val masked = when ((address and 0x001Fu).toUInt()) {
-                    0x0010u -> 0x0000
-                    0x0014u -> 0x0004
-                    0x0018u -> 0x0008
-                    0x001Cu -> 0x000C
-                    else -> (address.toInt() and 0x001F)
-                }
-                palette[masked]
+                val i = address.toInt()
+                palette[if (i and 0b11 == 0) i and 0x0F else i and 0x001F]
             }
             else -> 0u
         }
@@ -252,16 +247,9 @@ class NESPPU(val simulation: NESSimulation) {
         }
 
         // On render updates
-        if (scanline in -1 until 240) {
-            if (cycle in 258..341) {
-                oamAddress = 0u
-            }
+        if (scanline in -1 until 240 && cycle in 258..341) {
+            oamAddress = 0u
         }
-
-        val (bgPixel, bgPalette) = backgroundRenderer.clock(scanline, cycle)
-        val (fgPixel, fgPalette, fgPriority) = spriteRenderer.clock(scanline, cycle)
-        val bgPixel0 = bgPixel.isZero()
-        val fgPixel0 = fgPixel.isZero()
 
         // SCANLINE 240 does nothing :)
         if (scanline == tvType.videoVerticalBlankLine && cycle == 1) {
@@ -275,7 +263,24 @@ class NESPPU(val simulation: NESSimulation) {
             simulation.cartridge.mapper.onA12Notification(backgroundRenderer.vRamAddress.value and 0x3FFFu)
         }
 
-        val (pixel: UByte, palette: UByte) = when {
+        if (cycle == 257) {
+            simulation.cartridge.mapper.onScanLine()
+        }
+
+
+        val (pixel, palette) = clockRenderers()
+        paint(pixel, palette)
+
+        moveToNextClock()
+    }
+
+    private fun clockRenderers(): Pair<UByte, UByte> {
+        val (bgPixel, bgPalette) = backgroundRenderer.clock(scanline, cycle)
+        val (fgPixel, fgPalette, fgPriority) = spriteRenderer.clock(scanline, cycle)
+        val bgPixel0 = bgPixel.isZero()
+        val fgPixel0 = fgPixel.isZero()
+
+        return when {
             bgPixel0 && fgPixel0 -> ZERO_PAIR
             bgPixel0 && !fgPixel0 -> Pair(fgPixel, fgPalette)
             !bgPixel0 && fgPixel0 -> Pair(bgPixel, bgPalette)
@@ -284,20 +289,20 @@ class NESPPU(val simulation: NESSimulation) {
                 if (fgPriority) Pair(fgPixel, fgPalette) else Pair(bgPixel, bgPalette)
             }
         }
+    }
 
-        if (cycle - 1 in 0 until SCREEN_WIDTH && scanline in 0 until SCREEN_HEIGHT) {
-            val pointer = cycle - 1 + scanline * SCREEN_WIDTH
-            var value = ppuRead((0x03F00u + (palette shl 2) + pixel).toUShort()).toByte()
-            if (mask.grayscale > 0u) value = value and 0x30
-            screen[pointer] = value and 0x3F
+    private fun paint(pixel: UByte, palette: UByte) {
+        val x = cycle - 1
+        val y = scanline
+        if (x in 0 until SCREEN_WIDTH && y in 0 until SCREEN_HEIGHT) {
+            val value = ppuRead((0x03F00u + (palette shl 2) + pixel).toUShort()).toByte()
+            val pointer = x + (y shl SCREEN_WIDTH_SHIFT)
+            screen[pointer] = if (mask.grayscale) value and 0x30 else value and 0x3F
         }
+    }
 
-        if (cycle == 257) {
-            simulation.cartridge.mapper.onScanLine()
-        }
-
+    private fun moveToNextClock() {
         cycle++
-
         if (cycle > 340) {
             cycle = 0
             scanline++
@@ -310,10 +315,8 @@ class NESPPU(val simulation: NESSimulation) {
     }
 
     private fun updateZeroHit() {
-        if (spriteRenderer.spriteZeroHitPossible && spriteRenderer.spriteZeroBeingRendered
-            && mask.showBackground > 0u && mask.showSprites > 0u
-        ) {
-            if ((mask.showBackgroundInLeftmost or mask.showSpritesInLeft).inv() > 0u) {
+        if (spriteRenderer.spriteZeroHitPossible && spriteRenderer.spriteZeroBeingRendered && mask.isRendering) {
+            if (!mask.showBackgroundInLeftmost && !mask.showSpritesInLeft) {
                 if (cycle in 9 until 258) {
                     status.verticalZeroHit = 1u
                 }

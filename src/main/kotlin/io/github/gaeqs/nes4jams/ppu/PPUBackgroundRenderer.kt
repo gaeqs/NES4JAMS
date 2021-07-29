@@ -23,32 +23,42 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
     fun clock(scanline: Int, cycle: Int): Pair<UByte, UByte> {
         // Visible scanlines
         if (scanline in -1 until 240) {
-            if (cycle in 2 until 258 || cycle in 321 until 338) {
-                updateShifters()
-                when ((cycle - 1) and 0x7) {
-                    0 -> {
-                        loadBackgroundShifters()
-                        loadBackgroundNextTileId()
-                    }
-                    2 -> loadBackgroundNextTileAttribute()
-                    4 -> loadBackgroundNextLeastSignificantBytes()
-                    6 -> loadBackgroundNextMostSignificantBytes()
-                    7 -> incrementScrollX()
-                }
-            }
+            executeClock(scanline, cycle)
+        }
+        return getPixel()
+    }
 
-            when (cycle) {
-                256 -> incrementScrollY()
-                257 -> {
+    private fun executeClock(scanline: Int, cycle: Int) {
+        if (cycle in 2 until 258 || cycle in 321 until 338) {
+            updateShifters()
+            when ((cycle - 1) and 0x7) {
+                0 -> {
                     loadBackgroundShifters()
-                    transferAddressX()
+                    loadBackgroundNextTileId()
                 }
-                338, 340 -> loadBackgroundNextTileId()
-                in 280 until 305 -> if (scanline == -1) transferAddressY()
+                2 -> loadBackgroundNextTileAttribute()
+                4 -> loadBackgroundNextLeastSignificantBytes()
+                6 -> loadBackgroundNextMostSignificantBytes()
+                7 -> incrementScrollX()
             }
         }
 
-        if (ppu.mask.showBackground > 0u) {
+        when (cycle) {
+            256 -> incrementScrollY()
+            257 -> {
+                loadBackgroundShifters()
+                transferAddressX()
+            }
+            338, 340 -> loadBackgroundNextTileId()
+        }
+
+        if (scanline == -1 && cycle in 280 until 305) {
+            transferAddressY()
+        }
+    }
+
+    private fun getPixel(): Pair<UByte, UByte> {
+        if (ppu.mask.showBackground) {
             val bitMux = (0x8000u).toUShort() shr fineX.toInt()
             val pixel = (shifterPatternHigh and bitMux > 0u) concatenate (shifterPatternLow and bitMux > 0u)
             val palette = (shifterAttributeHigh and bitMux > 0u) concatenate (shifterAttributeLow and bitMux > 0u)
@@ -146,7 +156,7 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
     }
 
     private fun updateShifters() {
-        if (ppu.mask.showBackground > 0u) {
+        if (ppu.mask.showBackground) {
             shifterPatternLow = shifterPatternLow shl 1
             shifterPatternHigh = shifterPatternHigh shl 1
             shifterAttributeLow = shifterAttributeLow shl 1

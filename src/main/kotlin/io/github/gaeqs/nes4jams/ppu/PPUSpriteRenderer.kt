@@ -42,7 +42,7 @@ class PPUSpriteRenderer(private val ppu: NESPPU) {
             if (cycle in 1 until 258) updateShifters()
 
             spriteZeroBeingRendered = false
-            if (ppu.mask.showSprites > 0u) {
+            if (ppu.mask.showSprites) {
                 for (i in 0 until spriteCount) {
                     if (scanlineSprites[i].x.isZero()) {
                         val pixel = (shifterPatternHigh[i] and 0x80u > 0u) concatenate
