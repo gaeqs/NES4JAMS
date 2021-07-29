@@ -143,6 +143,24 @@ class NESPPU(val simulation: NESSimulation) {
     }
 
     fun cpuRead(address: UShort, readOnly: Boolean = false): UByte {
+        if (readOnly) {
+            // Return the current status and do nothing!
+            return when (address.toUInt()) {
+                // Status
+                0x0002u -> (status.value and 0xE0u) or (ppuDataBuffer and 0x1Fu)
+                // OAM Data
+                0x0004u -> objectAttributeMemory[oamAddress.toInt() shr 2][oamAddress.toInt() and 0x3]
+                // PPU Data
+                0x0007u -> {
+                    var data = ppuDataBuffer
+                    data = if (backgroundRenderer.vRamAddress.value >= 0x3F00u)
+                        ppuRead(backgroundRenderer.vRamAddress.value) else data
+                    data
+                }
+                else -> openbus
+            }
+        }
+
         openbus = when (address.toUInt()) {
             // Status
             0x0002u -> {
@@ -166,9 +184,7 @@ class NESPPU(val simulation: NESSimulation) {
                 var data = ppuDataBuffer
 
                 ppuDataBuffer = ppuRead(backgroundRenderer.vRamAddress.value)
-
                 data = if (backgroundRenderer.vRamAddress.value >= 0x3F00u) ppuDataBuffer else data
-
                 backgroundRenderer.vRamAddress.value =
                     (backgroundRenderer.vRamAddress.value + (if (control.incrementMode > 0u) 32u else 1u)).toUShort()
                 data
