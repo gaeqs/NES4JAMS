@@ -176,6 +176,9 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             apu.onFrameFinish()
         }
 
+        cpu.requestingNMI = ppu.isRequestingNMI()
+        cpu.requestingInterrupt = cartridge.mapper.requestingInterrupt || apu.isRequestingInterrupt()
+
         if (clock % 3 == 0L) {
             if (dmaTransfer) {
                 manageDMA()
@@ -184,19 +187,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             }
         }
 
-        if (ppu.nmiRequest) {
-            ppu.nmiRequest = false
-            cpu.nonMaskableInterrupt()
-        }
 
-        if (cartridge.mapper.requestingInterrupt) {
-            cartridge.mapper.clearInterruptRequest()
-            cpu.interruptRequest()
-        }
-
-        if (apu.isRequestingInterrupt()) {
-            cpu.interruptRequest()
-        }
 
         clock++
     }

@@ -48,11 +48,27 @@ class NESCPU(val simulation: NESSimulation) {
     var currentOpcode: UByte = 0u
     var cyclesLeft: UByte = 0u
 
+    var requestingNMI = false
+    private var previousRequestingNMI = false
+    private var previousInterruptFlag = false
+
+    var requestingInterrupt = false
+    private var delayInterrupt = false
+
     fun clock() {
         if (cyclesLeft > 0u) {
             cyclesLeft--
             return
         }
+
+        if (requestingNMI && !previousRequestingNMI) {
+            nonMaskableInterrupt()
+            previousRequestingNMI = requestingNMI
+            return
+        }
+        previousRequestingNMI = requestingNMI
+
+        if(checkInterruptRequest()) return
 
         currentOpcode = read(pc++)
         val instruction = NESAssembledInstruction.INSTRUCTIONS[currentOpcode.toInt()]
@@ -78,7 +94,7 @@ class NESCPU(val simulation: NESSimulation) {
         cyclesLeft = 8u
     }
 
-    fun interruptRequest() {
+    private fun interruptRequest() {
         if (getFlag(StatusFlag.DISABLE_INTERRUPTS)) return
         pushToStack((pc shr 8).toUByte())
         pushToStack(pc.toUByte())
@@ -92,7 +108,7 @@ class NESCPU(val simulation: NESSimulation) {
         cyclesLeft = 7u
     }
 
-    fun nonMaskableInterrupt() {
+    private fun nonMaskableInterrupt() {
         pushToStack((pc shr 8).toUByte())
         pushToStack(pc.toUByte())
         setFlag(StatusFlag.BREAK, true)
@@ -102,6 +118,24 @@ class NESCPU(val simulation: NESSimulation) {
 
         pc = read(0xFFFBu) concatenate read(0xFFFAu)
         cyclesLeft = 8u
+    }
+
+    private fun checkInterruptRequest(): Boolean {
+        val delay = delayInterrupt
+        delayInterrupt = false
+
+        if (!requestingInterrupt) return false
+
+        if(delay && !previousInterruptFlag || !delay && !getFlag(StatusFlag.DISABLE_INTERRUPTS)) {
+            interruptRequest()
+            return true
+        }
+        return false
+    }
+
+    private fun delayInterrupt() {
+        delayInterrupt = true
+        previousInterruptFlag = getFlag(StatusFlag.DISABLE_INTERRUPTS)
     }
 
     fun fetch(): UByte {
@@ -224,6 +258,7 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun cli(): Boolean {
+        delayInterrupt()
         setFlag(StatusFlag.DISABLE_INTERRUPTS, false)
         return false
     }
@@ -420,6 +455,7 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun plp(): Boolean {
+        delayInterrupt()
         // Perform dummy fetch
         read(pc)
         status = popFromStack()
@@ -512,6 +548,7 @@ class NESCPU(val simulation: NESSimulation) {
     }
 
     fun sei(): Boolean {
+        delayInterrupt()
         setFlag(StatusFlag.DISABLE_INTERRUPTS, true)
         return false
     }

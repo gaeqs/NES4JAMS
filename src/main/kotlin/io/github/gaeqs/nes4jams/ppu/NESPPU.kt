@@ -51,7 +51,6 @@ class NESPPU(val simulation: NESSimulation) {
     val control = PPUControlRegister(0u)
     val status = PPUStatusRegister(0u)
     val mask = PPUMaskRegister(0u)
-    var nmiRequest = false
 
     var addressLatch = false
     var ppuDataBuffer: UByte = 0u
@@ -69,6 +68,8 @@ class NESPPU(val simulation: NESSimulation) {
 
     private val backgroundRenderer = PPUBackgroundRenderer(this)
     private val spriteRenderer = PPUSpriteRenderer(this)
+
+    fun isRequestingNMI() = control.enableNmi > 0u && status.verticalBlank > 0u
 
     fun cpuWrite(address: UShort, data: UByte) {
         openbus = data
@@ -149,9 +150,6 @@ class NESPPU(val simulation: NESSimulation) {
                     if (cycle == 2) {
                         // The VBL flag was just set. Clear it before we calculate the data
                         status.verticalBlank = 0u
-                    }
-                    if(cycle < 4) {
-                        nmiRequest = false
                     }
                 }
                 val data = (status.value and 0xE0u) or (ppuDataBuffer and 0x1Fu)
@@ -267,9 +265,6 @@ class NESPPU(val simulation: NESSimulation) {
         // SCANLINE 240 does nothing :)
         if (scanline == tvType.videoVerticalBlankLine && cycle == 1) {
             status.verticalBlank = 1u
-            if (control.enableNmi > 0u) {
-                nmiRequest = true
-            }
         }
 
         if (!mask.isRendering || scanline > 240) {
@@ -350,7 +345,6 @@ class NESPPU(val simulation: NESSimulation) {
         control.value = 0u
         status.value = 0u
         mask.value = 0u
-        nmiRequest = false
         addressLatch = false
         ppuDataBuffer = 0u
         scanline = 0
