@@ -145,6 +145,15 @@ class NESPPU(val simulation: NESSimulation) {
         openbus = when (address.toUInt()) {
             // Status
             0x0002u -> {
+                if (scanline == tvType.videoVerticalBlankLine) {
+                    if (cycle == 2) {
+                        // The VBL flag was just set. Clear it before we calculate the data
+                        status.verticalBlank = 0u
+                    }
+                    if(cycle < 4) {
+                        nmiRequest = false
+                    }
+                }
                 val data = (status.value and 0xE0u) or (ppuDataBuffer and 0x1Fu)
                 status.verticalBlank = 0u
                 addressLatch = false
@@ -220,7 +229,7 @@ class NESPPU(val simulation: NESSimulation) {
                 patternTables[(address and 0x1000u shr 12).toInt()][(address and 0x0FFFu).toInt()]
             }
             in 0x2000u..0x3EFFu -> {
-                simulation.cartridge.mirroring.map(nameTables, address) ?: 0u
+                simulation.cartridge.mirroring.map(nameTables, address)
             }
             in 0x3F00u..0x3FFFu -> {
                 val i = address.toInt()
@@ -231,20 +240,24 @@ class NESPPU(val simulation: NESSimulation) {
     }
 
     fun clock() {
-        // Skip on odd frame
-        if (scanline == 0 && cycle == 0 && mask.isRendering && oddFrame) cycle = 1
-
 
         if (scanline == -1 && cycle == 1) {
-            status.verticalBlank = 0u
             status.spriteOverflow = 0u
             status.verticalZeroHit = 0u
             spriteRenderer.resetShifter()
         }
 
+        // VBL flag should be cleared one cycle after because of its delay.
+        if (scanline == -1 && cycle == 2) {
+            status.verticalBlank = 0u
+        }
+
         if (scanline == -1 && cycle in 280..304 && mask.isRendering) {
             backgroundRenderer.vRamAddress.value = backgroundRenderer.tRamAddress.value
         }
+
+        // Skip on odd frame
+        if (scanline == 0 && cycle == 0 && mask.isRendering && oddFrame) cycle = 1
 
         // On render updates
         if (scanline in -1 until 240 && cycle in 258..341) {
@@ -306,7 +319,7 @@ class NESPPU(val simulation: NESSimulation) {
         if (cycle > 340) {
             cycle = 0
             scanline++
-            if (scanline >= tvType.videoScanlines) {
+            if (scanline > tvType.videoScanlines) {
                 scanline = -1
                 frameCompleted = true
                 oddFrame = !oddFrame
@@ -316,7 +329,7 @@ class NESPPU(val simulation: NESSimulation) {
 
     private fun updateZeroHit() {
         if (spriteRenderer.spriteZeroHitPossible && spriteRenderer.spriteZeroBeingRendered && mask.isRendering) {
-            if (!mask.showBackgroundInLeftmost && !mask.showSpritesInLeft) {
+            if (!mask.showBackgroundInLeft && !mask.showSpritesInLeft) {
                 if (cycle in 9 until 258) {
                     status.verticalZeroHit = 1u
                 }

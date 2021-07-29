@@ -25,7 +25,7 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
         if (scanline in -1 until 240) {
             executeClock(scanline, cycle)
         }
-        return getPixel()
+        return getPixel(cycle)
     }
 
     private fun executeClock(scanline: Int, cycle: Int) {
@@ -57,8 +57,8 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
         }
     }
 
-    private fun getPixel(): Pair<UByte, UByte> {
-        if (ppu.mask.showBackground) {
+    private fun getPixel(cycle : Int): Pair<UByte, UByte> {
+        if (ppu.mask.showBackground && (ppu.mask.showBackgroundInLeft || cycle > 8)) {
             val bitMux = (0x8000u).toUShort() shr fineX.toInt()
             val pixel = (shifterPatternHigh and bitMux > 0u) concatenate (shifterPatternLow and bitMux > 0u)
             val palette = (shifterAttributeHigh and bitMux > 0u) concatenate (shifterAttributeLow and bitMux > 0u)

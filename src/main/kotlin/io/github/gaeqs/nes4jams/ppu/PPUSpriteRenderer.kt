@@ -33,45 +33,47 @@ class PPUSpriteRenderer(private val ppu: NESPPU) {
     fun clock(scanline: Int, cycle: Int): Triple<UByte, UByte, Boolean> {
         // Sprite renderer should work even if the show sprite flag is not set.
         // If both sprites and background are not being rendered, this code shouldn't be executed.
-        if (!ppu.mask.isRendering) return ZERO_TRIPLE
-        if (scanline in -1 until 240) {
-            when (cycle) {
-                257 -> if (scanline >= 0) populateSpriteArray(scanline)
-                340 -> repeat(spriteCount) { generateSpriteShifters(scanline, it) }
-            }
-            if (cycle in 1 until 258) updateShifters()
-
-            spriteZeroBeingRendered = false
-            if (ppu.mask.showSprites) {
-                for (i in 0 until spriteCount) {
-                    if (scanlineSprites[i].x.isZero()) {
-                        val pixel = (shifterPatternHigh[i] and 0x80u > 0u) concatenate
-                                (shifterPatternLow[i] and 0x80u > 0u)
-                        val palette = ((scanlineSprites[i].attribute and 0x03u) + 0x04u).toUByte()
-                        val priority = (scanlineSprites[i].attribute and 0x20u).isZero()
-
-                        // Pixel found, break
-                        if (pixel > 0u) {
-                            if (i == 0) spriteZeroBeingRendered = true
-                            return Triple(pixel, palette, priority)
-                        }
-                    }
-                }
-            }
+        if (!ppu.mask.isRendering || scanline !in -1 until 240) return ZERO_TRIPLE
+        when (cycle) {
+            257 -> if (scanline >= 0) populateSpriteArray(scanline)
+            340 -> repeat(spriteCount) { generateSpriteShifters(scanline, it) }
         }
 
-        return ZERO_TRIPLE
+        spriteZeroBeingRendered = false
+        if (!ppu.mask.showSprites || cycle !in 1..256) return ZERO_TRIPLE
+        return clockSprites(cycle)
     }
 
-    private fun updateShifters() {
+    private fun clockSprites(cycle: Int): Triple<UByte, UByte, Boolean> {
+        var found: Triple<UByte, UByte, Boolean>? = null
         for (i in 0 until spriteCount) {
-            if (scanlineSprites[i].x > 0u) {
-                scanlineSprites[i].x--
-            } else {
+            if (scanlineSprites[i].x.isZero()) {
+                if (found != null || !ppu.mask.showSpritesInLeft && cycle < 9) {
+                    // If the pixel was already found in a previous sprite or sprites are not being shown in left,
+                    // just shift this sprite's registers.
+                    shifterPatternLow[i] = shifterPatternLow[i] shl 1
+                    shifterPatternHigh[i] = shifterPatternHigh[i] shl 1
+                    continue
+                }
+                val pixel = (shifterPatternHigh[i] and 0x80u > 0u) concatenate (shifterPatternLow[i] and 0x80u > 0u)
+                val palette = ((scanlineSprites[i].attribute and 0x03u) + 0x04u).toUByte()
+                val priority = (scanlineSprites[i].attribute and 0x20u).isZero()
+
+                // Pixel found
+                if (pixel > 0u) {
+                    // Last cycle should ignore sprite 0 check.
+                    if (i == 0 && cycle != 256) spriteZeroBeingRendered = true
+                    found = Triple(pixel, palette, priority)
+                }
+
+                // Shift
                 shifterPatternLow[i] = shifterPatternLow[i] shl 1
                 shifterPatternHigh[i] = shifterPatternHigh[i] shl 1
+            } else {
+                scanlineSprites[i].x--
             }
         }
+        return found ?: ZERO_TRIPLE
     }
 
     private fun populateSpriteArray(scanline: Int) {

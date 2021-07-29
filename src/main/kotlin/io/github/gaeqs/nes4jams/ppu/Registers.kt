@@ -44,7 +44,7 @@ class PPUMaskRegister(value: UByte) {
         private set
     var showSpritesInLeft: Boolean = value shr 2 and 0x1u > 0u
         private set
-    var showBackgroundInLeftmost: Boolean = value shr 1 and 0x1u > 0u
+    var showBackgroundInLeft: Boolean = value shr 1 and 0x1u > 0u
         private set
     var grayscale: Boolean = value and 0x1u > 0u
         private set
@@ -60,7 +60,7 @@ class PPUMaskRegister(value: UByte) {
             showSprites = value shr 4 and 0x1u > 0u
             showBackground = value shr 3 and 0x1u > 0u
             showSpritesInLeft = value shr 2 and 0x1u > 0u
-            showBackgroundInLeftmost = value shr 1 and 0x1u > 0u
+            showBackgroundInLeft = value shr 1 and 0x1u > 0u
             grayscale = value and 0x1u > 0u
             isRendering = showBackground || showSprites
         }
@@ -81,7 +81,7 @@ class PPUMaskRegister(value: UByte) {
     }
 
     override fun toString(): String {
-        return "PPUMaskRegister(emphasizeBlue=$emphasizeBlue, emphasizeGreen=$emphasizeGreen, emphasizeRed=$emphasizeRed, showSprites=$showSprites, showBackground=$showBackground, showSpritesInLeft=$showSpritesInLeft, showBackgroundInLeftmost=$showBackgroundInLeftmost, grayscale=$grayscale, isRendering=$isRendering, value=$value)"
+        return "PPUMaskRegister(emphasizeBlue=$emphasizeBlue, emphasizeGreen=$emphasizeGreen, emphasizeRed=$emphasizeRed, showSprites=$showSprites, showBackground=$showBackground, showSpritesInLeft=$showSpritesInLeft, showBackgroundInLeftmost=$showBackgroundInLeft, grayscale=$grayscale, isRendering=$isRendering, value=$value)"
     }
 
 
