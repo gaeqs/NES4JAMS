@@ -91,9 +91,13 @@ class NESSimulationDisplay(val simulation: NESSimulation) :
 
     private inner class RedrawHandler : AnimationTimer() {
 
+        val delay = 1000000000L / 60
         val screen = ByteArray(NESPPU.SCREEN_WIDTH * NESPPU.SCREEN_HEIGHT)
+        var lastTick = System.nanoTime()
 
         override fun handle(now: Long) {
+            if (now - lastTick < delay) return
+            lastTick = now
             simulation.runSynchronized {
                 // Let's copy it to let the simulation free
                 simulation.ppu.screen.copyInto(screen)
