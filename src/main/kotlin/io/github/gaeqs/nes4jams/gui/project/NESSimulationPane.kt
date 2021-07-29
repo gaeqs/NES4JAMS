@@ -60,8 +60,8 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
 
         display = NESSimulationDisplay(simulation)
         val border = BorderPane(display)
-        display.width = 200.0
-        display.height = 200.0
+        display.fitWidth = 200.0
+        display.fitHeight = 200.0
 
 
         // The scroll pane allows to resize the node easily
