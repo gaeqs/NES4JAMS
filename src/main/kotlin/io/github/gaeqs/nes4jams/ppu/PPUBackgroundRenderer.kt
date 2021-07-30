@@ -7,7 +7,7 @@ import io.github.gaeqs.nes4jams.util.extension.shr
 class PPUBackgroundRenderer(private val ppu: NESPPU) {
 
     var fineX: UByte = 0u
-    val vRamAddress = PPULoopyRegister(0u)
+    val vRamAddress = PPUVRamLoopyRegister(0u, ppu.simulation)
     val tRamAddress = PPULoopyRegister(0u)
 
     private var nextTileId: UByte = 0u
@@ -57,7 +57,7 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
         }
     }
 
-    private fun getPixel(cycle : Int): Pair<UByte, UByte> {
+    private fun getPixel(cycle: Int): Pair<UByte, UByte> {
         if (ppu.mask.showBackground && (ppu.mask.showBackgroundInLeft || cycle > 8)) {
             val bitMux = (0x8000u).toUShort() shr fineX.toInt()
             val pixel = (shifterPatternHigh and bitMux > 0u) concatenate (shifterPatternLow and bitMux > 0u)

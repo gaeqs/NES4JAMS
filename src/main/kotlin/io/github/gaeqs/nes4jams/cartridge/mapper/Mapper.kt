@@ -39,8 +39,7 @@ interface Mapper {
     fun ppuMapWrite(address: UShort, data: UByte): MapperWriteResult
 
     fun reset()
-    fun clearInterruptRequest()
     fun onScanLine()
-    fun onA12Notification(address: UShort)
+    fun onA12Change(old: Boolean, now: Boolean)
 
 }

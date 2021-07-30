@@ -298,10 +298,6 @@ class NESPPU(val simulation: NESSimulation) {
             status.verticalBlank = 1u
         }
 
-        if (!mask.isRendering || scanline > 240) {
-            simulation.cartridge.mapper.onA12Notification(backgroundRenderer.vRamAddress.value and 0x3FFFu)
-        }
-
         if (cycle == 257) {
             simulation.cartridge.mapper.onScanLine()
         }
@@ -334,9 +330,15 @@ class NESPPU(val simulation: NESSimulation) {
         val x = cycle - 1
         val y = scanline
         if (x in 0 until SCREEN_WIDTH && y in 0 until SCREEN_HEIGHT) {
-            val value = ppuRead((0x03F00u + (palette shl 2) + pixel).toUShort()).toByte()
             val pointer = x + (y shl SCREEN_WIDTH_SHIFT)
-            screen[pointer] = if (mask.grayscale) value and 0x30 else value and 0x3F
+            if (mask.isRendering) {
+                val value = ppuRead((0x03F00u + (palette shl 2) + pixel).toUShort()).toByte()
+                screen[pointer] = if (mask.grayscale) value and 0x30 else value and 0x3F
+            } else {
+                // Write PPU address
+                val loopyV = backgroundRenderer.vRamAddress.value
+                screen[pointer] = (if (loopyV > 0x3F00u) ppuRead(loopyV) else this.palette[0]).toByte()
+            }
         }
     }
 

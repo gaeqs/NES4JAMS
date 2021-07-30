@@ -26,11 +26,10 @@ package io.github.gaeqs.nes4jams.simulation
 
 import io.github.gaeqs.nes4jams.audio.NESAPU
 import io.github.gaeqs.nes4jams.cpu.NESCPU
+import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
+import io.github.gaeqs.nes4jams.cpu.instruction.NESAssembledInstruction
 import io.github.gaeqs.nes4jams.ppu.NESPPU
-import io.github.gaeqs.nes4jams.util.extension.concatenate
-import io.github.gaeqs.nes4jams.util.extension.isZero
-import io.github.gaeqs.nes4jams.util.extension.shl
-import io.github.gaeqs.nes4jams.util.extension.shr
+import io.github.gaeqs.nes4jams.util.extension.*
 import net.jamsimulator.jams.event.SimpleEventBroadcast
 import net.jamsimulator.jams.mips.simulation.Simulation
 import net.jamsimulator.jams.mips.simulation.event.*
@@ -187,13 +186,14 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             apu.onFrameFinish()
         }
 
+        cpu.requestingNMI = ppu.isRequestingNMI()
+        cpu.requestingInterrupt = cartridge.mapper.requestingInterrupt || apu.isRequestingInterrupt()
+
         if (clocksTillCPU == 0) {
             if (dmaTransfer) {
                 manageDMA()
             } else {
                 cpu.clock()
-                cpu.requestingNMI = ppu.isRequestingNMI()
-                cpu.requestingInterrupt = cartridge.mapper.requestingInterrupt || apu.isRequestingInterrupt()
             }
             clocksTillCPU = 2
         } else clocksTillCPU--
@@ -409,4 +409,76 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     @Synchronized
     override fun runSynchronized(runnable: Runnable) = runnable.run()
 
+
+    fun disassembleCurrentStatus(from: UShort, to: UShort): Map<Int, String> {
+        var address = from
+        var value: UByte
+        var low: UByte
+        var high: UByte
+        val map = HashMap<Int, String>()
+        var lineStart = address.toInt()
+
+        while (address <= to) {
+            if (lineStart > address.toInt()) break
+            lineStart = address.toInt()
+            var string = "$${address.toString(16)}:  "
+            val opcode = cpuRead(address++, true)
+            val instruction = NESAssembledInstruction.INSTRUCTIONS[opcode.toInt()]
+            string += "${instruction.mnemonic}  "
+
+            string += when (instruction.addressingMode) {
+                NESAddressingMode.IMPLIED -> "{IMP}"
+                NESAddressingMode.IMMEDIATE -> {
+                    value = cpuRead(address++, true)
+                    "#$${value.toHex(2)} {IMM}"
+                }
+                NESAddressingMode.ZERO_PAGE -> {
+                    low = cpuRead(address++, true)
+                    "$${low.toHex(2)}, {ZP0}"
+                }
+                NESAddressingMode.ZERO_PAGE_X -> {
+                    low = cpuRead(address++, true)
+                    "$${low.toHex(2)}, X {ZPX}"
+                }
+                NESAddressingMode.ZERO_PAGE_Y -> {
+                    low = cpuRead(address++, true)
+                    "$${low.toHex(2)}, Y {ZPY}"
+                }
+                NESAddressingMode.INDIRECT_X -> {
+                    low = cpuRead(address++, true)
+                    "($${low.toHex(2)}, X) {IZX}"
+                }
+                NESAddressingMode.INDIRECT_Y -> {
+                    low = cpuRead(address++, true)
+                    "($${low.toHex(2)}), Y {IZY}"
+                }
+                NESAddressingMode.ABSOLUTE -> {
+                    low = cpuRead(address++, true)
+                    high = cpuRead(address++, true)
+                    "$${(high concatenate low).toHex(4)} {ABS}"
+                }
+                NESAddressingMode.ABSOLUTE_X -> {
+                    low = cpuRead(address++, true)
+                    high = cpuRead(address++, true)
+                    "$${(high concatenate low).toHex(4)}, X {ABX}"
+                }
+                NESAddressingMode.ABSOLUTE_Y -> {
+                    low = cpuRead(address++, true)
+                    high = cpuRead(address++, true)
+                    "$${(high concatenate low).toHex(4)}, Y {ABY}"
+                }
+                NESAddressingMode.INDIRECT -> {
+                    low = cpuRead(address++, true)
+                    high = cpuRead(address++, true)
+                    "($${(high concatenate low).toHex(4)}) {IND}"
+                }
+                NESAddressingMode.RELATIVE -> {
+                    value = cpuRead(address++, true)
+                    "$${value.toHex(2)} [$${(address.toInt() + value.toByte()).toString(16)}] {REL}"
+                }
+            }
+            map[lineStart] = string
+        }
+        return map
+    }
 }

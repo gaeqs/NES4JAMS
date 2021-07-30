@@ -30,8 +30,9 @@ import io.github.gaeqs.nes4jams.cartridge.mapper.MapperBuilder
 import io.github.gaeqs.nes4jams.cartridge.mapper.MapperReadResult
 import io.github.gaeqs.nes4jams.cartridge.mapper.MapperWriteResult
 import io.github.gaeqs.nes4jams.ppu.Mirror
-import io.github.gaeqs.nes4jams.util.BIT12
-import io.github.gaeqs.nes4jams.util.extension.isZero
+import io.github.gaeqs.nes4jams.util.BIT0
+import io.github.gaeqs.nes4jams.util.BIT6
+import io.github.gaeqs.nes4jams.util.BIT7
 import io.github.gaeqs.nes4jams.util.extension.shr
 
 class Mapper004(override val cartridge: Cartridge) : Mapper {
@@ -39,23 +40,25 @@ class Mapper004(override val cartridge: Cartridge) : Mapper {
     override var mirroring = Mirror.HORIZONTAL
     override var requestingInterrupt = false
 
-    private var targetRegister: UByte = 0u
+    private var target = 0
+    private var prgMode = false
+    private var chrMode = false
 
-    private var prgBankMode = false
-    private var chrInversion = false
-    private val register = IntArray(8)
+    private var interruptCounterReload = 0
+    private var interruptCounterRequiresReload = false
+    private var interruptCounter = 0
+    private var interruptEnabled = false
+
+    private var registers = IntArray(8)
+
     private val chrBank = IntArray(8)
     private val prgBank = IntArray(4)
 
-    private var irqEnabled = false
-    private var irqUpdate = false
-    private var irqCounter: UShort = 0u
-    private var irqReload: UShort = 0u
-
-    private var lastA12: Boolean = false
-    private var a12Timer = 0
-
     private val staticVRAM = UByteArray(0x2000)
+
+    init {
+        repeat(prgBank.size) { prgBank[it] = (cartridge.prgBanks * 2 - 4 + it) * 0x2000 }
+    }
 
     override fun cpuMapRead(address: UShort): MapperReadResult {
         return when (address) {
@@ -63,92 +66,108 @@ class Mapper004(override val cartridge: Cartridge) : Mapper {
                 MapperReadResult.intrinsic(staticVRAM[address.toInt() and 0x1FFF])
             }
             in 0x8000u..0xFFFFu -> {
-                val index = address.toInt() / 0x2000 - 4
-                MapperReadResult.array(prgBank[index] + (address and 0x1FFFu).toInt())
+                val key = address.toInt() shr 13 and 0x3
+                MapperReadResult.array(prgBank[key] + (address and 0x1FFFu).toInt())
             }
             else -> MapperReadResult.empty()
         }
-
     }
 
     override fun cpuMapWrite(address: UShort, data: UByte): MapperWriteResult {
-        return when (address) {
+        when (address) {
             in 0x6000u..0x7FFFu -> {
                 staticVRAM[address.toInt() and 0x1FFF] = data
-                MapperWriteResult.intrinsic()
+                return MapperWriteResult.intrinsic()
             }
-            in 0x8000u..0x9FFFu -> {
-                if ((address and 0x0001u).isZero()) {
-                    targetRegister = data and 0x07u
-                    prgBankMode = data and 0x40u > 0u
-                    chrInversion = data and 0x80u > 0u
-                } else {
-                    register[targetRegister.toInt()] = data.toInt()
-                }
+            in 0x8000u..0xFFFFu -> {
+                val odd = address and 0x1u > 0u
+                val key = address.toInt() shr 13 and 0x3
 
-                if (chrInversion) {
-                    chrBank[0] = register[2] * 0x0400
-                    chrBank[1] = register[3] * 0x0400
-                    chrBank[2] = register[4] * 0x0400
-                    chrBank[3] = register[5] * 0x0400
-                    chrBank[4] = (register[0] and 0xFE) * 0x400
-                    chrBank[5] = (register[0] and 0xFE) * 0x400 + 0x400
-                    chrBank[6] = (register[1] and 0xFE) * 0x400
-                    chrBank[7] = (register[1] and 0xFE) * 0x400 + 0x400
+                if (odd) {
+                    when (key) {
+                        0 -> changeBank(data)
+                        // 1 - Prg ram write protect
+                        2 -> interruptCounterRequiresReload = true
+                        3 -> interruptEnabled = true
+                    }
                 } else {
-                    chrBank[0] = (register[0] and 0xFE) * 0x400
-                    chrBank[1] = (register[0] and 0xFE) * 0x400 + 0x400
-                    chrBank[2] = (register[1] and 0xFE) * 0x400
-                    chrBank[3] = (register[1] and 0xFE) * 0x400 + 0x400
-                    chrBank[4] = register[2] * 0x0400
-                    chrBank[5] = register[3] * 0x0400
-                    chrBank[6] = register[4] * 0x0400
-                    chrBank[7] = register[5] * 0x0400
+                    when (key) {
+                        0 -> configurationRegister(data)
+                        1 -> changeMirroring(data)
+                        2 -> {
+                            interruptCounterReload = data.toInt()
+                        }
+                        3 -> disableInterrupts()
+                    }
                 }
+                return MapperWriteResult.intrinsic()
+            }
+        }
+        return MapperWriteResult.empty()
+    }
 
-                if (prgBankMode) {
-                    prgBank[2] = (register[6] and 0x3F) * 0x2000
-                    prgBank[0] = (cartridge.prgBanks * 2 - 2) * 0x2000
-                } else {
-                    prgBank[0] = (register[6] and 0x3F) * 0x2000
-                    prgBank[2] = (cartridge.prgBanks * 2 - 2) * 0x2000
-                }
+    private fun changeBank(data: UByte) {
+        registers[target] = data.toInt()
+        if (target < 6) reloadChrBanks()
+        else reloadPrgBanks()
+    }
 
-                prgBank[1] = (register[7] and 0x3F) * 0x2000
-                prgBank[3] = (cartridge.prgBanks * 2 - 1) * 0x2000
+    private fun configurationRegister(data: UByte) {
+        target = (data and 0x7u).toInt()
+        prgMode = data and BIT6 > 0u
+        chrMode = data and BIT7 > 0u
+        reloadChrBanks()
+        reloadPrgBanks()
+    }
 
-                MapperWriteResult.empty()
-            }
-            in 0xA000u..0xBFFFu -> {
-                if ((address and 0x0001u).isZero()) {
-                    mirroring = if (data and 0x01u > 0u) Mirror.HORIZONTAL else Mirror.VERTICAL
-                }
-                // TODO PRG RAM PROTECT
-                MapperWriteResult.empty()
-            }
-            in 0xC000u..0xDFFFu -> {
-                if ((address and 0x0001u).isZero()) {
-                    irqReload = data.toUShort()
-                } else {
-                    irqCounter = 0u
-                }
-                MapperWriteResult.empty()
-            }
-            in 0xE000u..0xFFFFu -> {
-                if ((address and 0x0001u).isZero()) {
-                    irqEnabled = false
-                    requestingInterrupt = false
-                } else {
-                    irqEnabled = true
-                }
-                MapperWriteResult.empty()
-            }
-            else -> MapperWriteResult.empty()
+    private fun changeMirroring(data: UByte) {
+        mirroring = if (data and BIT0 > 0u) Mirror.HORIZONTAL else Mirror.VERTICAL
+    }
+
+    private fun disableInterrupts() {
+        requestingInterrupt = false
+        interruptEnabled = false
+    }
+
+    private fun reloadChrBanks() {
+        if (chrMode) {
+            chrBank[0] = registers[2] shl 10
+            chrBank[1] = registers[3] shl 10
+            chrBank[2] = registers[4] shl 10
+            chrBank[3] = registers[5] shl 10
+
+            chrBank[4] = registers[0] and 0xFE shl 10
+            chrBank[5] = (registers[0] and 0xFE shl 10) + 0x0400
+
+            chrBank[6] = registers[1] and 0xFE shl 10
+            chrBank[7] = (registers[1] and 0xFE shl 10) + 0x0400
+        } else {
+            chrBank[4] = registers[2] shl 10
+            chrBank[5] = registers[3] shl 10
+            chrBank[6] = registers[4] shl 10
+            chrBank[7] = registers[5] shl 10
+
+            chrBank[0] = registers[0] and 0xFE shl 10
+            chrBank[1] = (registers[0] and 0xFE shl 10) + 0x0400
+
+            chrBank[2] = registers[1] and 0xFE shl 10
+            chrBank[3] = (registers[1] and 0xFE shl 10) + 0x0400
         }
     }
 
+    private fun reloadPrgBanks() {
+        if (prgMode) {
+            prgBank[0] = cartridge.prgBanks * 2 - 2 shl 13
+            prgBank[2] = registers[6] and 0x3F shl 13
+        } else {
+            prgBank[0] = registers[6] and 0x3F shl 13
+            prgBank[2] = cartridge.prgBanks * 2 - 2 shl 13
+        }
+
+        prgBank[1] = (registers[7] and 0x3F) * 0x2000
+    }
+
     override fun ppuMapRead(address: UShort): MapperReadResult {
-        onA12Notification(address)
         if (address in 0x0000u..0x1FFFu) {
             val index = address shr 10 and 0x7u
             return MapperReadResult.array(chrBank[index.toInt()] + (address and 0x03FFu).toInt())
@@ -157,63 +176,39 @@ class Mapper004(override val cartridge: Cartridge) : Mapper {
     }
 
     override fun ppuMapWrite(address: UShort, data: UByte): MapperWriteResult {
-        onA12Notification(address)
         return MapperWriteResult.empty()
     }
 
     override fun reset() {
-        targetRegister = 0u
-        prgBankMode = false
-        chrInversion = false
         mirroring = Mirror.HORIZONTAL
-
         requestingInterrupt = false
-        irqEnabled = false
-        irqUpdate = false
-        irqCounter = 0u
-        irqReload = 0u
 
+        target = 0
+        prgMode = false
+        chrMode = false
+        interruptCounterReload = 0
+        interruptCounter = 0
+        interruptEnabled = false
+        interruptCounterRequiresReload = false
+        registers.fill(0)
         chrBank.fill(0)
-        register.fill(0)
-
-        prgBank[0] = 0x0000
-        prgBank[1] = 0x2000
-        prgBank[2] = (cartridge.prgBanks * 2 - 2) * 0x2000
-        prgBank[3] = (cartridge.prgBanks * 2 - 1) * 0x2000
-    }
-
-    override fun clearInterruptRequest() {
-        requestingInterrupt = false
+        repeat(prgBank.size) { prgBank[it] = (cartridge.prgBanks * 2 - 4 + it) * 0x2000 }
+        staticVRAM.fill(0u)
     }
 
     override fun onScanLine() {
-
     }
 
-    override fun onA12Notification(address: UShort) {
-        val a12 = address and BIT12 > 0u
-        if (a12 && !lastA12) {
-            if (a12Timer <= 0) {
-                a12scanLine()
+    override fun onA12Change(old: Boolean, now: Boolean) {
+        if (now and !old) {
+            if (interruptCounterRequiresReload || interruptCounter == 0) {
+                interruptCounter = interruptCounterReload
+                interruptCounterRequiresReload = false
+            } else {
+                interruptCounter--
             }
-        } else if (!a12 && lastA12) {
-            a12Timer = 8
-        }
-        if (a12Timer > 0) {
-            a12Timer--
-        }
-        lastA12 = a12
-    }
 
-    private fun a12scanLine() {
-        if (irqCounter.isZero()) {
-            irqCounter = irqReload
-        } else {
-            irqCounter--
-        }
-
-        if (irqCounter.isZero() && irqEnabled && !requestingInterrupt) {
-            requestingInterrupt = true
+            requestingInterrupt = requestingInterrupt || interruptCounter == 0 && interruptEnabled
         }
     }
 

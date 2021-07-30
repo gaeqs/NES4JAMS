@@ -1,5 +1,6 @@
 package io.github.gaeqs.nes4jams.ppu
 
+import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import io.github.gaeqs.nes4jams.util.extension.shl
 import io.github.gaeqs.nes4jams.util.extension.shr
 
@@ -127,6 +128,59 @@ data class PPUControlRegister(var value: UByte) {
     val nameTableX: UByte
         get() {
             return value and 0x1u
+        }
+}
+
+class PPUVRamLoopyRegister(value: UByte, val simulation: NESSimulation) {
+    var fineY: UByte = value shr 12 and 0x7u
+        set(value) {
+            val oldA12 = field and 0x1u > 0u
+            field = value and 0x7u
+            _value = null
+            simulation.cartridge.mapper.onA12Change(oldA12, field and 0x1u > 0u)
+        }
+
+    var nameTableY: UByte = value shr 11 and 0x1u
+        set(value) {
+            field = value and 0x1u
+            _value = null
+        }
+
+    var nameTableX: UByte = value shr 10 and 0x1u
+        set(value) {
+            field = value and 0x1u
+            _value = null
+        }
+
+    var coarseY: UByte = value shr 5 and 0x1Fu
+        set(value) {
+            field = value and 0x1Fu
+            _value = null
+        }
+
+    var coarseX: UByte = value and 0x1Fu
+        set(value) {
+            field = value and 0x1Fu
+            _value = null
+        }
+
+    private var _value: UShort? = null
+
+    var value: UShort
+        get() {
+            if (_value == null) {
+                _value = (fineY.toUShort() shl 12) or (nameTableY.toUShort() shl 11) or
+                        (nameTableX.toUShort() shl 10) or (coarseY.toUShort() shl 5) or coarseX.toUShort()
+            }
+            return _value!!
+        }
+        set(value) {
+            coarseX = value.toUByte()
+            coarseY = (value shr 5).toUByte()
+            nameTableX = (value shr 10).toUByte()
+            nameTableY = (value shr 11).toUByte()
+            fineY = (value shr 12).toUByte()
+            _value = value and 0x3FFFu
         }
 }
 
