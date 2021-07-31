@@ -22,24 +22,14 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.cartridge.mapper
+package io.github.gaeqs.nes4jams.gui.simulation.display
 
-import io.github.gaeqs.nes4jams.cartridge.Cartridge
-import io.github.gaeqs.nes4jams.ppu.Mirror
+import net.jamsimulator.jams.gui.image.NearestImageView
 
-interface Mapper {
+abstract class Display : NearestImageView(null, 0.0, 0.0) {
 
-    val cartridge: Cartridge
-    val mirroring: Mirror
-    val requestingInterrupt: Boolean
+    abstract fun fitToSize(width: Double, height: Double)
 
-    fun cpuMapRead(address: UShort): MapperReadResult
-    fun cpuMapWrite(address: UShort, data: UByte): MapperWriteResult
-    fun ppuMapRead(address: UShort): MapperReadResult
-    fun ppuMapWrite(address: UShort, data: UByte): MapperWriteResult
-
-    fun reset()
-    fun onScanline(scanline: Int)
-    fun onA12Rising()
+    abstract fun stop()
 
 }

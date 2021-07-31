@@ -196,21 +196,18 @@ class Mapper004(override val cartridge: Cartridge) : Mapper {
         staticVRAM.fill(0u)
     }
 
-    override fun onScanLine() {
-    }
-
-    override fun onA12Change(old: Boolean, now: Boolean) {
-        if (now and !old) {
-            if (interruptCounterRequiresReload || interruptCounter == 0) {
-                interruptCounter = interruptCounterReload
-                interruptCounterRequiresReload = false
-            } else {
-                interruptCounter--
-            }
-
-            requestingInterrupt = requestingInterrupt || interruptCounter == 0 && interruptEnabled
+    override fun onA12Rising() {
+        if (interruptCounterRequiresReload || interruptCounter == 0) {
+            interruptCounter = interruptCounterReload
+            interruptCounterRequiresReload = false
+        } else {
+            interruptCounter--
         }
+
+        requestingInterrupt = requestingInterrupt || interruptCounter == 0 && interruptEnabled
     }
+
+    override fun onScanline(scanline: Int) {}
 
     class Builder private constructor() : MapperBuilder<Mapper004> {
         companion object {

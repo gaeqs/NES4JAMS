@@ -299,7 +299,10 @@ class NESPPU(val simulation: NESSimulation) {
         }
 
         if (cycle == 257) {
-            simulation.cartridge.mapper.onScanLine()
+            simulation.cartridge.mapper.onScanline(scanline)
+            if (scanline < 240 && mask.isRendering) {
+                simulation.cartridge.mapper.onA12Rising()
+            }
         }
 
 

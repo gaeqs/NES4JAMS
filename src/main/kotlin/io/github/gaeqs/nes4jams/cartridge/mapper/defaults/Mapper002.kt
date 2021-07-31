@@ -79,8 +79,8 @@ class Mapper002(override val cartridge: Cartridge) : Mapper {
         selectedPRGBankLow = 0u
     }
 
-    override fun onScanLine() {}
-    override fun onA12Change(old: Boolean, now: Boolean) {}
+    override fun onScanline(scanline: Int) {}
+    override fun onA12Rising() {}
 
     class Builder private constructor() : MapperBuilder<Mapper002> {
         companion object {

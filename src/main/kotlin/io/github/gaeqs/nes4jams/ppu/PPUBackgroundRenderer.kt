@@ -7,7 +7,7 @@ import io.github.gaeqs.nes4jams.util.extension.shr
 class PPUBackgroundRenderer(private val ppu: NESPPU) {
 
     var fineX: UByte = 0u
-    val vRamAddress = PPUVRamLoopyRegister(0u, ppu.simulation)
+    val vRamAddress = PPULoopyRegister(0u)
     val tRamAddress = PPULoopyRegister(0u)
 
     private var nextTileId: UByte = 0u

@@ -22,24 +22,21 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.cartridge.mapper
+package io.github.gaeqs.nes4jams.gui.simulation.display
 
-import io.github.gaeqs.nes4jams.cartridge.Cartridge
-import io.github.gaeqs.nes4jams.ppu.Mirror
+import io.github.gaeqs.nes4jams.util.extension.fit
+import javafx.scene.control.ScrollPane
+import javafx.scene.layout.BorderPane
 
-interface Mapper {
+class DisplayHolder(display: Display) : ScrollPane() {
 
-    val cartridge: Cartridge
-    val mirroring: Mirror
-    val requestingInterrupt: Boolean
-
-    fun cpuMapRead(address: UShort): MapperReadResult
-    fun cpuMapWrite(address: UShort, data: UByte): MapperWriteResult
-    fun ppuMapRead(address: UShort): MapperReadResult
-    fun ppuMapWrite(address: UShort, data: UByte): MapperWriteResult
-
-    fun reset()
-    fun onScanline(scanline: Int)
-    fun onA12Rising()
+    init {
+        fit()
+        hbarPolicy = ScrollBarPolicy.NEVER
+        vbarPolicy = ScrollBarPolicy.NEVER
+        widthProperty().addListener { _, _, new -> display.fitToSize(new.toDouble(), height) }
+        heightProperty().addListener { _, _, new -> display.fitToSize(width, new.toDouble()) }
+        content = BorderPane(display)
+    }
 
 }

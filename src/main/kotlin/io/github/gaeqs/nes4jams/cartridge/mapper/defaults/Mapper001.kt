@@ -219,11 +219,9 @@ class Mapper001(override val cartridge: Cartridge) : Mapper {
         return MapperWriteResult.empty()
     }
 
-    override fun reset() {
-    }
-
-    override fun onScanLine() {}
-    override fun onA12Change(old: Boolean, now: Boolean) {}
+    override fun reset() {}
+    override fun onScanline(scanline: Int) {}
+    override fun onA12Rising() {}
 
     class Builder private constructor() : MapperBuilder<Mapper001> {
         companion object {

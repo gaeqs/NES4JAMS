@@ -22,32 +22,26 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.simulation.display
+package io.github.gaeqs.nes4jams.gui.simulation.tablename
 
+import io.github.gaeqs.nes4jams.file.pcx.PictureExchangeImage
 import io.github.gaeqs.nes4jams.gui.project.NESSimulationPane
+import io.github.gaeqs.nes4jams.gui.simulation.display.Display
 import io.github.gaeqs.nes4jams.ppu.NESPPU
-import io.github.gaeqs.nes4jams.ppu.PPUColors
-import io.github.gaeqs.nes4jams.simulation.NESControllerMap
 import javafx.animation.AnimationTimer
-import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
-import javafx.scene.input.KeyCode
 
-class NESSimulationDisplay(val simulationPane: NESSimulationPane) : Display() {
+class NESSimulationPatternTableDisplay(val simulationPane: NESSimulationPane) : Display() {
 
     companion object {
-        const val ASPECT_RATIO = 256.0 / 240.0
+        const val ASPECT_RATIO = 1.0
     }
 
     private val image = WritableImage(NESPPU.SCREEN_WIDTH, NESPPU.SCREEN_HEIGHT).apply { setImage(this) }
     private val handler = RedrawHandler().apply { start() }
 
-    private var controller = NESControllerMap()
-
-    init {
-        setOnMouseClicked { requestFocus(); it.consume() }
-        setOnKeyPressed { update(it.code, true); it.consume() }
-        setOnKeyReleased { update(it.code, false); it.consume() }
+    override fun stop() {
+        handler.stop()
     }
 
     override fun fitToSize(width: Double, height: Double) {
@@ -62,59 +56,26 @@ class NESSimulationDisplay(val simulationPane: NESSimulationPane) : Display() {
         }
     }
 
-    override fun stop() {
-        handler.stop()
-    }
-
-    private fun update(key: KeyCode, pressed: Boolean) {
-        when (key) {
-            KeyCode.X -> controller = controller.copy(a = pressed)
-            KeyCode.Z -> controller = controller.copy(b = pressed)
-            KeyCode.A -> controller = controller.copy(start = pressed)
-            KeyCode.S -> controller = controller.copy(select = pressed)
-            KeyCode.UP -> controller = controller.copy(up = pressed)
-            KeyCode.DOWN -> controller = controller.copy(down = pressed)
-            KeyCode.LEFT -> controller = controller.copy(left = pressed)
-            KeyCode.RIGHT -> controller = controller.copy(right = pressed)
-            else -> {
-            }
-        }
-        simulationPane.simulation.runSynchronized {
-            simulationPane.simulation.sendNextControllerData(controller, false)
-        }
-    }
-
     private inner class RedrawHandler : AnimationTimer() {
 
-        val screen = ByteArray(NESPPU.SCREEN_WIDTH * NESPPU.SCREEN_HEIGHT)
+        val screen = ByteArray(4096)
         var drawnFrame = -1L
 
         override fun handle(now: Long) {
             if (simulationPane.parentTab?.isSelected == false || !simulationPane.simulation.isRunning) return
             val simulation = simulationPane.simulation
-            if (drawnFrame == simulation.frame) return
+            if (drawnFrame >= simulation.frame + 10) return
             drawnFrame = simulation.frame
+
             simulation.runSynchronized {
                 // Let's copy it to let the simulation free
-                simulation.ppu.screen.copyInto(screen)
+                repeat(screen.size) { screen[it] = simulation.ppu.ppuRead(it.toUShort()).toByte() }
             }
 
-            image.pixelWriter.setPixels(
-                0,
-                0,
-                NESPPU.SCREEN_WIDTH,
-                NESPPU.SCREEN_HEIGHT,
-                PixelFormat.createByteIndexedInstance(PPUColors.INT_COLORS),
-                screen,
-                0,
-                NESPPU.SCREEN_WIDTH
-            )
-
-            //val nanos = simulation.lastFrameDelayInNanos.toDouble()
-            //val default = 1000000000.0 / simulation.cartridge.header.tvType.framerate
-            //val percentage = (nanos / default) * 100
-            //println("OVERHEAD: ${String.format("%.2f", percentage)}%")
+            val pcx = PictureExchangeImage.fromCHRData(screen)
+            pcx.toFXImage(image = image)
         }
 
     }
+
 }

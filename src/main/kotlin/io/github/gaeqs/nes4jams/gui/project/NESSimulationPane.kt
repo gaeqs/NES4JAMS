@@ -24,14 +24,14 @@
 
 package io.github.gaeqs.nes4jams.gui.project
 
+import io.github.gaeqs.nes4jams.data.NES4JAMS_BAR_SPRITES_TO_ASSEMBLE
+import io.github.gaeqs.nes4jams.gui.simulation.display.DisplayHolder
 import io.github.gaeqs.nes4jams.gui.simulation.display.NESSimulationDisplay
+import io.github.gaeqs.nes4jams.gui.simulation.tablename.NESSimulationPatternTableDisplay
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
-import io.github.gaeqs.nes4jams.util.extension.fit
 import io.github.gaeqs.nes4jams.util.extension.orNull
-import javafx.scene.control.ScrollPane
 import javafx.scene.control.Tab
-import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import net.jamsimulator.jams.gui.ActionRegion
 import net.jamsimulator.jams.gui.JamsApplication
@@ -55,27 +55,18 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
     private val executionButtons = ExecutionButtons(simulation)
 
     val display: NESSimulationDisplay
+    val patternTableDisplay: NESSimulationPatternTableDisplay
 
     init {
 
-        display = NESSimulationDisplay(simulation)
-        val border = BorderPane(display)
-        display.fitWidth = 200.0
-        display.fitHeight = 200.0
-
-
-        // The scroll pane allows to resize the node easily
-        val scroll = ScrollPane(border).fit()
-        scroll.hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
-        scroll.vbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
-
-        scroll.widthProperty().addListener { _, _, new -> display.fitToSize(new.toDouble(), scroll.height) }
-        scroll.heightProperty().addListener { _, _, new -> display.fitToSize(scroll.width, new.toDouble()) }
-
-        center = scroll
+        display = NESSimulationDisplay(this)
+        center = DisplayHolder(display)
 
         init()
         loadConsole()
+
+        patternTableDisplay = NESSimulationPatternTableDisplay(this)
+        loadPatternTableDisplay()
     }
 
     override fun getLanguageNode() = Messages.PROJECT_TAB_SIMULATION
@@ -109,6 +100,22 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
                 true,
                 icon,
                 Messages.BAR_CONSOLE_NAME,
+            )
+        )
+    }
+
+    private fun loadPatternTableDisplay() {
+        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.FILE_IMAGE).orNull()
+
+        barMap.registerSnapshot(
+            BarSnapshot(
+                "pattern_table_display",
+                DisplayHolder(patternTableDisplay),
+                BarPosition.RIGHT_TOP,
+                BarSnapshotViewModePane.INSTANCE,
+                true,
+                icon,
+                NES4JAMS_BAR_SPRITES_TO_ASSEMBLE
             )
         )
     }

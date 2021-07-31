@@ -438,8 +438,8 @@ class PictureExchangeImage {
         return BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied, Properties())
     }
 
-    fun toFXImage(paletteToApply: ColorPalette = palette): WritableImage {
-        val image = WritableImage(header.width, header.height)
+    fun toFXImage(paletteToApply: ColorPalette = palette,
+                  image : WritableImage = WritableImage(header.width, header.height)): WritableImage {
         image.pixelWriter.setPixels(
             0,
             0,
