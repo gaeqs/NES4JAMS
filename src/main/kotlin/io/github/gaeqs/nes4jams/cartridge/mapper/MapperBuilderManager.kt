@@ -45,5 +45,7 @@ class MapperBuilderManager private constructor() : Manager<MapperBuilder<*>>(
         add(Mapper002.Builder.INSTANCE)
         add(Mapper003.Builder.INSTANCE)
         add(Mapper004.Builder.INSTANCE)
+
+        add(Mapper066.Builder.INSTANCE)
     }
 }
