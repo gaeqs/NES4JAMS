@@ -24,10 +24,10 @@
 
 package io.github.gaeqs.nes4jams.gui.project
 
-import io.github.gaeqs.nes4jams.data.NES4JAMS_BAR_SPRITES_TO_ASSEMBLE
+import io.github.gaeqs.nes4jams.data.NES4JAMS_BAR_PPU
 import io.github.gaeqs.nes4jams.gui.simulation.display.DisplayHolder
 import io.github.gaeqs.nes4jams.gui.simulation.display.NESSimulationDisplay
-import io.github.gaeqs.nes4jams.gui.simulation.tablename.NESSimulationPatternTableDisplay
+import io.github.gaeqs.nes4jams.gui.simulation.tablename.NESSimulationPPUDisplay
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import io.github.gaeqs.nes4jams.util.extension.orNull
@@ -55,7 +55,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
     private val executionButtons = ExecutionButtons(simulation)
 
     val display: NESSimulationDisplay
-    val patternTableDisplay: NESSimulationPatternTableDisplay
+    val ppuDisplay: NESSimulationPPUDisplay
 
     init {
 
@@ -65,7 +65,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
         init()
         loadConsole()
 
-        patternTableDisplay = NESSimulationPatternTableDisplay(this)
+        ppuDisplay = NESSimulationPPUDisplay(this)
         loadPatternTableDisplay()
     }
 
@@ -85,7 +85,8 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
     override fun onClose() {
         super.onClose()
         simulation.destroy()
-        display.stop()
+        display.killDisplay()
+        ppuDisplay.stop()
     }
 
     private fun loadConsole() {
@@ -109,13 +110,13 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
 
         barMap.registerSnapshot(
             BarSnapshot(
-                "pattern_table_display",
-                DisplayHolder(patternTableDisplay),
+                "ppu_display",
+                ppuDisplay,
                 BarPosition.RIGHT_TOP,
                 BarSnapshotViewModePane.INSTANCE,
                 true,
                 icon,
-                NES4JAMS_BAR_SPRITES_TO_ASSEMBLE
+                NES4JAMS_BAR_PPU
             )
         )
     }

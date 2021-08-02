@@ -28,6 +28,9 @@ import io.github.gaeqs.nes4jams.util.extension.fit
 import javafx.scene.control.ScrollPane
 import javafx.scene.layout.BorderPane
 
+/**
+ * A region that styles a given [Display], resizing it properly using the available space
+ */
 class DisplayHolder(display: Display) : ScrollPane() {
 
     init {
@@ -36,7 +39,14 @@ class DisplayHolder(display: Display) : ScrollPane() {
         vbarPolicy = ScrollBarPolicy.NEVER
         widthProperty().addListener { _, _, new -> display.fitToSize(new.toDouble(), height) }
         heightProperty().addListener { _, _, new -> display.fitToSize(width, new.toDouble()) }
-        content = BorderPane(display)
+        content = BorderPane(display.asNode())
+        vvalueProperty().addListener { _, _, new ->
+            if (new != 0) vvalue = 0.0
+        }
+
+        hvalueProperty().addListener { _, _, new ->
+            if (new != 0) vvalue = 0.0
+        }
     }
 
 }

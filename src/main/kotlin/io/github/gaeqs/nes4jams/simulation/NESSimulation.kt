@@ -326,14 +326,18 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         interrupted = false
 
         thread = Thread {
-            apu.resume()
-            val before = callEvent(SimulationCycleEvent.Before(this, cycles))
-            if (before.isCancelled) return@Thread
-            clock()
-            callEvent(SimulationCycleEvent.After(this, cycles))
-            manageSimulationFinish()
-            apu.pause()
-        }.apply { priority = Thread.MAX_PRIORITY; name = "NES Simulation (${cartridge.file.name})" }
+            try {
+                apu.resume()
+                val before = callEvent(SimulationCycleEvent.Before(this, cycles))
+                if (before.isCancelled) return@Thread
+                clock()
+                callEvent(SimulationCycleEvent.After(this, cycles))
+                manageSimulationFinish()
+                apu.pause()
+            } catch (ex: Exception) {
+                manageException(ex)
+            }
+        }.apply { priority = Thread.MAX_PRIORITY; name = "NES Simulation (${cartridge.file.name})"; isDaemon = true }
         callEvent(SimulationStartEvent(this))
         thread?.start()
     }
@@ -343,25 +347,28 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         running = true
         interrupted = false
         thread = Thread {
-            apu.resume()
-            val clockStart = clock
-            val millis = measureTimeMillis {
-                lastTick = System.nanoTime()
-                if (data.callEvents) executeAllWithEvents()
-                else executeAllWithoutEvents()
+            try {
+                apu.resume()
+                val clockStart = clock
+                val millis = measureTimeMillis {
+                    lastTick = System.nanoTime()
+                    if (data.callEvents) executeAllWithEvents()
+                    else executeAllWithoutEvents()
+                }
+                apu.pause()
+
+                console?.apply {
+                    println()
+                    printInfoLn("${clock - clockStart} cycles executed in $millis millis.")
+                    printInfoLn("${((clock - clockStart) / (millis / 1000.0)).toInt()} cycles/s")
+                    println()
+                }
+
+                manageSimulationFinish()
+            } catch (ex: Exception) {
+                manageException(ex)
             }
-            apu.pause()
-
-            console?.apply {
-                println()
-                printInfoLn("${clock - clockStart} cycles executed in $millis millis.")
-                printInfoLn("${((clock - clockStart) / (millis / 1000.0)).toInt()} cycles/s")
-                println()
-            }
-
-            manageSimulationFinish()
-
-        }.apply { priority = Thread.MAX_PRIORITY; name = "NES Simulation (${cartridge.file.name})" }
+        }.apply { priority = Thread.MAX_PRIORITY; name = "NES Simulation (${cartridge.file.name})"; isDaemon = true }
         callEvent(SimulationStartEvent(this))
         thread?.start()
     }
@@ -412,6 +419,25 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     @Synchronized
     override fun runSynchronized(runnable: Runnable) = runnable.run()
 
+
+    private fun manageException(ex: Exception) {
+        manageSimulationFinish()
+
+        System.err.println("------------------------------------")
+        System.err.println("Simulation exception:")
+        System.err.println("Cycle:               $clock")
+        System.err.println("PC:                  ${cpu.pc}")
+        System.err.println(
+            "Current instruction: $${cpu.currentOpcode.toHex(2).uppercase()} " +
+                    "(${NESAssembledInstruction.INSTRUCTIONS[cpu.currentOpcode.toInt()].mnemonic})"
+        )
+        System.err.println("PPU cycle:           ${ppu.cycle}")
+        System.err.println("PPU scanline:        ${ppu.scanline}")
+        System.err.println("Exception:")
+        ex.printStackTrace()
+        System.err.println("------------------------------------")
+
+    }
 
     fun disassembleCurrentStatus(from: UShort, to: UShort): Map<Int, String> {
         var address = from

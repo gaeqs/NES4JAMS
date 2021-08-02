@@ -24,12 +24,26 @@
 
 package io.github.gaeqs.nes4jams.gui.simulation.display
 
-import net.jamsimulator.jams.gui.image.NearestImageView
+import javafx.scene.Node
 
-abstract class Display : NearestImageView(null, 0.0, 0.0) {
+/**
+ * Represents a node that can displays an image that is being updated constantly.
+ */
+interface Display {
 
-    abstract fun fitToSize(width: Double, height: Double)
+    /**
+     * Fits the display to the given width and height, preserving the aspect ratio of the image.
+     */
+    fun fitToSize(width: Double, height: Double)
 
-    abstract fun stop()
+    /**
+     * Kills the service that updates the image.
+     */
+    fun killDisplay()
+
+    /**
+     * Returns this display as a JavaFX node.
+     */
+    fun asNode(): Node
 
 }
