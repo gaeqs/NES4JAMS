@@ -196,8 +196,8 @@ class PictureExchangeImage {
                 for (x in 0 until 16) {
                     val offset = y * 256 + x * 16
                     for (row in 0 until 8) {
-                        var most = data[offset + row].toUByte()
-                        var least = data[offset + row + 8].toUByte()
+                        var least = data[offset + row].toUByte()
+                        var most = data[offset + row + 8].toUByte()
                         for (column in 0 until 8) {
                             val pixel = ((most and 0x01u shl 1) or (least and 0x01u)).toInt()
                             most = most shr 1
@@ -348,8 +348,8 @@ class PictureExchangeImage {
                         most = (most shl 1) or (value shr 1 and 0x1)
                     }
 
-                    byteArray[offset + row] = most.toByte()
-                    byteArray[offset + row + 8] = least.toByte()
+                    byteArray[offset + row] = least.toByte()
+                    byteArray[offset + row + 8] = most.toByte()
                 }
 
             }

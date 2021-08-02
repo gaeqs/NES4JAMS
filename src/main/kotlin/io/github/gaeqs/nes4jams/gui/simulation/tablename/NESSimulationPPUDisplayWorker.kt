@@ -92,8 +92,8 @@ class NESSimulationPPUDisplayWorker(val display: NESSimulationPPUDisplay) : Thre
                     for (x in 0 until 16) {
                         val offset = y * 256 + x * 16
                         for (row in 0 until 8) {
-                            var most = data[patterOffset + offset + row]
-                            var least = data[patterOffset + offset + row + 8]
+                            var least = data[patterOffset + offset + row]
+                            var most = data[patterOffset + offset + row + 8]
                             for (column in 0 until 8) {
                                 val pixel = (most and 0x01u shl 1) or (least and 0x01u)
                                 most = most shr 1
@@ -102,7 +102,7 @@ class NESSimulationPPUDisplayWorker(val display: NESSimulationPPUDisplay) : Thre
                                 val px = (x shl 3) + 7 - column
                                 val py = (y shl 3) + row
                                 buffer[px + (py shl 7)] =
-                                    PPUColors.INT_COLORS[data[0x03F00 + (selectedPalette shl 2) + pixel.toInt()].toInt()]
+                                    PPUColors.INT_COLORS[data[0x3F00 + (selectedPalette shl 2) + pixel.toInt()].toInt()]
                             }
                         }
                     }

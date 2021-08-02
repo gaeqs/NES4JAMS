@@ -33,12 +33,16 @@ import javafx.scene.layout.BorderPane
  */
 class DisplayHolder(display: Display) : ScrollPane() {
 
+    companion object {
+        const val INSET = 0.99
+    }
+
     init {
         fit()
         hbarPolicy = ScrollBarPolicy.NEVER
         vbarPolicy = ScrollBarPolicy.NEVER
-        widthProperty().addListener { _, _, new -> display.fitToSize(new.toDouble(), height) }
-        heightProperty().addListener { _, _, new -> display.fitToSize(width, new.toDouble()) }
+        widthProperty().addListener { _, _, new -> display.fitToSize(new.toDouble() * INSET, height * INSET) }
+        heightProperty().addListener { _, _, new -> display.fitToSize(width * INSET, new.toDouble() * INSET) }
         content = BorderPane(display.asNode())
         vvalueProperty().addListener { _, _, new ->
             if (new != 0) vvalue = 0.0
