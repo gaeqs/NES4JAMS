@@ -27,9 +27,11 @@ package io.github.gaeqs.nes4jams.gui.simulation.tablename
 import io.github.gaeqs.nes4jams.file.pcx.PictureExchangeImage
 import io.github.gaeqs.nes4jams.gui.project.NESSimulationPane
 import io.github.gaeqs.nes4jams.gui.simulation.display.Display
-import io.github.gaeqs.nes4jams.ppu.NESPPU
 import javafx.animation.AnimationTimer
+import javafx.scene.image.PixelBuffer
+import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
+import java.nio.IntBuffer
 
 class NESSimulationPatternTableDisplay(val simulationPane: NESSimulationPane) : Display() {
 
@@ -37,8 +39,15 @@ class NESSimulationPatternTableDisplay(val simulationPane: NESSimulationPane) : 
         const val ASPECT_RATIO = 1.0
     }
 
-    private val image = WritableImage(NESPPU.SCREEN_WIDTH, NESPPU.SCREEN_HEIGHT).apply { setImage(this) }
+    private val buffer = IntBuffer.allocate(128 * 128)
+    private val screen = buffer.array()
+    private val pixelBuffer = PixelBuffer(
+        128, 128,
+        buffer, PixelFormat.getIntArgbPreInstance()
+    )
+    private val image = WritableImage(pixelBuffer).apply { setImage(this) }
     private val handler = RedrawHandler().apply { start() }
+
 
     override fun stop() {
         handler.stop()
@@ -58,7 +67,7 @@ class NESSimulationPatternTableDisplay(val simulationPane: NESSimulationPane) : 
 
     private inner class RedrawHandler : AnimationTimer() {
 
-        val screen = ByteArray(4096)
+        val chr = ByteArray(4096)
         var drawnFrame = -1L
 
         override fun handle(now: Long) {
@@ -67,13 +76,15 @@ class NESSimulationPatternTableDisplay(val simulationPane: NESSimulationPane) : 
             if (drawnFrame >= simulation.frame + 10) return
             drawnFrame = simulation.frame
 
+
             simulation.runSynchronized {
                 // Let's copy it to let the simulation free
-                repeat(screen.size) { screen[it] = simulation.ppu.ppuRead(it.toUShort()).toByte() }
+                repeat(chr.size) { chr[it] = simulation.ppu.ppuRead(it.toUShort()).toByte() }
             }
 
-            val pcx = PictureExchangeImage.fromCHRData(screen)
-            pcx.toFXImage(image = image)
+            val pcx = PictureExchangeImage.fromCHRData(chr)
+            pcx.toPixelBuffer(buffer = screen)
+            pixelBuffer.updateBuffer { null }
         }
 
     }

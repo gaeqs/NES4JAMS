@@ -29,9 +29,11 @@ import io.github.gaeqs.nes4jams.ppu.NESPPU
 import io.github.gaeqs.nes4jams.ppu.PPUColors
 import io.github.gaeqs.nes4jams.simulation.NESControllerMap
 import javafx.animation.AnimationTimer
+import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import javafx.scene.input.KeyCode
+import java.nio.IntBuffer
 
 class NESSimulationDisplay(val simulationPane: NESSimulationPane) : Display() {
 
@@ -39,7 +41,13 @@ class NESSimulationDisplay(val simulationPane: NESSimulationPane) : Display() {
         const val ASPECT_RATIO = 256.0 / 240.0
     }
 
-    private val image = WritableImage(NESPPU.SCREEN_WIDTH, NESPPU.SCREEN_HEIGHT).apply { setImage(this) }
+    private val buffer = IntBuffer.allocate(NESPPU.SCREEN_WIDTH * NESPPU.SCREEN_HEIGHT)
+    private val screen = buffer.array()
+    private val pixelBuffer = PixelBuffer(
+        NESPPU.SCREEN_WIDTH, NESPPU.SCREEN_HEIGHT,
+        buffer, PixelFormat.getIntArgbPreInstance()
+    )
+    private val image = WritableImage(pixelBuffer).apply { setImage(this) }
     private val handler = RedrawHandler().apply { start() }
 
     private var controller = NESControllerMap()
@@ -86,7 +94,6 @@ class NESSimulationDisplay(val simulationPane: NESSimulationPane) : Display() {
 
     private inner class RedrawHandler : AnimationTimer() {
 
-        val screen = ByteArray(NESPPU.SCREEN_WIDTH * NESPPU.SCREEN_HEIGHT)
         var drawnFrame = -1L
 
         override fun handle(now: Long) {
@@ -96,19 +103,13 @@ class NESSimulationDisplay(val simulationPane: NESSimulationPane) : Display() {
             drawnFrame = simulation.frame
             simulation.runSynchronized {
                 // Let's copy it to let the simulation free
-                simulation.ppu.screen.copyInto(screen)
+                val b = simulation.ppu.screen
+                repeat(b.size) { screen[it] = PPUColors.INT_COLORS[b[it].toInt()] }
             }
 
-            image.pixelWriter.setPixels(
-                0,
-                0,
-                NESPPU.SCREEN_WIDTH,
-                NESPPU.SCREEN_HEIGHT,
-                PixelFormat.createByteIndexedInstance(PPUColors.INT_COLORS),
-                screen,
-                0,
-                NESPPU.SCREEN_WIDTH
-            )
+            pixelBuffer.updateBuffer { null }
+
+
 
             //val nanos = simulation.lastFrameDelayInNanos.toDouble()
             //val default = 1000000000.0 / simulation.cartridge.header.tvType.framerate

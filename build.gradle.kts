@@ -61,7 +61,12 @@ task("shadowAndRunWithDebugger") {
                 enabled.value(true)
             }
             main = "-jar"
-            args = listOf("lib/JAMS.jar", "-loadPlugin", "build/libs/NES4JAMS-$version.jar")
+            args = listOf(
+                "lib/JAMS.jar",
+                "-Dprism.order=j2d",
+                "-loadPlugin",
+                "build/libs/NES4JAMS-$version.jar"
+            )
         }
     }
     println(file("lib/JAMS").absolutePath)

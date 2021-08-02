@@ -29,6 +29,7 @@ import io.github.gaeqs.nes4jams.cpu.NESCPU
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAssembledInstruction
 import io.github.gaeqs.nes4jams.ppu.NESPPU
+import io.github.gaeqs.nes4jams.simulation.event.NESSimulationRenderEvent
 import io.github.gaeqs.nes4jams.util.extension.*
 import net.jamsimulator.jams.event.SimpleEventBroadcast
 import net.jamsimulator.jams.mips.simulation.Simulation
@@ -151,6 +152,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
                 // We don't have to do nothing.
                 ppu.frameCompleted = false
                 frame++
+                callEvent(NESSimulationRenderEvent(this, ppu.screen))
             }
         } else {
             // Run till frame completed
@@ -166,6 +168,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
                 updateControllers()
 
                 frame++
+                callEvent(NESSimulationRenderEvent(this, ppu.screen))
             }
         }
     }

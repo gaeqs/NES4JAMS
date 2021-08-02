@@ -438,8 +438,10 @@ class PictureExchangeImage {
         return BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied, Properties())
     }
 
-    fun toFXImage(paletteToApply: ColorPalette = palette,
-                  image : WritableImage = WritableImage(header.width, header.height)): WritableImage {
+    fun toFXImage(
+        paletteToApply: ColorPalette = palette,
+        image: WritableImage = WritableImage(header.width, header.height)
+    ): WritableImage {
         image.pixelWriter.setPixels(
             0,
             0,
@@ -451,6 +453,10 @@ class PictureExchangeImage {
             header.width
         )
         return image
+    }
+
+    fun toPixelBuffer(paletteToApply: ColorPalette = palette, buffer: IntArray) {
+        to8BPPDataBuffer().forEachIndexed { index, byte -> buffer[index] = paletteToApply.rawPalette[byte.toInt()] }
     }
 
     private fun to8BPPDataBuffer(): ByteArray {
