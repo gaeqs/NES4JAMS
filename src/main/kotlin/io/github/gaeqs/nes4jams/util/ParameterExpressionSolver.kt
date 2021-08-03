@@ -35,7 +35,7 @@ class BinaryOperation(val mnemonic: String, val operation: (Value, Value) -> Val
 /**
  * This class solves mathematical expressions. Just enter the expression and use solve() to get the result!
  * If "ignoreInvalidNumbers" is true, invalid numbers are ignored and converted to 0. This is useful when
- * you want to know if the result would be a byte or a word and you don't know yet the labels' values
+ * you want to know if the result would be a byte or a word, and you don't know yet the labels' values
  */
 class ParameterExpressionSolver(val data: String, ignoreInvalidNumbers: Boolean = false) {
 
@@ -57,7 +57,7 @@ class ParameterExpressionSolver(val data: String, ignoreInvalidNumbers: Boolean 
             current = current.substring(1, current.length - 1)
         }
 
-        // Now we try to parse the number itself. If we success, we're done!
+        // Now we try to parse the number itself. If we are successful, we're done!
         val value = current.toIntOldWayOrNull()
         if (value != null) {
             this.value = Value(value, !BYTE_RANGE.contains(value))
