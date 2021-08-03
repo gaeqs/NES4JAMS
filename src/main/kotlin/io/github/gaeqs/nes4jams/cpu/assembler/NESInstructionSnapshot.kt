@@ -26,6 +26,7 @@ package io.github.gaeqs.nes4jams.cpu.assembler
 
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
+import io.github.gaeqs.nes4jams.cpu.label.LabelReference
 import io.github.gaeqs.nes4jams.util.Value
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 import kotlin.math.min
@@ -67,15 +68,24 @@ class NESInstructionSnapshot(val line: NESAssemblerLine, var address: UShort?, v
 
         val (addressingModes, expression) = NESAddressingMode.getCompatibleAddressingModes(parameters)
         try {
-            val (value, isWord) =
-                if (NESAddressingMode.IMPLIED in addressingModes) Pair(Value(0, false), false)
-                else line.file.evaluate(expression)
+            val result = if (NESAddressingMode.IMPLIED in addressingModes)
+                NESAssemblerEvaluationResult.value(Value(0, false))
+            else line.file.evaluate(expression)
 
-            this.value = value
+            this.value = result.value
             this.expression = expression
 
+            if (value != null) {
+                // Add references!
+                result.usedLabels.forEach { (label, deep) ->
+                    if (deep == 0) {
+                        label.references += LabelReference(address, line.file.name, line.index)
+                    }
+                }
+            }
+
             val compatibleAddressingModes = (addressingModes intersect instruction.supportedAddressingModes.keys)
-                .sortedBy { if (it.usesWordInAssembler == isWord) 0 else 1 }
+                .sortedBy { if (it.usesWordInAssembler == result.isWord) 0 else 1 }
 
             if (compatibleAddressingModes.isEmpty()) throw AssemblerException(
                 line.index,
@@ -92,11 +102,20 @@ class NESInstructionSnapshot(val line: NESAssemblerLine, var address: UShort?, v
 
     fun calculateFinalValue(): Value {
         try {
-            if (value != null) return value!!
-            val (value, _) = line.file.evaluate(expression)
-            this.value = value
-            return value ?: throw AssemblerException(line.index, "Couldn't parse value for expression $expression!")
-        } catch (ex : UninitializedPropertyAccessException) {
+            value?.let { return it }
+            val result = line.file.evaluate(expression)
+            this.value =
+                result.value ?: throw AssemblerException(line.index, "Couldn't parse value for expression $expression!")
+
+            // Add references!
+            result.usedLabels.forEach { (label, deep) ->
+                if (deep == 0) {
+                    label.references += LabelReference(address, line.file.name, line.index)
+                }
+            }
+
+            return result.value
+        } catch (ex: UninitializedPropertyAccessException) {
             println("Instruction : $mnemonic $parameters ($addressingMode)")
             throw ex
         }

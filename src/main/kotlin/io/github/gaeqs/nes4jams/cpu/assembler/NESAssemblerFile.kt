@@ -26,7 +26,6 @@ package io.github.gaeqs.nes4jams.cpu.assembler
 
 import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
 import io.github.gaeqs.nes4jams.cpu.label.NESLabel
-import io.github.gaeqs.nes4jams.util.Value
 import io.github.gaeqs.nes4jams.util.extension.parseParameterExpressionWithInvalids
 import io.github.gaeqs.nes4jams.util.extension.removeComments
 import net.jamsimulator.jams.mips.assembler.Macro
@@ -104,15 +103,22 @@ class NESAssemblerFile(val name: String, rawData: String, val assembler: NESAsse
      * This boolean is always returned.
      *
      * @param expression the expression to evaluate.
+     * @param deep the recursion index of this evaluation call.
      * @param alreadySearched this collection is used to detect cyclic dependencies.
+     * @param labels map used to count the labels in the evaluation.
      * @return the value if the evaluation was possible and whether the value is a word.
      * @throws AssemblerException when the expression has a bad format.
      */
-    tailrec fun evaluate(expression: String, alreadySearched: Collection<String> = emptySet()): Pair<Value?, Boolean> {
+    tailrec fun evaluate(
+        expression: String,
+        deep: Int = 0,
+        alreadySearched: Collection<String> = emptySet(),
+        labels: MutableMap<NESLabel, Int> = mutableMapOf()
+    ): NESAssemblerEvaluationResult {
         val (value, invalids) = expression.parseParameterExpressionWithInvalids()
-        if (value == null) throw AssemblerException("Bad expression format: $expression")
+        if (value == null) throw AssemblerException("Bad expression format: '$expression'")
         if (invalids.isEmpty()) {
-            return Pair(value, value.isWord)
+            return NESAssemblerEvaluationResult(value, value.isWord, labels)
         }
 
         var result = expression
@@ -135,14 +141,18 @@ class NESAssemblerFile(val name: String, rawData: String, val assembler: NESAsse
                 }
             } else {
                 val label = searchLabel(key)
-                if (label?.address != null) {
-                    result = result.replace(label.key, "${label.address}")
-                    replaced = true
+                label?.let {
+                    labels[it] = deep
+                    if (it.address != null) {
+                        result = result.replace(it.key, "${it.address}")
+                        replaced = true
+                    }
                 }
             }
         }
 
-        return if (replaced) evaluate(result, alreadySearched - invalids) else Pair(null, value.isWord)
+        return if (replaced) evaluate(result, deep + 1, alreadySearched - invalids, labels)
+        else NESAssemblerEvaluationResult.empty()
     }
 
     /**

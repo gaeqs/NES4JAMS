@@ -26,6 +26,7 @@ package io.github.gaeqs.nes4jams.cpu.directive.defaults
 
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerFile
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
+import io.github.gaeqs.nes4jams.cpu.label.LabelReference
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 
 class NESDirectiveDb : NESDirective(NAME) {
@@ -58,9 +59,16 @@ class NESDirectiveDb : NESDirective(NAME) {
         parameters: Array<String>
     ) {
         parameters.forEachIndexed { index, string ->
-            val (value, _) = file.evaluate(string)
-            if (value == null) throw AssemblerException(lineNumber, "Couldn't parse expression $string!")
-            file.assembler.write(lineNumber, (address!! + index.toUInt()).toUShort(), value.value.toUByte())
+            val result = file.evaluate(string)
+            if (result.value == null) throw AssemblerException(lineNumber, "Couldn't parse expression $string!")
+            file.assembler.write(lineNumber, (address!! + index.toUInt()).toUShort(), result.value.value.toUByte())
+
+            // Add references!
+            result.usedLabels.forEach { (label, deep) ->
+                if (deep == 0) {
+                    label.references += LabelReference(address, file.name, lineNumber)
+                }
+            }
         }
     }
 

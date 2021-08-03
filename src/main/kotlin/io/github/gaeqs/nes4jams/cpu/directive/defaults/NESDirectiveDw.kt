@@ -26,6 +26,7 @@ package io.github.gaeqs.nes4jams.cpu.directive.defaults
 
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerFile
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
+import io.github.gaeqs.nes4jams.cpu.label.LabelReference
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 
 class NESDirectiveDw : NESDirective(NAME) {
@@ -58,14 +59,20 @@ class NESDirectiveDw : NESDirective(NAME) {
         parameters: Array<String>
     ) {
         parameters.forEachIndexed { index, string ->
-            val (value, _) = file.evaluate(string)
-            if (value == null) throw AssemblerException(lineNumber, "Couldn't parse expression $string!")
+            val result = file.evaluate(string)
+            if (result.value == null) throw AssemblerException(lineNumber, "Couldn't parse expression $string!")
 
-            file.assembler.write(lineNumber, (address!! + index.toUInt() * 2u).toUShort(), value.value.toUByte())
+            file.assembler.write(lineNumber, (address!! + index.toUInt() * 2u).toUShort(), result.value.value.toUByte())
             file.assembler.write(
-                lineNumber, (address + index.toUInt() * 2u + 1u).toUShort(), (value.value shr 8)
-                    .toUByte()
+                lineNumber, (address + index.toUInt() * 2u + 1u).toUShort(), (result.value.value shr 8).toUByte()
             )
+
+            // Add references!
+            result.usedLabels.forEach { (label, deep) ->
+                if (deep == 0) {
+                    label.references += LabelReference(address, file.name, lineNumber)
+                }
+            }
         }
     }
 

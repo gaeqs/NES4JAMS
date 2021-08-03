@@ -22,32 +22,19 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.cpu.label
+package io.github.gaeqs.nes4jams.cpu.assembler
 
-data class LabelReference(val address: UShort?, val originFile: String, val originLine: Int)
+import io.github.gaeqs.nes4jams.cpu.label.NESLabel
+import io.github.gaeqs.nes4jams.util.Value
 
-data class NESLabel(
-    val key: String,
-    var address: UShort?,
-    val originFile: String,
-    val originLine: Int,
-    val references: MutableSet<LabelReference> = mutableSetOf()
-) {
+data class NESAssemblerEvaluationResult(val value: Value?, val isWord: Boolean, val usedLabels: Map<NESLabel, Int>) {
 
-    fun isGlobal() = key[0] != '_'
+    companion object {
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        return key == (other as NESLabel).key
-    }
+        private val empty = NESAssemblerEvaluationResult(null, false, emptyMap())
+        fun empty () = empty
+        fun value(value: Value) = NESAssemblerEvaluationResult(value, value.isWord, emptyMap())
 
-    override fun hashCode(): Int {
-        return key.hashCode()
-    }
-
-    override fun toString(): String {
-        return "NESLabel {key=$key, address=$address, originFile=$originFile, originLine=$originLine}"
     }
 
 }

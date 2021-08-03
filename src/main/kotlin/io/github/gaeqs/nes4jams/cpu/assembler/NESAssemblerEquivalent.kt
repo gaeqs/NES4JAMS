@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams.cpu.assembler
 
+import io.github.gaeqs.nes4jams.cpu.label.LabelReference
 import io.github.gaeqs.nes4jams.util.Value
 
 /**
@@ -68,8 +69,19 @@ class NESAssemblerEquivalent(
      */
     fun evaluateValue(): Boolean {
         if (value != null) return true
-        value = line.file.evaluate(rawValue, setOf(key)).first
-        return value != null
+        val result = line.file.evaluate(rawValue, alreadySearched = setOf(key))
+        if (result.value == null) return false
+
+        value = result.value
+
+        // Add references!
+        result.usedLabels.forEach { (label, deep) ->
+            if (deep == 0) {
+                label.references += LabelReference(null, line.file.name, line.index)
+            }
+        }
+
+        return true
     }
 
     override fun equals(other: Any?): Boolean {
