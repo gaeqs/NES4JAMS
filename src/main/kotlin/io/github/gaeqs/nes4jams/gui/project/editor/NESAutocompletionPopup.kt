@@ -31,17 +31,14 @@ import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorDirective
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorInstruction
 import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.application.Platform
-import net.jamsimulator.jams.gui.JamsApplication
 import net.jamsimulator.jams.gui.editor.popup.AutocompletionPopup
 import net.jamsimulator.jams.gui.image.icon.Icons
 
 class NESAutocompletionPopup(display: NESAssemblyFileEditor) : AutocompletionPopup(display) {
 
     companion object {
-        private val ICON_DIRECTIVE =
-            JamsApplication.getIconManager().getOrLoadSafe(Icons.AUTOCOMPLETION_DIRECTIVE).orNull()
-        private val ICON_INSTRUCTION =
-            JamsApplication.getIconManager().getOrLoadSafe(Icons.AUTOCOMPLETION_INSTRUCTION).orNull()
+        private val ICON_DIRECTIVE = Icons.AUTOCOMPLETION_DIRECTIVE
+        private val ICON_INSTRUCTION = Icons.AUTOCOMPLETION_INSTRUCTION
     }
 
     override fun getDisplay() = super.getDisplay() as NESAssemblyFileEditor

@@ -60,7 +60,7 @@ class NESConfigurationWindow(val data: NESProjectData) : SplitPane() {
             stage.x = main.x + main.width / 2.0 - WIDTH / 2.0
             stage.y = main.y + main.height / 2.0 - HEIGHT / 2.0
             stage.title = Jams.getLanguageManager().selected.getOrDefault(Messages.SIMULATION_CONFIGURATION_INFO)
-            JamsApplication.getIconManager().getOrLoadSafe(Icons.LOGO).ifPresent { stage.icons.add(it) }
+            Icons.LOGO.image.ifPresent { stage.icons += it }
             JamsApplication.getActionManager().addAcceleratorsToScene(scene, true)
 
             stage.setOnCloseRequest { data.save() }

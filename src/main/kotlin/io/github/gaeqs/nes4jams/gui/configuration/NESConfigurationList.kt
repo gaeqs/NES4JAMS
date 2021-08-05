@@ -34,12 +34,11 @@ import javafx.scene.control.SplitPane
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
 import net.jamsimulator.jams.event.Listener
-import net.jamsimulator.jams.gui.JamsApplication
 import net.jamsimulator.jams.gui.explorer.Explorer
 import net.jamsimulator.jams.gui.explorer.ExplorerBasicElement
 import net.jamsimulator.jams.gui.explorer.ExplorerSection
-import net.jamsimulator.jams.gui.image.NearestImageView
 import net.jamsimulator.jams.gui.image.icon.Icons
+import net.jamsimulator.jams.gui.image.quality.QualityImageView
 import net.jamsimulator.jams.gui.util.AnchorUtils
 import net.jamsimulator.jams.gui.util.PixelScrollPane
 import net.jamsimulator.jams.language.Messages
@@ -48,7 +47,7 @@ import net.jamsimulator.jams.language.wrapper.LanguageTooltip
 class NESConfigurationList(val window: NESConfigurationWindow) : AnchorPane() {
 
     val contents: NESConfigurationListContents
-    val controls : NESConfigurationListControls
+    val controls: NESConfigurationListControls
 
     init {
         SplitPane.setResizableWithParent(this, true)
@@ -69,7 +68,7 @@ class NESConfigurationList(val window: NESConfigurationWindow) : AnchorPane() {
 class NESConfigurationListControls(val list: NESConfigurationList) : HBox() {
 
     companion object {
-        const val ICON_SIZE = 16.0
+        const val ICON_SIZE = 16.0f
     }
 
     init {
@@ -77,8 +76,7 @@ class NESConfigurationListControls(val list: NESConfigurationList) : HBox() {
     }
 
     private fun createAddButton(): Button {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.CONTROL_ADD).orElse(null)
-        val button = Button(null, NearestImageView(icon, ICON_SIZE, ICON_SIZE))
+        val button = Button(null, QualityImageView(Icons.CONTROL_ADD, ICON_SIZE, ICON_SIZE))
         button.tooltip = LanguageTooltip(Messages.GENERAL_ADD)
         button.styleClass += "bold-button"
         button.setOnAction {
@@ -95,8 +93,7 @@ class NESConfigurationListControls(val list: NESConfigurationList) : HBox() {
     }
 
     private fun createRemoveButton(): Button {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.CONTROL_REMOVE).orElse(null)
-        val button = Button(null, NearestImageView(icon, ICON_SIZE, ICON_SIZE))
+        val button = Button(null, QualityImageView(Icons.CONTROL_REMOVE, ICON_SIZE, ICON_SIZE))
         button.tooltip = LanguageTooltip(Messages.GENERAL_REMOVE)
         button.styleClass += "bold-button"
         button.setOnAction {
@@ -110,13 +107,12 @@ class NESConfigurationListControls(val list: NESConfigurationList) : HBox() {
     }
 
     private fun createCopyButton(): Button {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.CONTROL_COPY).orElse(null)
-        val button = Button(null, NearestImageView(icon, ICON_SIZE, ICON_SIZE))
+        val button = Button(null, QualityImageView(Icons.CONTROL_COPY, ICON_SIZE, ICON_SIZE))
         button.tooltip = LanguageTooltip(Messages.GENERAL_REMOVE)
         button.styleClass += "bold-button"
         button.setOnAction {
             list.contents.selectedElements.forEach {
-                if(it is NESConfigurationListContents.Representation) {
+                if (it is NESConfigurationListContents.Representation) {
                     val baseName = it.configuration.name + " - Copy"
                     var name = baseName
                     var amount = 1

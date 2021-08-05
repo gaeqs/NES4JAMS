@@ -27,10 +27,8 @@ package io.github.gaeqs.nes4jams.gui.project
 import io.github.gaeqs.nes4jams.data.NES4JAMS_BAR_SPRITES_TO_ASSEMBLE
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.util.extension.fit
-import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.scene.control.Tab
 import javafx.scene.layout.HBox
-import net.jamsimulator.jams.gui.JamsApplication
 import net.jamsimulator.jams.gui.bar.BarPosition
 import net.jamsimulator.jams.gui.bar.BarSnapshot
 import net.jamsimulator.jams.gui.bar.mode.BarSnapshotViewModePane
@@ -102,7 +100,6 @@ class NESStructurePane(parent: Tab, projectTab: ProjectTab, val project: NESProj
     }
 
     private fun loadExplorer() {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.SIDEBAR_EXPLORER).orNull()
         val pane = PixelScrollPane().fit()
         explorer =
             ProjectFolderExplorer(project, setOf(project.data.filesToAssemble, project.data.spritesToAssemble), pane)
@@ -117,14 +114,13 @@ class NESStructurePane(parent: Tab, projectTab: ProjectTab, val project: NESProj
                 BarPosition.LEFT_TOP,
                 BarSnapshotViewModePane.INSTANCE,
                 true,
-                icon,
+                Icons.SIDEBAR_EXPLORER,
                 Messages.BAR_EXPLORER_NAME
             )
         )
     }
 
     private fun loadFilesToAssemble() {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.SIDEBAR_EXPLORER).orNull()
         val pane = PixelScrollPane().fit()
         filesToAssembleSidebar = FilesToAssembleSidebar(project, project.data.filesToAssemble, pane)
         pane.content = filesToAssembleSidebar
@@ -136,14 +132,13 @@ class NESStructurePane(parent: Tab, projectTab: ProjectTab, val project: NESProj
                 BarPosition.LEFT_BOTTOM,
                 BarSnapshotViewModePane.INSTANCE,
                 true,
-                icon,
+                Icons.SIDEBAR_EXPLORER,
                 Messages.BAR_FILES_TO_ASSEMBLE_NAME
             )
         )
     }
 
     private fun loadSpritesToAssemble() {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.SIDEBAR_EXPLORER).orNull()
         val pane = PixelScrollPane().fit()
         spritesToAssembleSidebar = FilesToAssembleSidebar(project, project.data.spritesToAssemble, pane)
         pane.content = spritesToAssembleSidebar
@@ -155,14 +150,13 @@ class NESStructurePane(parent: Tab, projectTab: ProjectTab, val project: NESProj
                 BarPosition.LEFT_BOTTOM,
                 BarSnapshotViewModePane.INSTANCE,
                 true,
-                icon,
+                Icons.SIDEBAR_EXPLORER,
                 NES4JAMS_BAR_SPRITES_TO_ASSEMBLE
             )
         )
     }
 
     private fun loadLog() {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.FILE_FILE).orNull()
         log = SimpleLog()
         barMap.registerSnapshot(
             BarSnapshot(
@@ -171,7 +165,7 @@ class NESStructurePane(parent: Tab, projectTab: ProjectTab, val project: NESProj
                 BarPosition.BOTTOM_LEFT,
                 BarSnapshotViewModePane.INSTANCE,
                 true,
-                icon,
+                Icons.FILE_FILE,
                 Messages.BAR_LOG_NAME,
             )
         )

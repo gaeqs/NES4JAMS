@@ -37,18 +37,17 @@ import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import net.jamsimulator.jams.Jams
 import net.jamsimulator.jams.event.Listener
-import net.jamsimulator.jams.gui.JamsApplication
 import net.jamsimulator.jams.gui.action.defaults.general.GeneralActionAssemble
 import net.jamsimulator.jams.gui.bar.BarButton
-import net.jamsimulator.jams.gui.image.NearestImageView
 import net.jamsimulator.jams.gui.image.icon.Icons
+import net.jamsimulator.jams.gui.image.quality.QualityImageView
 import net.jamsimulator.jams.gui.util.FixedButton
 import net.jamsimulator.jams.gui.util.log.Log
 
 class NESStructurePaneButtons(val project: NESProject) {
 
     companion object {
-        const val BUTTON_ICON_SIZE = 18.0
+        const val BUTTON_ICON_SIZE = 18.0f
         const val BUTTON_SIZE = 28.0
         const val BUTTON_STYLE_CLASS = "buttons-hbox-button"
     }
@@ -79,27 +78,39 @@ class NESStructurePaneButtons(val project: NESProject) {
     }
 
     private fun createRunButton(): Button {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.SIMULATION_PLAY).orNull()
         val assemble =
-            FixedButton("", NearestImageView(icon, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE), BUTTON_SIZE, BUTTON_SIZE)
+            FixedButton(
+                "",
+                QualityImageView(Icons.SIMULATION_PLAY, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE),
+                BUTTON_SIZE,
+                BUTTON_SIZE
+            )
         assemble.styleClass += BUTTON_STYLE_CLASS
         assemble.setOnAction { GeneralActionAssemble.compileAndShow(project) }
         return assemble
     }
 
     private fun createAssembleButton(): Button {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.PROJECT_ASSEMBLE).orNull()
         val assemble =
-            FixedButton("", NearestImageView(icon, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE), BUTTON_SIZE, BUTTON_SIZE)
+            FixedButton(
+                "",
+                QualityImageView(Icons.PROJECT_ASSEMBLE, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE),
+                BUTTON_SIZE,
+                BUTTON_SIZE
+            )
         assemble.styleClass += BUTTON_STYLE_CLASS
         assemble.setOnAction { assembleOnly() }
         return assemble
     }
 
     private fun createSettingsButton(): Button {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.PROJECT_SETTINGS).orNull()
         val settings =
-            FixedButton("", NearestImageView(icon, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE), BUTTON_SIZE, BUTTON_SIZE)
+            FixedButton(
+                "",
+                QualityImageView(Icons.PROJECT_SETTINGS, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE),
+                BUTTON_SIZE,
+                BUTTON_SIZE
+            )
         settings.styleClass += BUTTON_STYLE_CLASS
         settings.setOnAction { NESConfigurationWindow.open(project.data) }
         return settings

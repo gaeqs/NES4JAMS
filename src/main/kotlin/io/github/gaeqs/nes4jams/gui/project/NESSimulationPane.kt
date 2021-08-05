@@ -91,7 +91,6 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
 
     private fun loadConsole() {
         val console = simulation.console ?: return
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.SIMULATION_CONSOLE).orNull()
         barMap.registerSnapshot(
             BarSnapshot(
                 "console",
@@ -99,14 +98,13 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
                 BarPosition.BOTTOM_LEFT,
                 BarSnapshotViewModePane.INSTANCE,
                 true,
-                icon,
+                Icons.SIMULATION_CONSOLE,
                 Messages.BAR_CONSOLE_NAME,
             )
         )
     }
 
     private fun loadPatternTableDisplay() {
-        val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.FILE_IMAGE).orNull()
 
         barMap.registerSnapshot(
             BarSnapshot(
@@ -115,7 +113,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
                 BarPosition.RIGHT_TOP,
                 BarSnapshotViewModePane.INSTANCE,
                 true,
-                icon,
+                Icons.FILE_IMAGE,
                 NES4JAMS_BAR_PPU
             )
         )

@@ -28,7 +28,6 @@ import io.github.gaeqs.nes4jams.data.ICON_DRAG
 import io.github.gaeqs.nes4jams.gui.util.converter.NESMemoryBankCollectionValueConverter
 import io.github.gaeqs.nes4jams.memory.NESMemoryBank
 import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
-import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.geometry.Pos
 import javafx.scene.Cursor
 import javafx.scene.Node
@@ -37,9 +36,8 @@ import javafx.scene.control.Label
 import javafx.scene.control.ListView
 import javafx.scene.input.DragEvent
 import javafx.scene.layout.HBox
-import net.jamsimulator.jams.gui.JamsApplication
-import net.jamsimulator.jams.gui.image.NearestImageView
 import net.jamsimulator.jams.gui.image.icon.Icons
+import net.jamsimulator.jams.gui.image.quality.QualityImageView
 import net.jamsimulator.jams.gui.util.DraggableListCell
 import net.jamsimulator.jams.gui.util.value.ValueEditor
 import java.util.function.Consumer
@@ -49,8 +47,7 @@ class NESMemoryBankCollectionValueEditor : ListView<NESMemoryBank>(), ValueEdito
     companion object {
         const val NAME = "nes_memory_bank_collection"
         const val STYLE_CLASS = "nes4jams-memory-bank-collection-value-editor"
-        const val ICON_SIZE = 20.0
-        private val DRAG_ICON = JamsApplication.getIconManager().getOrLoadSafe(ICON_DRAG).orNull()
+        const val ICON_SIZE = 20.0f
     }
 
     private var listener: Consumer<NESMemoryBankCollection> = Consumer { }
@@ -108,7 +105,7 @@ class NESMemoryBankCollectionValueEditor : ListView<NESMemoryBank>(), ValueEdito
                 else -> {
                     isDraggable = true
                     NESMemoryBankValueEditor(false).apply {
-                        children.add(0, NearestImageView(DRAG_ICON, ICON_SIZE, ICON_SIZE))
+                        children.add(0, QualityImageView(ICON_DRAG, ICON_SIZE, ICON_SIZE))
                         children += createRemoveButton()
                         setCurrentValueUnsafe(item)
                         addListener {
@@ -126,8 +123,7 @@ class NESMemoryBankCollectionValueEditor : ListView<NESMemoryBank>(), ValueEdito
         }
 
         private fun createRemoveButton(): Button {
-            val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.CONTROL_REMOVE).orElse(null)
-            val button = Button(null, NearestImageView(icon, ICON_SIZE, ICON_SIZE))
+            val button = Button(null, QualityImageView(Icons.CONTROL_REMOVE, ICON_SIZE, ICON_SIZE))
             button.styleClass += "dark-2-bold-button"
             button.cursor = Cursor.HAND
             button.setOnAction { items.removeAt(index); refreshValues() }
@@ -135,8 +131,7 @@ class NESMemoryBankCollectionValueEditor : ListView<NESMemoryBank>(), ValueEdito
         }
 
         private fun createAddButton(): Node {
-            val icon = JamsApplication.getIconManager().getOrLoadSafe(Icons.CONTROL_ADD).orElse(null)
-            val button = Button(null, NearestImageView(icon, ICON_SIZE, ICON_SIZE))
+            val button = Button(null, QualityImageView(Icons.CONTROL_ADD, ICON_SIZE, ICON_SIZE))
             button.styleClass += "dark-2-bold-button"
             button.cursor = Cursor.HAND
             button.setOnAction {

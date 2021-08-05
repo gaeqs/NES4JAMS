@@ -44,7 +44,7 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
 
     override var drawEnabled: Boolean
         get() = pane.parentTab?.isSelected != false && pane.simulation.isRunning
-        set(value) {}
+        set(_) {}
 
     private var controller = NESControllerMap()
 

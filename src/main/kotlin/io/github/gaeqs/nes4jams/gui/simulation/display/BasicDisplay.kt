@@ -25,11 +25,10 @@
 package io.github.gaeqs.nes4jams.gui.simulation.display
 
 import javafx.animation.AnimationTimer
-import javafx.scene.Node
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
-import net.jamsimulator.jams.gui.image.NearestImageView
+import net.jamsimulator.jams.gui.image.nearest.NearestImageView
 import java.nio.IntBuffer
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
