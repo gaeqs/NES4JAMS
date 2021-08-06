@@ -24,14 +24,7 @@
 
 package io.github.gaeqs.nes4jams.gui.simulation.display
 
-import javafx.animation.AnimationTimer
-import javafx.scene.image.PixelBuffer
-import javafx.scene.image.PixelFormat
-import javafx.scene.image.WritableImage
-import net.jamsimulator.jams.gui.image.nearest.NearestImageView
-import java.nio.IntBuffer
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import io.github.gaeqs.nes4jams.gui.display.DisplayView
 
 /**
  * Basic implementation of a display that manages the image update automatically. You can extend this class
@@ -40,35 +33,13 @@ import kotlin.concurrent.withLock
  * To send a new frame to this display, use [startDataTransmission] and update the given buffer. This method
  * is thread-safe: you can call it from any thread. The image will be displayed on the next frame.
  *
- * You can disable and enable the draw of frames using the parameter [drawEnabled]
- *
  */
-open class BasicDisplay(imageWidth: Int, imageHeight: Int) : NearestImageView(null, 0.0, 0.0),
+open class BasicDisplay(width: Int, height: Int) : DisplayView(width, height),
     Display {
 
-    private val aspectRatio = imageWidth.toDouble() / imageHeight
-
-    private val imageBuffer = IntBuffer.allocate(imageWidth * imageHeight)
-    private val pixels = imageBuffer.array()
-    private val pixelBuffer = PixelBuffer(imageWidth, imageHeight, imageBuffer, PixelFormat.getIntArgbPreInstance())
-    private val image = WritableImage(pixelBuffer)
-
-    private val buffer = IntArray(imageWidth * imageHeight)
-
-    private val handler = RedrawHandler()
-    private val lock = ReentrantLock()
-    private var dataReady = false
-
-    /**
-     * This variable controls whether the display should be updated.
-     *
-     * You can override this variable in your implementation.
-     */
-    open var drawEnabled = true
+    private val aspectRatio = width.toFloat() / height
 
     init {
-        setImage(image)
-        handler.start()
         setOnMouseClicked { requestFocus(); it.consume() }
     }
 
@@ -76,44 +47,16 @@ open class BasicDisplay(imageWidth: Int, imageHeight: Int) : NearestImageView(nu
         val scaledWidth = width / aspectRatio
 
         if (scaledWidth > height) {
-            fitWidth = height * aspectRatio
-            fitHeight = height
+            fitWidth = height.toFloat() * aspectRatio
+            fitHeight = height.toFloat()
         } else {
-            this.fitWidth = width
-            this.fitHeight = width / aspectRatio
+            this.fitWidth = width.toFloat()
+            this.fitHeight = width.toFloat() / aspectRatio
         }
     }
 
     override fun killDisplay() {
-        handler.stop()
     }
 
     override fun asNode() = this
-
-    /**
-     * Starts the transmission of a frame to this display's pipeline.
-     *
-     * Use the given buffer to write the new data.
-     * This method is thread-safe: you can call it from any thread.
-     */
-    fun startDataTransmission(function: (IntArray) -> Unit) {
-        lock.withLock {
-            function(buffer)
-            dataReady = true
-        }
-    }
-
-    private inner class RedrawHandler : AnimationTimer() {
-
-        override fun handle(now: Long) {
-            if (!drawEnabled) return
-            lock.withLock {
-                if (!dataReady) return
-                buffer.copyInto(pixels)
-                dataReady = false
-            }
-            pixelBuffer.updateBuffer { null }
-        }
-
-    }
 }

@@ -42,7 +42,7 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
         const val HEIGHT = 240
     }
 
-    override var drawEnabled: Boolean
+    var drawEnabled: Boolean
         get() = pane.parentTab?.isSelected != false && pane.simulation.isRunning
         set(_) {}
 
@@ -74,6 +74,7 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
 
     @Listener
     private fun onSimulationRender(event: NESSimulationRenderEvent) {
+        if(!drawEnabled) return
         startDataTransmission { buffer ->
             repeat(buffer.size) {
                 buffer[it] = PPUColors.INT_COLORS[event.buffer[it].toInt()]
