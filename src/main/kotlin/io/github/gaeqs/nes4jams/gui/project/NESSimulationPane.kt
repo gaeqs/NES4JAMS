@@ -30,11 +30,9 @@ import io.github.gaeqs.nes4jams.gui.simulation.display.NESSimulationDisplay
 import io.github.gaeqs.nes4jams.gui.simulation.tablename.NESSimulationPPUDisplay
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
-import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.scene.control.Tab
 import javafx.scene.layout.HBox
 import net.jamsimulator.jams.gui.ActionRegion
-import net.jamsimulator.jams.gui.JamsApplication
 import net.jamsimulator.jams.gui.action.RegionTags
 import net.jamsimulator.jams.gui.bar.BarPosition
 import net.jamsimulator.jams.gui.bar.BarSnapshot
@@ -85,7 +83,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
     override fun onClose() {
         super.onClose()
         simulation.destroy()
-        display.killDisplay()
+        display.dispose()
         ppuDisplay.stop()
     }
 

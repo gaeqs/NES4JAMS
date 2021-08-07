@@ -39,7 +39,7 @@ interface Display {
     /**
      * Kills the service that updates the image.
      */
-    fun killDisplay()
+    fun dispose()
 
     /**
      * Returns this display as a JavaFX node.

@@ -53,11 +53,13 @@ class NGDisplayView(val width: Int, val height: Int, val data: IntArray, val loc
     var w = 0.0f
     var h = 0.0f
 
+    var disposed = false
+
     private lateinit var texture: Texture
     private var textureInitialized = false
 
     override fun renderContent(g: Graphics) {
-        if (w < 1 || h < 1) return
+        if (disposed || w < 1 || h < 1) return
         refreshTexture(g.resourceFactory)
         g.drawTexture(
             texture, x, y, x + w, y + h, 0.0f, 0.0f,
@@ -68,6 +70,13 @@ class NGDisplayView(val width: Int, val height: Int, val data: IntArray, val loc
 
     fun markForRefresh() {
         visualsChanged()
+    }
+
+    fun dispose() {
+        if (textureInitialized) {
+            texture.dispose()
+            disposed = true
+        }
     }
 
     override fun hasOverlappingContents() = false

@@ -93,6 +93,7 @@ class NESSimulationPPUDisplay(val pane: NESSimulationPane) : VBox() {
 
     fun stop() {
         worker.stopWorker()
+        patternTables.forEach { it.dispose() }
     }
 
     @Listener

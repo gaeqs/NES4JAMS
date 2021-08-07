@@ -55,8 +55,5 @@ open class BasicDisplay(width: Int, height: Int) : DisplayView(width, height),
         }
     }
 
-    override fun killDisplay() {
-    }
-
     override fun asNode() = this
 }

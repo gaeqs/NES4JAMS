@@ -35,6 +35,18 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.math.max
 
+/**
+ * Basic implementation of a display that can be updated faster than a regular
+ * [WritableImage][javafx.scene.image.WritableImage].
+ *
+ * The constructor of this DisplayView requires a width and height. These values will be the resolution of the display.
+ * These values cannot be changed after the display initialization.
+ *
+ * Use [startDataTransmission] to update the display. Update the given array using ARGB colors.
+ * This method is thread-safe. You can use it in any thread.
+ *
+ * This display requires to [dispose] all its data when it's not useful anymore.
+ */
 open class DisplayView(val width: Int, val height: Int) : Node() {
 
     companion object {
@@ -65,6 +77,9 @@ open class DisplayView(val width: Int, val height: Int) : Node() {
     private var calculatedWidth = 0.0f
     private var calculatedHeight = 0.0f
 
+    var disposed = false
+        private set
+
     val xProperty by xPropertyDelegate
     val yProperty by yPropertyDelegate
     val fitWidthProperty by fitWidthPropertyDelegate
@@ -87,12 +102,36 @@ open class DisplayView(val width: Int, val height: Int) : Node() {
         get() = if (fitHeightPropertyDelegate.isInitialized()) fitHeightProperty.value else 0.0f
         set(value) = fitHeightProperty.set(value)
 
+    /**
+     * Updates the display with the data inside the buffer provided by the lambda.
+     *
+     * Use colors in ARGB format to update the buffer.
+     *
+     * This method is thread-safe. You can use it in any thread.
+     *
+     * If the display is disposed, this method does nothing.
+     */
     fun startDataTransmission(function: (IntArray) -> Unit) {
         lock.withLock {
+            if (disposed) return
             function(data)
         }
         Platform.runLater {
             NodeHelper.markDirty(this, DirtyBits.NODE_CONTENTS)
+        }
+    }
+
+    /**
+     * Disposes this display, freeing the texture used and all its data.
+     *
+     * Use this method if you don't need this display anymore.
+     */
+    open fun dispose() {
+        lock.withLock {
+            if (disposed) return
+            val peer: NGDisplayView = NodeHelper.getPeer(this) ?: return
+            peer.dispose()
+            disposed = true
         }
     }
 
@@ -133,7 +172,7 @@ open class DisplayView(val width: Int, val height: Int) : Node() {
             peer.w = calculatedWidth
             peer.h = calculatedHeight
         }
-        if(NodeHelper.isDirty(this, DirtyBits.NODE_CONTENTS)) {
+        if (NodeHelper.isDirty(this, DirtyBits.NODE_CONTENTS)) {
             peer.markForRefresh()
         }
     }
