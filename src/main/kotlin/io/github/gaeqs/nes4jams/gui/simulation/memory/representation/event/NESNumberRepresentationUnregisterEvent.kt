@@ -22,14 +22,26 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.util.extension
+package io.github.gaeqs.nes4jams.gui.simulation.memory.representation.event
 
-import javafx.scene.paint.Color
+import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.NESNumberRepresentation
+import net.jamsimulator.jams.event.Cancellable
+import net.jamsimulator.jams.event.Event
 
-fun ColorFxRGB(rgb: Int) = Color.rgb((rgb shr 16 and 0xFF), (rgb shr 8 and 0xFF), rgb and 0xFF)
+sealed class NESNumberRepresentationUnregisterEvent private constructor(val representation: NESNumberRepresentation) :
+    Event() {
 
-fun Color.toARGB() =
-    0xFF000000.toInt() or ((red * 255.0).toInt() shl 16) or ((green * 255.0).toInt() shl 8) or (blue * 255.0).toInt()
+    class Before(view: NESNumberRepresentation) : NESNumberRepresentationUnregisterEvent(view), Cancellable {
 
-fun Color.toRGBA() =
-    ((red * 255.0).toInt() shl 24) or ((green * 255.0).toInt() shl 16) or ((blue * 255.0).toInt() shl 8) or 0xFF
+        private var cancelled = false
+
+        override fun isCancelled() = cancelled
+        override fun setCancelled(cancelled: Boolean) {
+            this.cancelled = cancelled
+        }
+
+    }
+
+    class After(view: NESNumberRepresentation) : NESNumberRepresentationUnregisterEvent(view)
+
+}

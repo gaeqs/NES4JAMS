@@ -26,7 +26,7 @@ package io.github.gaeqs.nes4jams.gui.pcx
 
 import io.github.gaeqs.nes4jams.gui.ppu.PPUColorPicker
 import io.github.gaeqs.nes4jams.util.extension.ColorFxRGB
-import io.github.gaeqs.nes4jams.util.extension.toRGB
+import io.github.gaeqs.nes4jams.util.extension.toARGB
 import javafx.geometry.Pos
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
@@ -96,7 +96,7 @@ class PCXEditorControls(val editor: PCXFileEditor) : HBox() {
             this.popup = null
 
             val palette = editor.canvas.palette.toMutableList()
-            palette[index] = new.toRGB()
+            palette[index] = new.toARGB()
             editor.canvas.palette = palette
 
             if (editor.canvas.primaryColor == index) primaryColor.fill = new

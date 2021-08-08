@@ -191,6 +191,7 @@ open class DisplayView(val width: Int, val height: Int) : Node() {
         if (validDimensions) return
         calculatedWidth = max(fitWidth, 0.0f)
         calculatedHeight = max(fitHeight, 0.0f)
+
         validDimensions = true
     }
 

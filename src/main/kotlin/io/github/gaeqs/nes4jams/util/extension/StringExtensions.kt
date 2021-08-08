@@ -43,6 +43,7 @@ fun String.toIntOldWayOrNull(): Int? {
     return when (trimmed[0]) {
         '$' -> trimmed.substring(1).toIntOrNull(16)
         '%' -> trimmed.substring(1).toIntOrNull(2)
+        '@' -> trimmed.substring(1).toIntOrNull(8)
         else -> trimmed.toIntOrNull()
     }
 }

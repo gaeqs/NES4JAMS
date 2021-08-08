@@ -27,6 +27,7 @@ package io.github.gaeqs.nes4jams.gui.project
 import io.github.gaeqs.nes4jams.data.NES4JAMS_BAR_PPU
 import io.github.gaeqs.nes4jams.gui.simulation.display.DisplayHolder
 import io.github.gaeqs.nes4jams.gui.simulation.display.NESSimulationDisplay
+import io.github.gaeqs.nes4jams.gui.simulation.memory.NESMemoryPane
 import io.github.gaeqs.nes4jams.gui.simulation.tablename.NESSimulationPPUDisplay
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
@@ -54,14 +55,17 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
 
     val display: NESSimulationDisplay
     val ppuDisplay: NESSimulationPPUDisplay
+    val memory: NESMemoryPane
 
     init {
 
         display = NESSimulationDisplay(this)
         center = DisplayHolder(display)
+        memory = NESMemoryPane(simulation)
 
         init()
         loadConsole()
+        loadMemory()
 
         ppuDisplay = NESSimulationPPUDisplay(this)
         loadPatternTableDisplay()
@@ -103,7 +107,6 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
     }
 
     private fun loadPatternTableDisplay() {
-
         barMap.registerSnapshot(
             BarSnapshot(
                 "ppu_display",
@@ -113,6 +116,20 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
                 true,
                 Icons.FILE_IMAGE,
                 NES4JAMS_BAR_PPU
+            )
+        )
+    }
+
+    private fun loadMemory() {
+        barMap.registerSnapshot(
+            BarSnapshot(
+                "memory",
+                memory,
+                BarPosition.LEFT_TOP,
+                BarSnapshotViewModePane.INSTANCE,
+                true,
+                Icons.SIMULATION_MEMORY,
+                Messages.BAR_MEMORY_NAME
             )
         )
     }

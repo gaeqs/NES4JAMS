@@ -22,14 +22,29 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.util.extension
+package io.github.gaeqs.nes4jams.gui.simulation.memory.representation
 
-import javafx.scene.paint.Color
+import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.event.NESNumberRepresentationRegisterEvent
+import net.jamsimulator.jams.manager.Manager
 
-fun ColorFxRGB(rgb: Int) = Color.rgb((rgb shr 16 and 0xFF), (rgb shr 8 and 0xFF), rgb and 0xFF)
+class NESNumberRepresentationManager : Manager<NESNumberRepresentation>(
+    { NESNumberRepresentationRegisterEvent.Before(it) },
+    { NESNumberRepresentationRegisterEvent.After(it) },
+    { NESNumberRepresentationRegisterEvent.Before(it) },
+    { NESNumberRepresentationRegisterEvent.After(it) },
+) {
 
-fun Color.toARGB() =
-    0xFF000000.toInt() or ((red * 255.0).toInt() shl 16) or ((green * 255.0).toInt() shl 8) or (blue * 255.0).toInt()
+    companion object {
+        val INSTANCE = NESNumberRepresentationManager()
+    }
 
-fun Color.toRGBA() =
-    ((red * 255.0).toInt() shl 24) or ((green * 255.0).toInt() shl 16) or ((blue * 255.0).toInt() shl 8) or 0xFF
+    override fun loadDefaultElements() {
+        add(NESNumberRepresentation.DECIMAL)
+        add(NESNumberRepresentation.HEXADECIMAL)
+        add(NESNumberRepresentation.OCTAL)
+        add(NESNumberRepresentation.BINARY)
+        add(NESNumberRepresentation.SHORT)
+        add(NESNumberRepresentation.HEXADECIMAL_SHORT)
+        add(NESNumberRepresentation.NES_COLOR)
+    }
+}

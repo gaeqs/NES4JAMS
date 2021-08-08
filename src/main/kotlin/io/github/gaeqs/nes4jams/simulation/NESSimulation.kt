@@ -278,6 +278,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     override fun stop() {
         thread?.interrupt()
         thread = null
+        runSynchronized { interrupted = true }
     }
 
     override fun reset() {
