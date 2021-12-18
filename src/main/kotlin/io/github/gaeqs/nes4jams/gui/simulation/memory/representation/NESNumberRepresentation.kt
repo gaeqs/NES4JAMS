@@ -24,12 +24,14 @@
 
 package io.github.gaeqs.nes4jams.gui.simulation.memory.representation
 
+import io.github.gaeqs.nes4jams.NES4JAMS
 import io.github.gaeqs.nes4jams.gui.simulation.memory.NESMemoryPane
 import io.github.gaeqs.nes4jams.ppu.PPUColors
 import io.github.gaeqs.nes4jams.util.extension.concatenate
 import io.github.gaeqs.nes4jams.util.extension.toHex
 import io.github.gaeqs.nes4jams.util.extension.toRGBA
-import net.jamsimulator.jams.manager.Labeled
+import net.jamsimulator.jams.manager.ManagerResource
+import net.jamsimulator.jams.manager.ResourceProvider
 import net.jamsimulator.jams.utils.StringUtils
 
 abstract class NESNumberRepresentation(
@@ -37,7 +39,7 @@ abstract class NESNumberRepresentation(
     val requiresNextWord: Boolean,
     val isColor: Boolean,
     val languageNode: String = "NUMBER_FORMAT_$name",
-) : Labeled {
+) : ManagerResource {
 
     companion object {
         val DECIMAL = object : NESNumberRepresentation("DECIMAL", false, false) {
@@ -65,6 +67,7 @@ abstract class NESNumberRepresentation(
     }
 
     override fun getName() = name
+    override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
 
     fun represent(address: UShort, pane: NESMemoryPane): String {
         var first: UByte = 0u

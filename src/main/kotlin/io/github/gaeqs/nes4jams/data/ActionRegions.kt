@@ -22,26 +22,6 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.simulation.memory.view.event
+package io.github.gaeqs.nes4jams.data
 
-import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.event.NESNumberRepresentationRegisterEvent
-import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryView
-import net.jamsimulator.jams.event.Cancellable
-import net.jamsimulator.jams.event.Event
-
-sealed class NESMemoryViewRegisterEvent private constructor(val view: NESMemoryView) : Event() {
-
-    class Before(view: NESMemoryView) : NESMemoryViewRegisterEvent(view), Cancellable {
-
-        private var cancelled = false
-
-        override fun isCancelled() = cancelled
-        override fun setCancelled(cancelled: Boolean) {
-            this.cancelled = cancelled
-        }
-
-    }
-
-    class After(view: NESMemoryView) : NESMemoryViewRegisterEvent(view)
-
-}
+const val ACTION_REGION_SPRITES_TO_ASSEMBLE = "SPRITES_TO_ASSEMBLE"

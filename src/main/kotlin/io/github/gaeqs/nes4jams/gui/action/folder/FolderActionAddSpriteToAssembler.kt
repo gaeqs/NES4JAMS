@@ -24,13 +24,15 @@
 
 package io.github.gaeqs.nes4jams.gui.action.folder
 
+import io.github.gaeqs.nes4jams.NES4JAMS
 import io.github.gaeqs.nes4jams.file.pcx.PCXFileType
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.util.extension.orNull
-import net.jamsimulator.jams.Jams
+import io.github.gaeqs.nes4jams.util.manager
+import net.jamsimulator.jams.file.FileTypeManager
 import net.jamsimulator.jams.gui.action.context.ContextAction
 import net.jamsimulator.jams.gui.action.defaults.explorerelement.folder.FolderActionRegions
-import net.jamsimulator.jams.gui.editor.CodeFileEditor
+import net.jamsimulator.jams.gui.editor.code.CodeFileEditor
 import net.jamsimulator.jams.gui.explorer.Explorer
 import net.jamsimulator.jams.gui.explorer.ExplorerElement
 import net.jamsimulator.jams.gui.explorer.folder.ExplorerFile
@@ -38,6 +40,7 @@ import net.jamsimulator.jams.gui.main.MainMenuBar
 import net.jamsimulator.jams.gui.project.ProjectFolderExplorer
 
 class FolderActionAddSpriteToAssembler : ContextAction(
+    NES4JAMS.INSTANCE,
     NAME,
     REGION_TAG,
     LANGUAGE_NODE,
@@ -63,7 +66,7 @@ class FolderActionAddSpriteToAssembler : ContextAction(
 
         elements.forEach {
             it as ExplorerFile
-            project.data.spritesToAssemble.addFile(it.file, false)
+            project.data.spritesToAssemble.addFile(it.file)
         }
     }
 
@@ -80,7 +83,7 @@ class FolderActionAddSpriteToAssembler : ContextAction(
         var allPresent = true
         elements.forEach {
             if (it !is ExplorerFile) return false
-            if (Jams.getFileTypeManager().getByFile(it.file).orNull() != PCXFileType.INSTANCE) return false
+            if (manager<FileTypeManager>().getByFile(it.file).orNull() != PCXFileType.INSTANCE) return false
             allPresent = allPresent && it.file in sprites
         }
 

@@ -24,22 +24,35 @@
 
 package io.github.gaeqs.nes4jams
 
+import io.github.gaeqs.nes4jams.cartridge.mapper.MapperBuilderManager
 import io.github.gaeqs.nes4jams.file.nes.NESFileType
 import io.github.gaeqs.nes4jams.file.pcx.PCXFileType
 import io.github.gaeqs.nes4jams.gui.action.folder.*
 import io.github.gaeqs.nes4jams.gui.project.editor.NESAssemblyFileEditor
+import io.github.gaeqs.nes4jams.gui.project.editor.indexing.inspection.NESInspectorManager
+import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.NESNumberRepresentationManager
+import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryViewManager
 import io.github.gaeqs.nes4jams.gui.util.converter.NESValueConverters
 import io.github.gaeqs.nes4jams.gui.util.value.NESValueEditors
 import io.github.gaeqs.nes4jams.project.NESProjectType
-import io.github.gaeqs.nes4jams.util.extension.toHex
+import io.github.gaeqs.nes4jams.util.extension.orNull
+import io.github.gaeqs.nes4jams.util.manager
+import io.github.gaeqs.nes4jams.util.managerOf
 import net.jamsimulator.jams.Jams
 import net.jamsimulator.jams.event.Listener
 import net.jamsimulator.jams.event.general.JAMSApplicationPostInitEvent
 import net.jamsimulator.jams.event.general.JAMSPostInitEvent
 import net.jamsimulator.jams.file.AssemblyFileType
+import net.jamsimulator.jams.file.FileType
 import net.jamsimulator.jams.gui.JamsApplication
+import net.jamsimulator.jams.gui.theme.ThemeManager
+import net.jamsimulator.jams.gui.theme.exception.ThemeLoadException
+import net.jamsimulator.jams.language.Language
+import net.jamsimulator.jams.language.LanguageManager
 import net.jamsimulator.jams.plugin.Plugin
+import net.jamsimulator.jams.project.ProjectType
 import java.io.InputStream
+import java.nio.file.Path
 
 class NES4JAMS : Plugin() {
 
@@ -64,22 +77,29 @@ class NES4JAMS : Plugin() {
 
     private fun load() {
         loadLanguages()
-        loadThemes()
 
         NESValueConverters.setupConverters()
         NESValueEditors.setupEditor()
 
-        Jams.getProjectTypeManager() += NESProjectType.INSTANCE
+        Jams.REGISTRY.registerSecondary(NESInspectorManager.INSTANCE)
+        Jams.REGISTRY.registerPrimary(MapperBuilderManager.INSTANCE)
+        Jams.REGISTRY.registerPrimary(NESMemoryViewManager.INSTANCE)
+        Jams.REGISTRY.registerPrimary(NESNumberRepresentationManager.INSTANCE)
 
-        AssemblyFileType.INSTANCE.addBuilder(NESProjectType.INSTANCE) { NESAssemblyFileEditor(it) }
+        val fileManager = managerOf<FileType>()
+        val assemblyFileType = fileManager[AssemblyFileType.NAME].orNull()
+        if (assemblyFileType is AssemblyFileType) {
+            assemblyFileType.addBuilder(NESProjectType.INSTANCE) { NESAssemblyFileEditor(it) }
+        }
+        fileManager += PCXFileType.INSTANCE
+        fileManager += NESFileType.INSTANCE
 
-        Jams.getFileTypeManager() += PCXFileType.INSTANCE
-        Jams.getFileTypeManager() += NESFileType.INSTANCE
-
-        Jams.getLanguageManager().registerListeners(this, true)
+        managerOf<Language>().registerListeners(this, true)
     }
 
     private fun loadApplication() {
+        managerOf<ProjectType<*>>() += NESProjectType.INSTANCE
+        loadThemes()
         JamsApplication.getActionManager() += FolderActionNewPCXFile()
         JamsApplication.getActionManager() += FolderActionAddSpriteToAssembler()
         JamsApplication.getActionManager() += FolderActionAddAllSpritesToAssembler()
@@ -91,14 +111,21 @@ class NES4JAMS : Plugin() {
         val list = mutableListOf<InputStream>()
         resource("/languages/english.jlang").ifPresent { list.add(it) }
         resource("/languages/spanish.jlang").ifPresent { list.add(it) }
-        Jams.getLanguageManager().loadLanguages(list, true)
+        manager<LanguageManager>().loadLanguages(this, list, true)
     }
 
     private fun loadThemes() {
         val list = mutableListOf<InputStream>()
         resource("/gui/themes/dark_theme.jtheme").ifPresent { list.add(it) }
         resource("/gui/themes/light_theme.jtheme").ifPresent { list.add(it) }
-        JamsApplication.getThemeManager().loadThemes(list, true)
+
+        val jarResource = javaClass.getResource("/gui/theme")
+        if (jarResource != null) {
+            manager<ThemeManager>().loadThemesInDirectory(JAMS, Path.of(jarResource.toURI()), true)
+                .forEach { (_: Path, e: ThemeLoadException) ->
+                    e.printStackTrace()
+                }
+        }
     }
 
 }

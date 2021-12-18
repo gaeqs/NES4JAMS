@@ -33,7 +33,7 @@ import javafx.scene.control.TextField
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
-import net.jamsimulator.jams.gui.configuration.ConfigurationRegionDisplay
+import net.jamsimulator.jams.gui.configuration.RegionDisplay
 import net.jamsimulator.jams.gui.util.AnchorUtils
 import net.jamsimulator.jams.gui.util.value.ValueEditor
 import net.jamsimulator.jams.gui.util.value.ValueEditors
@@ -102,7 +102,7 @@ class NESConfigurationGeneral(val configuration: NESSimulationConfiguration) : V
         padding = Insets(5.0)
         spacing = 5.0
         isFillWidth = true
-        children += ConfigurationRegionDisplay(Messages.SIMULATION_CONFIGURATION_GENERAL_REGION)
+        children += RegionDisplay(Messages.SIMULATION_CONFIGURATION_GENERAL_REGION)
         representations.filter { it.node.isVisible }.forEach { children += it.node }
         representations.forEach { it.refreshEnabled(representations) }
     }

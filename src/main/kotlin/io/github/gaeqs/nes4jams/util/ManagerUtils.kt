@@ -22,35 +22,26 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.project.editor.element
+package io.github.gaeqs.nes4jams.util
 
-import io.github.gaeqs.nes4jams.util.extension.SELECTED_LANGUAGE
-import io.github.gaeqs.nes4jams.util.extension.get
-import net.jamsimulator.jams.language.Language
+import net.jamsimulator.jams.manager.DefaultValuableManager
+import net.jamsimulator.jams.manager.Manager
+import net.jamsimulator.jams.manager.ManagerResource
+import net.jamsimulator.jams.manager.SelectableManager
 
-abstract class NESCodeElement(val line: NESLine, val text: String, var startIndex: Int, var endIndex: Int) {
+inline fun <reified T : Manager<*>> manager(): T {
+    return Manager.get(T::class.java)
+}
 
-    abstract val translatedNameNode: String
-    abstract val simpleText: String
-    abstract val styles: List<String>
 
-    val translatedName get() = getTranslatedName(SELECTED_LANGUAGE)
+inline fun <reified T : ManagerResource> managerOf(): Manager<T> {
+    return Manager.of(T::class.java)
+}
 
-    fun getTranslatedName(language: Language): String {
-        return language[translatedNameNode]
-    }
+inline fun <reified T : ManagerResource> managerOfD(): DefaultValuableManager<T> {
+    return Manager.ofD(T::class.java)
+}
 
-    open fun move(offset: Int) {
-        startIndex += offset
-        endIndex += offset
-    }
-
-    fun getGeneralStyles(vararg baseStyles: String): MutableList<String> {
-        val list = baseStyles.toMutableList()
-        //if (hasInspections()) {
-        //    list.add(if (hasErrors()) "mips-error" else "mips-warning")
-        //}
-        return list
-    }
-
+inline fun <reified T : ManagerResource> managerOfS(): SelectableManager<T> {
+    return Manager.ofS(T::class.java)
 }

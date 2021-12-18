@@ -22,25 +22,35 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.simulation.memory.view.event
+package io.github.gaeqs.nes4jams.gui.sidebar
 
-import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryView
-import net.jamsimulator.jams.event.Cancellable
-import net.jamsimulator.jams.event.Event
+import io.github.gaeqs.nes4jams.project.NESSpritesToAssemble
+import javafx.scene.control.ListView
+import net.jamsimulator.jams.event.Listener
+import net.jamsimulator.jams.gui.editor.code.indexing.global.event.FileCollectionAddFileEvent
+import net.jamsimulator.jams.gui.editor.code.indexing.global.event.FileCollectionRemoveFileEvent
+import net.jamsimulator.jams.gui.image.icon.IconData
+import net.jamsimulator.jams.gui.image.icon.Icons
+import net.jamsimulator.jams.project.Project
+import java.io.File
 
-sealed class NESMemoryViewUnregisterEvent private constructor(val view: NESMemoryView) : Event() {
+class SpritesToAssembleSidebar(val project: Project, val sprites: NESSpritesToAssemble) : ListView<File>() {
 
-    class Before(view: NESMemoryView) : NESMemoryViewUnregisterEvent(view), Cancellable {
+    val icon: IconData = Icons.FILE_IMAGE
 
-        private var cancelled = false
-
-        override fun isCancelled() = cancelled
-        override fun setCancelled(cancelled: Boolean) {
-            this.cancelled = cancelled
-        }
-
+    init {
+        setCellFactory { SpritesToAssembleSidebarElement(this) }
+        sprites.registerListeners(this, true)
+        items.addAll(sprites.files)
     }
 
-    class After(view: NESMemoryView) : NESMemoryViewUnregisterEvent(view)
+    @Listener
+    private fun onFileAdd(event: FileCollectionAddFileEvent.After) {
+        items.add(event.file)
+    }
 
+    @Listener
+    private fun onFileRemoved(event: FileCollectionRemoveFileEvent.After) {
+        items.remove(event.file)
+    }
 }

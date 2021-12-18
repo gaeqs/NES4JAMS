@@ -22,25 +22,22 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.cartridge.mapper.event
+package io.github.gaeqs.nes4jams.gui.project.editor.indexing.element
 
-import io.github.gaeqs.nes4jams.cartridge.mapper.MapperBuilder
-import net.jamsimulator.jams.event.Cancellable
-import net.jamsimulator.jams.event.Event
+import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexStyleableElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedElementImpl
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
 
-sealed class MapperBuilderUnregisterEvent private constructor(val builder: MapperBuilder<*>) : Event() {
+class NESEditorInstructionMnemonic(
+    index: EditorIndex, scope: ElementScope, parent: EditorIndexedParentElement, start: Int, text: String
+) : EditorIndexedElementImpl(index, scope, parent, start, text), EditorIndexStyleableElement {
 
-    class Before(builder: MapperBuilder<*>) : MapperBuilderUnregisterEvent(builder), Cancellable {
-
-        private var cancelled = false
-
-        override fun isCancelled() = cancelled
-        override fun setCancelled(cancelled: Boolean) {
-            this.cancelled = cancelled
-        }
-
+    companion object {
+        val STYLES = setOf("instruction")
     }
 
-    class After(builder: MapperBuilder<*>) : MapperBuilderUnregisterEvent(builder)
-
+    override fun getIdentifier() = text.substring(1)
+    override fun getStyles() = STYLES
 }

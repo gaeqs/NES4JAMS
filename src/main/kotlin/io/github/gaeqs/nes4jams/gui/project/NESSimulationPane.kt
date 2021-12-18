@@ -31,13 +31,14 @@ import io.github.gaeqs.nes4jams.gui.simulation.memory.NESMemoryPane
 import io.github.gaeqs.nes4jams.gui.simulation.tablename.NESSimulationPPUDisplay
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
+import io.github.gaeqs.nes4jams.util.managerOfD
 import javafx.scene.control.Tab
 import javafx.scene.layout.HBox
 import net.jamsimulator.jams.gui.ActionRegion
 import net.jamsimulator.jams.gui.action.RegionTags
 import net.jamsimulator.jams.gui.bar.BarPosition
 import net.jamsimulator.jams.gui.bar.BarSnapshot
-import net.jamsimulator.jams.gui.bar.mode.BarSnapshotViewModePane
+import net.jamsimulator.jams.gui.bar.mode.BarSnapshotViewMode
 import net.jamsimulator.jams.gui.image.icon.Icons
 import net.jamsimulator.jams.gui.mips.simulator.execution.ExecutionButtons
 import net.jamsimulator.jams.gui.mips.simulator.execution.SpeedSlider
@@ -46,7 +47,7 @@ import net.jamsimulator.jams.gui.project.SimulationHolder
 import net.jamsimulator.jams.gui.project.WorkingPane
 import net.jamsimulator.jams.language.Messages
 import net.jamsimulator.jams.mips.simulation.Simulation
-import tornadofx.clear
+import tornadofx.*
 
 class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESProject, val simulation: NESSimulation) :
     WorkingPane(parent, projectTab, null, false), SimulationHolder<Short>, ActionRegion {
@@ -98,7 +99,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
                 "console",
                 console,
                 BarPosition.BOTTOM_LEFT,
-                BarSnapshotViewModePane.INSTANCE,
+                managerOfD<BarSnapshotViewMode>().default,
                 true,
                 Icons.SIMULATION_CONSOLE,
                 Messages.BAR_CONSOLE_NAME,
@@ -112,7 +113,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
                 "ppu_display",
                 ppuDisplay,
                 BarPosition.RIGHT_TOP,
-                BarSnapshotViewModePane.INSTANCE,
+                managerOfD<BarSnapshotViewMode>().default,
                 true,
                 Icons.FILE_IMAGE,
                 NES4JAMS_BAR_PPU
@@ -126,7 +127,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
                 "memory",
                 memory,
                 BarPosition.LEFT_TOP,
-                BarSnapshotViewModePane.INSTANCE,
+                managerOfD<BarSnapshotViewMode>().default,
                 true,
                 Icons.SIMULATION_MEMORY,
                 Messages.BAR_MEMORY_NAME

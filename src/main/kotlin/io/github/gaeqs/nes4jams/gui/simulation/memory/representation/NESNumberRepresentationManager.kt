@@ -24,18 +24,16 @@
 
 package io.github.gaeqs.nes4jams.gui.simulation.memory.representation
 
-import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.event.NESNumberRepresentationRegisterEvent
+import io.github.gaeqs.nes4jams.NES4JAMS
 import net.jamsimulator.jams.manager.Manager
+import net.jamsimulator.jams.manager.ResourceProvider
 
-class NESNumberRepresentationManager : Manager<NESNumberRepresentation>(
-    { NESNumberRepresentationRegisterEvent.Before(it) },
-    { NESNumberRepresentationRegisterEvent.After(it) },
-    { NESNumberRepresentationRegisterEvent.Before(it) },
-    { NESNumberRepresentationRegisterEvent.After(it) },
-) {
+class NESNumberRepresentationManager(provider: ResourceProvider, loadOnFXThread: Boolean) :
+    Manager<NESNumberRepresentation>(provider, NAME, NESNumberRepresentation::class.java, loadOnFXThread) {
 
     companion object {
-        val INSTANCE = NESNumberRepresentationManager()
+        val NAME = "nes_number_representation"
+        val INSTANCE = NESNumberRepresentationManager(NES4JAMS.INSTANCE, false)
     }
 
     override fun loadDefaultElements() {

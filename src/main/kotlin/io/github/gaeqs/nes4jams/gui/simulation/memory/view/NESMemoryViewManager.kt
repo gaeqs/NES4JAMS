@@ -24,19 +24,18 @@
 
 package io.github.gaeqs.nes4jams.gui.simulation.memory.view
 
-import io.github.gaeqs.nes4jams.gui.simulation.memory.view.event.NESMemoryViewRegisterEvent
-import io.github.gaeqs.nes4jams.gui.simulation.memory.view.event.NESMemoryViewUnregisterEvent
+import io.github.gaeqs.nes4jams.NES4JAMS
 import net.jamsimulator.jams.manager.Manager
+import net.jamsimulator.jams.manager.ResourceProvider
 
-class NESMemoryViewManager : Manager<NESMemoryView>(
-    { NESMemoryViewRegisterEvent.Before(it) },
-    { NESMemoryViewRegisterEvent.After(it) },
-    { NESMemoryViewUnregisterEvent.Before(it) },
-    { NESMemoryViewUnregisterEvent.After(it) },
-) {
+class NESMemoryViewManager(
+    provider: ResourceProvider?,
+    loadOnFXThread: Boolean
+) : Manager<NESMemoryView>(provider, NAME, NESMemoryView::class.java, loadOnFXThread) {
 
     companion object {
-        val INSTANCE = NESMemoryViewManager()
+        val NAME = "nes_memory_view"
+        val INSTANCE = NESMemoryViewManager(NES4JAMS.INSTANCE, false)
     }
 
     override fun loadDefaultElements() {

@@ -66,7 +66,7 @@ class NESProject(folder: File) : BasicProject(folder, true) {
         log?.printInfoLn("Files:")
 
         val rootPath = folder.toPath()
-        val files = getData().filesToAssemble.files.map {
+        val files = getData().globalIndex.files.map {
             try {
                 log?.printInfoLn("- ${it.absolutePath}")
                 RawFileData(it, rootPath)
@@ -244,6 +244,7 @@ class NESProject(folder: File) : BasicProject(folder, true) {
     }
 
     override fun onClose() {
+        super.onClose()
         data.save()
         if (projectTab != null) {
             val pane = projectTab.projectTabPane.workingPane

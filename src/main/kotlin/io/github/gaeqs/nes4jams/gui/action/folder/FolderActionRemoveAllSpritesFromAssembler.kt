@@ -24,10 +24,11 @@
 
 package io.github.gaeqs.nes4jams.gui.action.folder
 
+import io.github.gaeqs.nes4jams.NES4JAMS
 import io.github.gaeqs.nes4jams.project.NESProject
 import net.jamsimulator.jams.gui.action.context.ContextAction
 import net.jamsimulator.jams.gui.action.defaults.explorerelement.folder.FolderActionRegions
-import net.jamsimulator.jams.gui.editor.CodeFileEditor
+import net.jamsimulator.jams.gui.editor.code.CodeFileEditor
 import net.jamsimulator.jams.gui.explorer.Explorer
 import net.jamsimulator.jams.gui.explorer.ExplorerElement
 import net.jamsimulator.jams.gui.explorer.folder.ExplorerFolder
@@ -35,9 +36,9 @@ import net.jamsimulator.jams.gui.main.MainMenuBar
 import net.jamsimulator.jams.gui.project.ProjectFolderExplorer
 import java.io.IOException
 import java.nio.file.Files
-import java.nio.file.Path
 
 class FolderActionRemoveAllSpritesFromAssembler : ContextAction(
+    NES4JAMS.INSTANCE,
     NAME,
     REGION_TAG,
     LANGUAGE_NODE,

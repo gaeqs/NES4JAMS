@@ -24,9 +24,9 @@
 
 package io.github.gaeqs.nes4jams.util.extension
 
-import net.jamsimulator.jams.Jams
+import io.github.gaeqs.nes4jams.util.managerOfS
 import net.jamsimulator.jams.language.Language
 
-val SELECTED_LANGUAGE: Language get() = Jams.getLanguageManager().selected
+val SELECTED_LANGUAGE: Language get() = managerOfS<Language>().selected
 
 operator fun Language.get(node: String): String = getOrDefault(node)

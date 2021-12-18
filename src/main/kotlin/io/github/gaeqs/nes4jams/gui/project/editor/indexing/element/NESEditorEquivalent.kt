@@ -22,26 +22,31 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.project.editor.element
+package io.github.gaeqs.nes4jams.gui.project.editor.indexing.element
 
-enum class NESEditorExpressionPartType(val style: String) {
-    LABEL("mips-label"),
-    IMMEDIATE("mips-instruction-parameter-immediate"),
-    ADDRESSING_MODE("mips-instruction-parameter-register"),
-    INVALID("mips-error")
-}
+import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElementImpl
+import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
 
-class NESEditorExpressionPart(
-    line: NESLine,
-    text: String,
-    startIndex: Int,
-    endIndex: Int,
-    val type: NESEditorExpressionPartType
-) :
-    NESCodeElement(line, text, startIndex, endIndex) {
+class NESEditorEquivalent(
+    index: EditorIndex,
+    scope: ElementScope,
+    parent: EditorIndexedParentElement,
+    start: Int,
+    text: String
+) : EditorIndexedParentElementImpl(index, scope, parent, start, text) {
 
-    override val translatedNameNode: String = "MIPS_ELEMENT_INSTRUCTION_PARAMETER_IMMEDIATE"
-    override val simpleText: String = text
-    override val styles: List<String> get() = getGeneralStyles(type.style)
+    override fun getIdentifier() = super.getIdentifier().substring(1)
+
+    init {
+        val eqIndex = text.indexOf('=')
+        if (eqIndex != -1) {
+            val mnemonic = text.substring(0, eqIndex)
+            val expression = text.substring(eqIndex + 1).trim()
+            elements += NESEditorLabel(index, scope, this, start, mnemonic)
+            elements += NESEditorExpression(index, scope, this, start + eqIndex + 1, expression)
+        }
+    }
 
 }

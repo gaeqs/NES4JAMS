@@ -26,12 +26,13 @@ package io.github.gaeqs.nes4jams.gui.project.editor
 
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
 import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
-import io.github.gaeqs.nes4jams.gui.project.editor.element.NESCodeElement
-import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorDirective
-import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorInstruction
+import io.github.gaeqs.nes4jams.gui.project.editor.indexing.element.NESEditorDirectiveMnemonic
+import io.github.gaeqs.nes4jams.gui.project.editor.indexing.element.NESEditorInstructionMnemonic
 import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.application.Platform
-import net.jamsimulator.jams.gui.editor.popup.AutocompletionPopup
+import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedElement
+import net.jamsimulator.jams.gui.editor.code.popup.AutocompletionPopup
 import net.jamsimulator.jams.gui.image.icon.Icons
 
 class NESAutocompletionPopup(display: NESAssemblyFileEditor) : AutocompletionPopup(display) {
@@ -43,16 +44,22 @@ class NESAutocompletionPopup(display: NESAssemblyFileEditor) : AutocompletionPop
 
     override fun getDisplay() = super.getDisplay() as NESAssemblyFileEditor
 
-    private val nesElements = display.elements
-    private var element: NESCodeElement? = null
+    private val index = display.index
+    private var element: EditorIndexedElement? = null
 
     override fun execute(caretOffset: Int, autocompleteIfOne: Boolean) {
         val caretPosition = display.caretPosition + caretOffset
         if (caretPosition <= 0) return
-        element = nesElements.getElementAt(caretPosition - 1)
-        if (element == null) {
-            hide()
-            return
+
+        try {
+            index.lock(false)
+            element = index.getElementAt(caretPosition - 1).orElse(null)
+            if (element == null) {
+                hide()
+                return
+            }
+        } finally {
+            index.unlock(false)
         }
 
         Platform.runLater {
@@ -88,24 +95,29 @@ class NESAutocompletionPopup(display: NESAssemblyFileEditor) : AutocompletionPop
     }
 
     override fun refreshContents(caretPosition: Int) {
-        elements.clear()
-        val to = caretPosition - element!!.startIndex
-        var start = element!!.simpleText
+        try {
+            index.lock(false)
+            elements.clear()
+            val to = caretPosition - element!!.start
+            var start = element!!.identifier
 
-        if (to > 0 && to < start.length) {
-            start = start.substring(0, to)
-        }
+            if (to > 0 && to < start.length) {
+                start = start.substring(0, to)
+            }
 
-        start = when (element) {
-            is NESEditorDirective -> refreshDirectives(start)
-            is NESEditorInstruction -> refreshInstructionsMacrosAndDirectives(start)
-            else -> start
-        }
+            start = when (element) {
+                is NESEditorDirectiveMnemonic -> refreshDirectives(start)
+                is NESEditorInstructionMnemonic -> refreshInstructionsMacrosAndDirectives(start)
+                else -> start
+            }
 
-        sortAndShowElements(start)
-        if (!isEmpty) {
-            selectedIndex = 0
-            refreshSelected()
+            sortAndShowElements(start)
+            if (!isEmpty) {
+                selectedIndex = 0
+                refreshSelected()
+            }
+        } finally {
+            index.unlock(false)
         }
     }
 
@@ -114,9 +126,13 @@ class NESAutocompletionPopup(display: NESAssemblyFileEditor) : AutocompletionPop
         val replacement = selected.autocompletion
         val caretPosition = display.caretPosition
         if (caretPosition == 0) return
-        val element = nesElements.getElementAt(caretPosition - 1) ?: return
-        if (element.text.substring(0, caretPosition - element.startIndex) == replacement) return
-        display.replaceText(element.startIndex + selected.offset, caretPosition, replacement)
+
+
+        val element = index.withLockF(false)
+        { i: EditorIndex -> i.getElementAt(caretPosition - 1).orElse(null) } ?: return
+
+        if (element.text.substring(0, caretPosition - element.start) == replacement) return
+        display.replaceText(element.start + selected.offset, caretPosition, replacement)
     }
 
     private fun refreshDirectives(start: String): String {

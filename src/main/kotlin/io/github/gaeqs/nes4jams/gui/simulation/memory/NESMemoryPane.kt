@@ -26,21 +26,21 @@ package io.github.gaeqs.nes4jams.gui.simulation.memory
 
 import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.NESNumberRepresentation
 import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.NESNumberRepresentationManager
-import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.event.NESNumberRepresentationRegisterEvent
-import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.event.NESNumberRepresentationUnregisterEvent
 import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryView
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
+import io.github.gaeqs.nes4jams.util.managerOf
 import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
-import net.jamsimulator.jams.Jams
 import net.jamsimulator.jams.event.Listener
 import net.jamsimulator.jams.gui.ActionRegion
 import net.jamsimulator.jams.gui.action.RegionTags
 import net.jamsimulator.jams.gui.util.AnchorUtils
 import net.jamsimulator.jams.gui.util.LanguageComboBox
+import net.jamsimulator.jams.manager.event.ManagerElementRegisterEvent
+import net.jamsimulator.jams.manager.event.ManagerElementUnregisterEvent
 
 class NESMemoryPane(val simulation: NESSimulation) : AnchorPane(), ActionRegion {
 
@@ -77,7 +77,7 @@ class NESMemoryPane(val simulation: NESSimulation) : AnchorPane(), ActionRegion 
         children.addAll(headerHBox, table, buttonsHBox)
 
 
-        Jams.getNumberRepresentationManager().registerListeners(this, true)
+        managerOf<NESNumberRepresentation>().registerListeners(this, true)
     }
 
     override fun supportsActionRegion(region: String?) = region == RegionTags.MIPS_SIMULATION
@@ -108,14 +108,14 @@ class NESMemoryPane(val simulation: NESSimulation) : AnchorPane(), ActionRegion 
     // region events
 
     @Listener
-    private fun onRepresentationRegister(event: NESNumberRepresentationRegisterEvent.After) {
-        representations += event.representation
+    private fun onRepresentationRegister(event: ManagerElementRegisterEvent.After<NESNumberRepresentation>) {
+        representations += event.element
         refreshRepresentationComboBox()
     }
 
     @Listener
-    private fun onRepresentationUnregister(event: NESNumberRepresentationUnregisterEvent.After) {
-        representations -= event.representation
+    private fun onRepresentationUnregister(event: ManagerElementUnregisterEvent.After<NESNumberRepresentation>) {
+        representations -= event.element
         refreshRepresentationComboBox()
     }
 

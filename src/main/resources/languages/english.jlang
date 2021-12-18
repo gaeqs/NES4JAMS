@@ -15,6 +15,8 @@ NES4JAMS_MEMORY_BANK_SIZE=Size:
 NES4JAMS_MEMORY_BANK_WRITABLE=Writable:
 NES4JAMS_MEMORY_BANK_WRITE_ON_CARTRIDGE=In cartridge:
 
+NES4JAMS_TASK_LOADING_CARTRIDGE=Loading cartridge...
+
 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS=Memory banks:
 NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP=The memory banks are used by the assembler to store the data into the ROM. You can change between banks in your code using the directive .bank. At least one memory bank is required for the assembler to work.
 NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING=Mirroring:

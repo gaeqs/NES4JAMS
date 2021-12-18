@@ -22,12 +22,16 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.project.editor.element
+package io.github.gaeqs.nes4jams.gui.project.editor.indexing
 
-class NESEditorComment(line: NESLine, text: String, startIndex: Int, endIndex: Int) :
-    NESCodeElement(line, text, startIndex, endIndex) {
+import io.github.gaeqs.nes4jams.gui.project.editor.indexing.inspection.NESInspectorManager
+import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
+import net.jamsimulator.jams.gui.editor.code.indexing.line.EditorLineIndex
+import net.jamsimulator.jams.project.Project
 
-    override val translatedNameNode = "MIPS_ELEMENT_COMMENT"
-    override val simpleText = text
-    override val styles = listOf("mips-comment")
+class NESEditorIndex(project: Project, name: String) :
+    EditorLineIndex<NESEditorLine>(project, NESInspectorManager.INSTANCE, name) {
+
+    override fun generateNewLine(start: Int, number: Int, text: String, scope: ElementScope) =
+        NESEditorLine(this, scope, start, number, text)
 }

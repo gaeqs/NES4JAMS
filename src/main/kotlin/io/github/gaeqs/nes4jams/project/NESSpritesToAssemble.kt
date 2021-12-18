@@ -24,65 +24,64 @@
 
 package io.github.gaeqs.nes4jams.project
 
-import net.jamsimulator.jams.collection.Bag
+import net.jamsimulator.jams.event.Listener
 import net.jamsimulator.jams.event.SimpleEventBroadcast
-import net.jamsimulator.jams.gui.editor.FileEditorHolder
-import net.jamsimulator.jams.project.FilesToAssemble
-import net.jamsimulator.jams.project.Project
-import net.jamsimulator.jams.project.mips.event.FileAddToAssembleEvent
-import net.jamsimulator.jams.project.mips.event.FileIndexChangedFromAssembleEvent
-import net.jamsimulator.jams.project.mips.event.FileRemoveFromAssembleEvent
+import net.jamsimulator.jams.event.file.FileEvent
+import net.jamsimulator.jams.gui.editor.code.indexing.global.FileCollection
+import net.jamsimulator.jams.gui.editor.code.indexing.global.event.FileCollectionAddFileEvent
+import net.jamsimulator.jams.gui.editor.code.indexing.global.event.FileCollectionChangeIndexEvent
+import net.jamsimulator.jams.gui.editor.code.indexing.global.event.FileCollectionRemoveFileEvent
 import org.json.JSONArray
 import java.io.File
+import java.nio.file.StandardWatchEventKinds
 
-class NESSpritesToAssemble(val project: NESProject) : SimpleEventBroadcast(), FilesToAssemble {
-
-    private val files = mutableListOf<File>()
+class NESSpritesToAssemble(val project: NESProject) : SimpleEventBroadcast(), FileCollection {
 
     companion object {
         const val FILE_NAME = "sprites_to_assemble.json"
     }
 
-    override fun getProject(): Project = project
-    override fun supportsGlobalLabels(): Boolean = false
-    override fun getGlobalLabels(): Bag<String>? = null
+    private val files = mutableListOf<File>()
+
+    init {
+        project.projectTab.ifPresent { it.registerListeners(this, true) }
+    }
+
     override fun getFiles(): List<File> = files.toList()
     override fun containsFile(file: File?): Boolean = file in files
 
     operator fun contains(file: File?) = containsFile(file)
 
-    override fun addFile(file: File, refreshGlobalLabels: Boolean) {
-        if (file in files) return
-        val before = callEvent(FileAddToAssembleEvent.Before(file))
-        if (before.isCancelled) return
+    override fun addFile(file: File): Boolean {
+        if (file in files) return false
+
+        val before = callEvent(FileCollectionAddFileEvent.Before(this, file))
+        if (before.isCancelled) return false
         files += file
-        callEvent(FileAddToAssembleEvent.After(file))
+        callEvent(FileCollectionAddFileEvent.After(this, file))
+        return true
     }
 
-    override fun addFile(file: File, holder: FileEditorHolder, refreshGlobalLabels: Boolean) {
-        addFile(file, refreshGlobalLabels)
-    }
-
-    override fun removeFile(file: File) {
-        if (file !in files) return
-        val before = callEvent(FileRemoveFromAssembleEvent.Before(file))
-        if (before.isCancelled) return
+    override fun removeFile(file: File): Boolean {
+        if (file !in files) return false
+        val before = callEvent(FileCollectionRemoveFileEvent.Before(this, file))
+        if (before.isCancelled) return false
         files -= file
-        refreshGlobalLabels()
-        callEvent(FileRemoveFromAssembleEvent.After(file))
+        callEvent(FileCollectionRemoveFileEvent.After(this, file))
+        return true
     }
 
-    override fun moveFileToIndex(file: File, index: Int): Boolean {
+    override fun moveFile(file: File, index: Int): Boolean {
         if (!files.contains(file) || index !in 0 until files.size) return false
         val old = files.indexOf(file)
-        val before = callEvent(FileIndexChangedFromAssembleEvent.Before(file, old, index))
+        val before = callEvent(FileCollectionChangeIndexEvent.Before(this, file, old, index))
         if (before.isCancelled) return false
         val newIndex = before.newIndex
 
         if (index !in 0 until files.size) return false
         files -= file
         files.add(newIndex, file)
-        callEvent(FileIndexChangedFromAssembleEvent.After(file, old, newIndex))
+        callEvent(FileCollectionChangeIndexEvent.After(this, file, old, newIndex))
         return true
     }
 
@@ -93,7 +92,7 @@ class NESSpritesToAssemble(val project: NESProject) : SimpleEventBroadcast(), Fi
         JSONArray(file.readText())
             .map { File(project.folder, it.toString()) }
             .filter { it.isFile }
-            .forEach { addFile(it, false) }
+            .forEach { addFile(it) }
     }
 
     fun save(metadataFolder: File) {
@@ -103,11 +102,14 @@ class NESSpritesToAssemble(val project: NESProject) : SimpleEventBroadcast(), Fi
         File(metadataFolder, FILE_NAME).writeText(json.toString(1))
     }
 
-    override fun checkFiles() {
-        files.filter { !it.isFile }.forEach { removeFile(it) }
-    }
-
-    override fun refreshGlobalLabels() {
+    @Listener
+    private fun onFileRemove(event: FileEvent) {
+        if (event.watchEvent.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
+            val file = event.path.toFile()
+            if (!removeFile(file)) {
+                System.err.println("Couldn't delete file $file from global index.")
+            }
+        }
     }
 
 }

@@ -35,6 +35,7 @@ import net.jamsimulator.jams.event.SimpleEventBroadcast
 import net.jamsimulator.jams.mips.simulation.Simulation
 import net.jamsimulator.jams.mips.simulation.event.*
 import java.util.concurrent.locks.ReentrantLock
+import java.util.function.Consumer
 import kotlin.concurrent.withLock
 import kotlin.math.max
 import kotlin.system.measureTimeMillis
@@ -227,7 +228,10 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     override fun getCycles() = clock
     override fun isRunning() = running
     override fun getConsole() = data.console
-    override fun getBreakpoints() = breakpoints.toSet()
+
+    override fun forEachBreakpoint(p0: Consumer<Short>) {
+        breakpoints.forEach(p0)
+    }
 
 
     override fun hasBreakpoint(address: Short) = address in breakpoints

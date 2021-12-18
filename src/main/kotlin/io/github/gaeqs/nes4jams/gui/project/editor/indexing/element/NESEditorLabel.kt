@@ -22,16 +22,21 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.project.editor.element
+package io.github.gaeqs.nes4jams.gui.project.editor.indexing.element
 
-class NESEditorLabel(line: NESLine, text: String, startIndex: Int, endIndex: Int, var isGlobal: Boolean = false) :
-    NESCodeElement(line, text, startIndex, endIndex) {
+import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
+import net.jamsimulator.jams.gui.editor.code.indexing.element.basic.EditorElementLabelImpl
+import net.jamsimulator.jams.gui.editor.code.indexing.element.reference.EditorGlobalMarkerElement
 
-    override val translatedNameNode: String get() = if (isGlobal) "MIPS_ELEMENT_GLOBAL_LABEL" else "MIPS_ELEMENT_LABEL"
-    override val simpleText: String = text.substring(0, text.length - 1).trim()
-    override val styles: List<String> get() = getGeneralStyles(if (isGlobal) "mips-global-label" else "mips-label")
+class NESEditorLabel(
+    index: EditorIndex, scope: ElementScope, parent: EditorIndexedParentElement, start: Int, text: String
+) : EditorElementLabelImpl(index, scope, parent, start, text), EditorGlobalMarkerElement {
 
-    init {
-        this.startIndex += text.indexOf(text.trimStart())
+    private val global = if (identifier.startsWith("_")) emptySet() else setOf(identifier!!)
+
+    override fun getGlobalIdentifiers(): Set<String> {
+        return global
     }
 }

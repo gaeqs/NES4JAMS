@@ -26,15 +26,16 @@ package io.github.gaeqs.nes4jams.gui.configuration
 
 import io.github.gaeqs.nes4jams.project.NESProjectData
 import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfiguration
+import io.github.gaeqs.nes4jams.util.managerOfS
 import javafx.application.Platform
 import javafx.scene.control.SplitPane
 import javafx.scene.layout.AnchorPane
 import javafx.stage.Modality
 import javafx.stage.Stage
-import net.jamsimulator.jams.Jams
 import net.jamsimulator.jams.gui.JamsApplication
 import net.jamsimulator.jams.gui.image.icon.Icons
 import net.jamsimulator.jams.gui.theme.ThemedScene
+import net.jamsimulator.jams.language.Language
 import net.jamsimulator.jams.language.Messages
 
 class NESConfigurationWindow(val data: NESProjectData) : SplitPane() {
@@ -59,7 +60,7 @@ class NESConfigurationWindow(val data: NESProjectData) : SplitPane() {
 
             stage.x = main.x + main.width / 2.0 - WIDTH / 2.0
             stage.y = main.y + main.height / 2.0 - HEIGHT / 2.0
-            stage.title = Jams.getLanguageManager().selected.getOrDefault(Messages.SIMULATION_CONFIGURATION_INFO)
+            stage.title = managerOfS<Language>().selected.getOrDefault(Messages.SIMULATION_CONFIGURATION_INFO)
             Icons.LOGO.image.ifPresent { stage.icons += it }
             JamsApplication.getActionManager().addAcceleratorsToScene(scene, true)
 
