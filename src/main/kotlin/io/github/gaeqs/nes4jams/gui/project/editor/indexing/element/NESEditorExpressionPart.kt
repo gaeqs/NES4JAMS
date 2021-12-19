@@ -34,10 +34,10 @@ import net.jamsimulator.jams.gui.editor.code.indexing.element.reference.EditorEl
 import net.jamsimulator.jams.gui.editor.code.indexing.element.reference.EditorReferencingElement
 
 enum class NESEditorExpressionPartType(val style: String) {
-    LABEL("mips-label"),
-    IMMEDIATE("mips-instruction-parameter-immediate"),
-    ADDRESSING_MODE("mips-instruction-parameter-register"),
-    INVALID("mips-error")
+    LABEL("label"),
+    IMMEDIATE("instruction-parameter-immediate"),
+    ADDRESSING_MODE("instruction-parameter-register"),
+    INVALID("error")
 }
 
 
