@@ -79,6 +79,8 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     private val cpuRAM = UByteArray(2048)
     private var lastTick = 0L
 
+    private val renderEvent = NESSimulationRenderEvent(this, ppu.screen)
+
 
     val cartridge get() = data.cartridge
 
@@ -153,7 +155,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
                 // We don't have to do nothing.
                 ppu.frameCompleted = false
                 frame++
-                callEvent(NESSimulationRenderEvent(this, ppu.screen))
+                callEvent(renderEvent)
             }
         } else {
             // Run till frame completed
@@ -169,7 +171,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
                 updateControllers()
 
                 frame++
-                callEvent(NESSimulationRenderEvent(this, ppu.screen))
+                callEvent(renderEvent)
             }
         }
     }

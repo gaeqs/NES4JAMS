@@ -29,25 +29,28 @@ import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import net.jamsimulator.jams.manager.ManagerResource
 import net.jamsimulator.jams.manager.ResourceProvider
 
-abstract class NESMemoryView(val readOnly: Boolean) : ManagerResource {
+abstract class NESMemoryView(
+    private val name: String,
+    val readOnly: Boolean,
+    val languageNode: String = "NES_MEMORY_VIEW_$name"
+) : ManagerResource {
+
+    override fun getName(): String = name
 
     companion object {
-        val CPU = object : NESMemoryView(true) {
-            override fun getName() = "CPU"
+        val CPU = object : NESMemoryView("CPU", true) {
             override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
             override fun sizeOf(simulation: NESSimulation) = 0x10000
             override fun read(simulation: NESSimulation, address: UShort) = simulation.cpuRead(address, true)
             override fun write(simulation: NESSimulation, address: UShort, value: UByte) {}
         }
-        val PPU = object : NESMemoryView(true) {
-            override fun getName() = "PPU"
+        val PPU = object : NESMemoryView("PPU", true) {
             override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
             override fun sizeOf(simulation: NESSimulation) = 0x4000
             override fun read(simulation: NESSimulation, address: UShort) = simulation.ppu.ppuRead(address)
             override fun write(simulation: NESSimulation, address: UShort, value: UByte) {}
         }
-        val CARTRIDGE_PRG = object : NESMemoryView(false) {
-            override fun getName() = "CARTRIDGE_PRG"
+        val CARTRIDGE_PRG = object : NESMemoryView("CARTRIDGE_PRG", false) {
             override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
             override fun sizeOf(simulation: NESSimulation) = simulation.cartridge.prgMemory.size
             override fun read(simulation: NESSimulation, address: UShort) =
@@ -57,8 +60,7 @@ abstract class NESMemoryView(val readOnly: Boolean) : ManagerResource {
                 simulation.cartridge.prgMemory[address.toInt()] = value
             }
         }
-        val CARTRIDGE_CHR = object : NESMemoryView(false) {
-            override fun getName() = "CARTRIDGE_CHR"
+        val CARTRIDGE_CHR = object : NESMemoryView("CARTRIDGE_CHR", false) {
             override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
             override fun sizeOf(simulation: NESSimulation) = simulation.cartridge.chrMemory.size
             override fun read(simulation: NESSimulation, address: UShort) =

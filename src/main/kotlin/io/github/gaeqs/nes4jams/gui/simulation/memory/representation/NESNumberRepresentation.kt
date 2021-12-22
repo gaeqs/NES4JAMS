@@ -73,7 +73,7 @@ abstract class NESNumberRepresentation(
         var first: UByte = 0u
         var second: UByte = 0u
         pane.simulation.runSynchronized {
-            first = (pane.view.read(pane.simulation, address) + (Math.random() * 10).toUInt()).toUByte()
+            first = pane.view.read(pane.simulation, address)
             second = if (requiresNextWord && address.inc().toInt() < pane.view.sizeOf(pane.simulation)) {
                 pane.view.read(pane.simulation, address.inc())
             } else {

@@ -25,13 +25,12 @@
 package io.github.gaeqs.nes4jams.gui.simulation.memory
 
 import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.NESNumberRepresentation
-import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.NESNumberRepresentationManager
 import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryView
+import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryViewManager
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import io.github.gaeqs.nes4jams.util.managerOf
 import javafx.geometry.Pos
 import javafx.scene.control.Button
-import javafx.scene.control.ComboBox
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
 import net.jamsimulator.jams.event.Listener
@@ -44,19 +43,21 @@ import net.jamsimulator.jams.manager.event.ManagerElementUnregisterEvent
 
 class NESMemoryPane(val simulation: NESSimulation) : AnchorPane(), ActionRegion {
 
-    private val memorySelector = ComboBox<String>()
+    private val views = arrayListOf<NESMemoryView>()
+    private val viewSelector = LanguageComboBox<NESMemoryView> { it.languageNode }
+
     private val representations = arrayListOf<NESNumberRepresentation>()
     private val representationSelector = LanguageComboBox<NESNumberRepresentation> { it.languageNode }
 
     private val table: NESMemoryTable
 
     val representation get() = representationSelector.selectionModel.selectedItem!!
-    val view get() = NESMemoryView.CPU
+    val view get() = viewSelector.selectionModel.selectedItem!!
 
     private val headerHBox = HBox().apply {
         spacing = 5.0
-        children.addAll(memorySelector, representationSelector)
-        memorySelector.prefWidthProperty().bind(widthProperty().divide(2))
+        children.addAll(viewSelector, representationSelector)
+        viewSelector.prefWidthProperty().bind(widthProperty().divide(2))
         representationSelector.prefWidthProperty().bind(widthProperty().divide(2))
         AnchorUtils.setAnchor(this, 0.0, -1.0, 2.0, 2.0)
     }
@@ -78,16 +79,23 @@ class NESMemoryPane(val simulation: NESSimulation) : AnchorPane(), ActionRegion 
 
 
         managerOf<NESNumberRepresentation>().registerListeners(this, true)
+        managerOf<NESMemoryView>().registerListeners(this, true)
     }
 
     override fun supportsActionRegion(region: String?) = region == RegionTags.MIPS_SIMULATION
 
 
     private fun initRepresentationComboBox() {
-        representations += NESNumberRepresentationManager.INSTANCE
+        views += managerOf<NESMemoryView>()
+        views.sortBy { it.name }
+        viewSelector.items += views
+        viewSelector.selectionModel.select(NESMemoryView.CPU)
+        viewSelector.setOnAction { table.entries.values.forEach { it.refresh() } }
+
+        representations += managerOf<NESNumberRepresentation>()
         representations.sortBy { it.name }
         representationSelector.items += representations
-        representationSelector.selectionModel.select(representations.indexOf(NESNumberRepresentation.HEXADECIMAL))
+        representationSelector.selectionModel.select(NESNumberRepresentation.HEXADECIMAL)
         representationSelector.setOnAction { table.entries.values.forEach { it.refresh() } }
     }
 
@@ -122,7 +130,25 @@ class NESMemoryPane(val simulation: NESSimulation) : AnchorPane(), ActionRegion 
     private fun refreshRepresentationComboBox() {
         representations.sortBy { it.name }
         representationSelector.items.setAll(representations)
-        representationSelector.selectionModel.select(representations.indexOf(NESNumberRepresentation.HEXADECIMAL))
+        representationSelector.selectionModel.select(NESNumberRepresentation.HEXADECIMAL)
+    }
+
+    @Listener
+    private fun onViewRegister(event: ManagerElementRegisterEvent.After<NESMemoryView>) {
+        views += event.element
+        refreshViewComboBox()
+    }
+
+    @Listener
+    private fun onViewUnregister(event: ManagerElementUnregisterEvent.After<NESMemoryView>) {
+        views -= event.element
+        refreshViewComboBox()
+    }
+
+    private fun refreshViewComboBox() {
+        views.sortBy { it.name }
+        viewSelector.items.setAll(views)
+        viewSelector.selectionModel.select(NESMemoryView.CPU)
     }
 
     // endregion

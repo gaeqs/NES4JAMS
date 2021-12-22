@@ -24,7 +24,9 @@
 
 package io.github.gaeqs.nes4jams.gui.project
 
+import io.github.gaeqs.nes4jams.data.NES4JAMS_BAR_INFO
 import io.github.gaeqs.nes4jams.data.NES4JAMS_BAR_PPU
+import io.github.gaeqs.nes4jams.gui.simulation.NESSimulationInfo
 import io.github.gaeqs.nes4jams.gui.simulation.display.DisplayHolder
 import io.github.gaeqs.nes4jams.gui.simulation.display.NESSimulationDisplay
 import io.github.gaeqs.nes4jams.gui.simulation.memory.NESMemoryPane
@@ -54,19 +56,18 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
 
     private val executionButtons = ExecutionButtons(simulation)
 
-    val display: NESSimulationDisplay
+    val display = NESSimulationDisplay(this)
+    val info = NESSimulationInfo(simulation)
+    val memory = NESMemoryPane(simulation)
     val ppuDisplay: NESSimulationPPUDisplay
-    val memory: NESMemoryPane
 
     init {
-
-        display = NESSimulationDisplay(this)
         center = DisplayHolder(display)
-        memory = NESMemoryPane(simulation)
 
         init()
         loadConsole()
         loadMemory()
+        loadInfo()
 
         ppuDisplay = NESSimulationPPUDisplay(this)
         loadPatternTableDisplay()
@@ -90,6 +91,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
         simulation.destroy()
         display.dispose()
         ppuDisplay.stop()
+        info.dispose()
     }
 
     private fun loadConsole() {
@@ -131,6 +133,20 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
                 true,
                 Icons.SIMULATION_MEMORY,
                 Messages.BAR_MEMORY_NAME
+            )
+        )
+    }
+
+    private fun loadInfo() {
+        barMap.registerSnapshot(
+            BarSnapshot(
+                "info",
+                info,
+                BarPosition.LEFT_BOTTOM,
+                managerOfD<BarSnapshotViewMode>().default,
+                true,
+                Icons.FILE_TEXT,
+                NES4JAMS_BAR_INFO
             )
         )
     }
