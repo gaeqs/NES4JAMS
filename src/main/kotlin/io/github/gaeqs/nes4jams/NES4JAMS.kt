@@ -115,17 +115,15 @@ class NES4JAMS : Plugin() {
     }
 
     private fun loadThemes() {
-        val list = mutableListOf<InputStream>()
-        resource("/gui/themes/dark_theme.jtheme").ifPresent { list.add(it) }
-        resource("/gui/themes/light_theme.jtheme").ifPresent { list.add(it) }
-
-        val jarResource = javaClass.getResource("/gui/theme")
+        val manager = manager<ThemeManager>()
+        val jarResource = javaClass.getResource("/gui/themes")
         if (jarResource != null) {
-            manager<ThemeManager>().loadThemesInDirectory(JAMS, Path.of(jarResource.toURI()), true)
+            manager.loadThemesInDirectory(this, Path.of(jarResource.toURI()), true)
                 .forEach { (_: Path, e: ThemeLoadException) ->
                     e.printStackTrace()
                 }
         }
+        manager.refresh()
     }
 
 }

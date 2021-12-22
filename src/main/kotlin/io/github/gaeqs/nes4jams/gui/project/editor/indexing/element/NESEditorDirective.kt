@@ -54,7 +54,7 @@ class NESEditorDirective(
             elements += NESEditorDirectiveMnemonic(index, scope, this, start + firstKey, firstValue)
             stringParameters.remove(firstKey)
 
-            parts.forEach {
+            stringParameters.forEach {
                 elements += NESEditorExpression(index, scope, this, start + it.key, it.value)
             }
 

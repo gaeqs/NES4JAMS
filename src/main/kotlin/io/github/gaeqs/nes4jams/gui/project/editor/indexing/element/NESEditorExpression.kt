@@ -28,6 +28,7 @@ import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorExpressionPart
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorExpressionPartLabel
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorExpressionPartType
+import io.github.gaeqs.nes4jams.util.ParameterExpressionSolver
 import io.github.gaeqs.nes4jams.util.RangeCollection
 import io.github.gaeqs.nes4jams.util.extension.indexesOf
 import io.github.gaeqs.nes4jams.util.extension.parseParameterExpressionWithInvalids
@@ -71,7 +72,7 @@ class NESEditorExpression(
                     NESEditorExpressionPartType.ADDRESSING_MODE
                 )
             }
-            if (expressionEnd < start) {
+            if (expressionEnd < start + text.length) {
                 addExpressionAs(
                     text.substring(expressionEnd - start),
                     expressionEnd,
@@ -105,16 +106,40 @@ class NESEditorExpression(
         val inverse = ranges.invert(0, expression.length - 1)
 
         ranges.forEach {
+            println(expression.substring(it))
             elements += NESEditorExpressionPartLabel(
                 index, scope, this,
-                expressionStart + it.first, text.substring(it)
+                expressionStart + it.first, expression.substring(it)
             )
         }
 
         inverse.forEach {
+            val part = expression.substring(it)
+            rangeImmediate(part, expressionStart + it.first)
+        }
+    }
+
+    private fun rangeImmediate(part: String, partStart: Int) {
+        val ranges = RangeCollection()
+
+        ParameterExpressionSolver.MNEMONICS.forEach { mnemonic ->
+            ranges.addAll(part.indexesOf(Regex.escape(mnemonic))
+                .map { i -> IntRange(i, i + mnemonic.length - 1) })
+        }
+
+        val operatorInverse = ranges.invert(0, part.length - 1)
+
+        ranges.forEach {
+            elements += NESEditorExpressionPart(
+                index, scope, this, partStart + it.first, part.substring(it),
+                NESEditorExpressionPartType.OPERATOR
+            )
+        }
+
+        operatorInverse.forEach {
             elements += NESEditorExpressionPart(
                 index, scope, this,
-                expressionStart + it.first, text.substring(it),
+                partStart + it.first, part.substring(it),
                 NESEditorExpressionPartType.IMMEDIATE
             )
         }

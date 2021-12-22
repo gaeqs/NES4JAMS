@@ -30,12 +30,15 @@ import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedEleme
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
 import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
 import net.jamsimulator.jams.gui.editor.code.indexing.element.basic.EditorElementLabel
+import net.jamsimulator.jams.gui.editor.code.indexing.element.basic.EditorElementMacro
 import net.jamsimulator.jams.gui.editor.code.indexing.element.reference.EditorElementReference
 import net.jamsimulator.jams.gui.editor.code.indexing.element.reference.EditorReferencingElement
+import net.jamsimulator.jams.gui.mips.editor.indexing.element.MIPSEditorInstructionParameterPart
 
 enum class NESEditorExpressionPartType(val style: String) {
     LABEL("label"),
     IMMEDIATE("instruction-parameter-immediate"),
+    OPERATOR("nes4jams-operator"),
     ADDRESSING_MODE("instruction-parameter-register"),
     INVALID("error")
 }
@@ -66,5 +69,25 @@ class NESEditorExpressionPartLabel(
 
     private val references = setOf(EditorElementReference(EditorElementLabel::class.java, identifier))
     override fun getReferences() = references
+
+    override fun getStyles(): Set<String> {
+        if (isMacroParameter) {
+            return EditorElementMacro.PARAMETER_STYLE
+        }
+        if (index.isIdentifierGlobal(identifier)) {
+            return setOf(MIPSEditorInstructionParameterPart.Type.GLOBAL_LABEL_STYLE)
+        }
+        val global = index.globalIndex
+        if (global.isPresent) {
+            val reference = EditorElementReference(
+                EditorElementLabel::class.java, identifier
+            )
+            val value = global.get().searchReferencedElement(reference)
+            if (value.isPresent) {
+                return setOf(MIPSEditorInstructionParameterPart.Type.GLOBAL_LABEL_STYLE)
+            }
+        }
+        return super.getStyles()
+    }
 
 }

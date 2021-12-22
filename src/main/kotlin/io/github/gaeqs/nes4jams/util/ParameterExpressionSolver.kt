@@ -248,6 +248,8 @@ class ParameterExpressionSolver(val data: String, ignoreInvalidNumbers: Boolean 
                 BinaryOperation("%") { a, b -> Value(a.value % b.value, a.isWord || b.isWord) },
             )
         )
+
+        val MNEMONICS = UNARY_OPERATORS.map { it.mnemonic } + BINARY_OPERATORS.flatMap { it.map { s -> s.mnemonic } }
     }
 
 }
