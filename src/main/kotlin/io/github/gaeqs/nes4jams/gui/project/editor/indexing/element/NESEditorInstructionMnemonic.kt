@@ -38,6 +38,5 @@ class NESEditorInstructionMnemonic(
         val STYLES = setOf("instruction")
     }
 
-    override fun getIdentifier() = text.substring(1)
     override fun getStyles() = STYLES
 }

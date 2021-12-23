@@ -26,12 +26,14 @@ package io.github.gaeqs.nes4jams.gui.project.editor
 
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
 import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
+import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorExpressionPartLabel
 import io.github.gaeqs.nes4jams.gui.project.editor.indexing.element.NESEditorDirectiveMnemonic
 import io.github.gaeqs.nes4jams.gui.project.editor.indexing.element.NESEditorInstructionMnemonic
 import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.application.Platform
 import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.basic.EditorElementLabel
 import net.jamsimulator.jams.gui.editor.code.popup.AutocompletionPopup
 import net.jamsimulator.jams.gui.image.icon.Icons
 
@@ -40,6 +42,7 @@ class NESAutocompletionPopup(display: NESAssemblyFileEditor) : AutocompletionPop
     companion object {
         private val ICON_DIRECTIVE = Icons.AUTOCOMPLETION_DIRECTIVE
         private val ICON_INSTRUCTION = Icons.AUTOCOMPLETION_INSTRUCTION
+        private val ICON_LABEL = Icons.AUTOCOMPLETION_LABEL
     }
 
     override fun getDisplay() = super.getDisplay() as NESAssemblyFileEditor
@@ -108,6 +111,7 @@ class NESAutocompletionPopup(display: NESAssemblyFileEditor) : AutocompletionPop
             start = when (element) {
                 is NESEditorDirectiveMnemonic -> refreshDirectives(start)
                 is NESEditorInstructionMnemonic -> refreshInstructionsMacrosAndDirectives(start)
+                is NESEditorExpressionPartLabel -> refreshLabels(start)
                 else -> start
             }
 
@@ -136,7 +140,7 @@ class NESAutocompletionPopup(display: NESAssemblyFileEditor) : AutocompletionPop
     }
 
     private fun refreshDirectives(start: String): String {
-        val directive = start.substring(1).lowercase()
+        val directive = start.lowercase()
         addElements(
             NESDirective.DIRECTIVES.values.filter { it.mnemonic.lowercase().startsWith(directive) },
             { it.mnemonic },
@@ -144,6 +148,25 @@ class NESAutocompletionPopup(display: NESAssemblyFileEditor) : AutocompletionPop
             0, ICON_DIRECTIVE
         )
         return directive
+    }
+
+    private fun refreshLabels(start: String): String {
+        val label = start.lowercase()
+        var labels = index.getReferencedElementsOfType(EditorElementLabel::class.java, element!!.referencingScope)
+
+        index.globalIndex.ifPresent {
+            labels = labels + it.searchReferencedElementsOfType(EditorElementLabel::class.java)
+        }
+
+
+        addElements(
+            labels.stream().filter { it.identifier.lowercase().startsWith(label) },
+            { it.identifier },
+            { it.identifier },
+            0,
+            ICON_LABEL
+        )
+        return label
     }
 
     private fun refreshInstructionsMacrosAndDirectives(start: String): String {
