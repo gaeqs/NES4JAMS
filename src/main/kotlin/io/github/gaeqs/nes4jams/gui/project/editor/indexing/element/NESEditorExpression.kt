@@ -106,7 +106,6 @@ class NESEditorExpression(
         val inverse = ranges.invert(0, expression.length - 1)
 
         ranges.forEach {
-            println(expression.substring(it))
             elements += NESEditorExpressionPartLabel(
                 index, scope, this,
                 expressionStart + it.first, expression.substring(it)
