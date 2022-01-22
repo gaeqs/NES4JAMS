@@ -108,7 +108,7 @@ class NESConfigurationListControls(val list: NESConfigurationList) : HBox() {
 
     private fun createCopyButton(): Button {
         val button = Button(null, QualityImageView(Icons.CONTROL_COPY, ICON_SIZE, ICON_SIZE))
-        button.tooltip = LanguageTooltip(Messages.GENERAL_REMOVE)
+        button.tooltip = LanguageTooltip(Messages.GENERAL_COPY)
         button.styleClass += "bold-button"
         button.setOnAction {
             list.contents.selectedElements.forEach {
