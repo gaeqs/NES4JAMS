@@ -124,7 +124,7 @@ class NESConfigurationGeneral(val configuration: NESSimulationConfiguration) : V
         }
 
         fun refreshEnabled(representations: Collection<Representation>) {
-            isDisabled = representations.any { !preset.supportsNode(it.preset.name, it.editor.currentValue) }
+            node.isDisable = representations.any { !preset.supportsNode(it.preset.name, it.editor.currentValue) }
         }
     }
 
