@@ -38,7 +38,7 @@ import java.util.concurrent.locks.ReentrantLock
 import java.util.function.Consumer
 import kotlin.concurrent.withLock
 import kotlin.math.max
-import kotlin.system.measureTimeMillis
+import kotlin.system.measureNanoTime
 
 class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simulation<Short> {
 
@@ -49,6 +49,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     private var interrupted = false
     private var running = false
     private var cycleDelay = 0
+    private var executionTime = 0L
 
     var lastFrameDelayInNanos = 0L
         private set
@@ -230,11 +231,13 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     override fun getCycles() = clock
     override fun isRunning() = running
     override fun getConsole() = data.console
+    override fun getWorkingDirectory() = null
+    override fun getExecutedInstructions() = cycles
+    override fun getExecutionTime() = executionTime
 
     override fun forEachBreakpoint(p0: Consumer<Short>) {
         breakpoints.forEach(p0)
     }
-
 
     override fun hasBreakpoint(address: Short) = address in breakpoints
 
@@ -292,6 +295,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         waitForExecutionFinish()
 
         clock = 0L
+        executionTime = 0L
 
         // Reset controllers
         controllers.fill(0u)
@@ -334,13 +338,15 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
         thread = Thread {
             try {
-                apu.resume()
-                val before = callEvent(SimulationCycleEvent.Before(this, cycles))
-                if (before.isCancelled) return@Thread
-                clock()
-                callEvent(SimulationCycleEvent.After(this, cycles))
-                manageSimulationFinish()
-                apu.pause()
+                executionTime += measureNanoTime {
+                    apu.resume()
+                    val before = callEvent(SimulationCycleEvent.Before(this, cycles))
+                    if (before.isCancelled) return@Thread
+                    clock()
+                    callEvent(SimulationCycleEvent.After(this, cycles))
+                    manageSimulationFinish()
+                    apu.pause()
+                }
             } catch (ex: Exception) {
                 manageException(ex)
             }
@@ -357,12 +363,15 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             try {
                 apu.resume()
                 val clockStart = clock
-                val millis = measureTimeMillis {
+                val nanos = measureNanoTime {
                     lastTick = System.nanoTime()
                     if (data.callEvents) executeAllWithEvents()
                     else executeAllWithoutEvents()
                 }
                 apu.pause()
+
+                executionTime += nanos
+                val millis = nanos / 1_000_000
 
                 console?.apply {
                     println()
