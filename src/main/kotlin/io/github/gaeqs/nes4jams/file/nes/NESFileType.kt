@@ -24,13 +24,14 @@
 
 package io.github.gaeqs.nes4jams.file.nes
 
+import io.github.gaeqs.nes4jams.NES4JAMS
 import io.github.gaeqs.nes4jams.data.ICON_FILE_NES
 import io.github.gaeqs.nes4jams.gui.nes.NESFileEditor
 import net.jamsimulator.jams.file.FileType
 import net.jamsimulator.jams.gui.editor.FileEditor
-import net.jamsimulator.jams.gui.editor.FileEditorTab
+import net.jamsimulator.jams.gui.editor.holder.FileEditorTab
 
-class NESFileType private constructor() : FileType(NAME, ICON_FILE_NES, EXTENSION) {
+class NESFileType private constructor() : FileType(NES4JAMS.INSTANCE, NAME, ICON_FILE_NES, EXTENSION) {
 
     companion object {
         const val NAME = "NES"

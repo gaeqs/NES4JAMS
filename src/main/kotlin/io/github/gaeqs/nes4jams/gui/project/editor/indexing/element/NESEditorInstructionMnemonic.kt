@@ -22,25 +22,21 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.simulation.memory.view.event
+package io.github.gaeqs.nes4jams.gui.project.editor.indexing.element
 
-import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryView
-import net.jamsimulator.jams.event.Cancellable
-import net.jamsimulator.jams.event.Event
+import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexStyleableElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedElementImpl
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
 
-sealed class NESMemoryViewUnregisterEvent private constructor(val view: NESMemoryView) : Event() {
+class NESEditorInstructionMnemonic(
+    index: EditorIndex, scope: ElementScope, parent: EditorIndexedParentElement, start: Int, text: String
+) : EditorIndexedElementImpl(index, scope, parent, start, text), EditorIndexStyleableElement {
 
-    class Before(view: NESMemoryView) : NESMemoryViewUnregisterEvent(view), Cancellable {
-
-        private var cancelled = false
-
-        override fun isCancelled() = cancelled
-        override fun setCancelled(cancelled: Boolean) {
-            this.cancelled = cancelled
-        }
-
+    companion object {
+        val STYLES = setOf("instruction")
     }
 
-    class After(view: NESMemoryView) : NESMemoryViewUnregisterEvent(view)
-
+    override fun getStyles() = STYLES
 }

@@ -116,9 +116,7 @@ open class DisplayView(val width: Int, val height: Int) : Node() {
             if (disposed) return
             function(data)
         }
-        Platform.runLater {
-            NodeHelper.markDirty(this, DirtyBits.NODE_CONTENTS)
-        }
+        NodeHelper.markDirty(this, DirtyBits.NODE_CONTENTS)
     }
 
     /**

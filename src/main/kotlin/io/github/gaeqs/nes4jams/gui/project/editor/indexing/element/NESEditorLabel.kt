@@ -22,27 +22,21 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.simulation.memory.representation
+package io.github.gaeqs.nes4jams.gui.project.editor.indexing.element
 
-import io.github.gaeqs.nes4jams.NES4JAMS
-import net.jamsimulator.jams.manager.Manager
-import net.jamsimulator.jams.manager.ResourceProvider
+import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
+import net.jamsimulator.jams.gui.editor.code.indexing.element.basic.EditorElementLabelImpl
+import net.jamsimulator.jams.gui.editor.code.indexing.element.reference.EditorGlobalMarkerElement
 
-class NESNumberRepresentationManager(provider: ResourceProvider, loadOnFXThread: Boolean) :
-    Manager<NESNumberRepresentation>(provider, NAME, NESNumberRepresentation::class.java, loadOnFXThread) {
+class NESEditorLabel(
+    index: EditorIndex, scope: ElementScope, parent: EditorIndexedParentElement, start: Int, text: String
+) : EditorElementLabelImpl(index, scope, parent, start, text), EditorGlobalMarkerElement {
 
-    companion object {
-        val NAME = "nes_number_representation"
-        val INSTANCE = NESNumberRepresentationManager(NES4JAMS.INSTANCE, false)
-    }
+    private val global = if (identifier.startsWith("_")) emptySet() else setOf(identifier!!)
 
-    override fun loadDefaultElements() {
-        add(NESNumberRepresentation.DECIMAL)
-        add(NESNumberRepresentation.HEXADECIMAL)
-        add(NESNumberRepresentation.OCTAL)
-        add(NESNumberRepresentation.BINARY)
-        add(NESNumberRepresentation.SHORT)
-        add(NESNumberRepresentation.HEXADECIMAL_SHORT)
-        add(NESNumberRepresentation.NES_COLOR)
+    override fun getGlobalIdentifiers(): Set<String> {
+        return global
     }
 }

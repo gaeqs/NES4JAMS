@@ -27,7 +27,7 @@ package io.github.gaeqs.nes4jams.gui.pcx
 import io.github.gaeqs.nes4jams.file.pcx.PictureExchangeImage
 import javafx.scene.layout.AnchorPane
 import net.jamsimulator.jams.gui.editor.FileEditor
-import net.jamsimulator.jams.gui.editor.FileEditorTab
+import net.jamsimulator.jams.gui.editor.holder.FileEditorTab
 import net.jamsimulator.jams.gui.util.AnchorUtils
 import net.jamsimulator.jams.gui.util.PixelScrollPane
 
@@ -54,7 +54,7 @@ class PCXFileEditor(private val tab: FileEditorTab) : PixelScrollPane(), FileEdi
         return "EDITOR_TAB" == region || "EDITOR" == region
     }
 
-    override fun getTab() = tab
+    override fun getTab() : FileEditorTab = tab
     override fun onClose() {}
     override fun save() {
         val out = tab.file.outputStream()

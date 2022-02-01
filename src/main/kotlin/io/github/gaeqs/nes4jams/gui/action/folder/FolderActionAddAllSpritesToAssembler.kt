@@ -24,13 +24,15 @@
 
 package io.github.gaeqs.nes4jams.gui.action.folder
 
+import io.github.gaeqs.nes4jams.NES4JAMS
 import io.github.gaeqs.nes4jams.file.pcx.PCXFileType
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.util.extension.orNull
-import net.jamsimulator.jams.Jams
+import io.github.gaeqs.nes4jams.util.manager
+import net.jamsimulator.jams.file.FileTypeManager
 import net.jamsimulator.jams.gui.action.context.ContextAction
 import net.jamsimulator.jams.gui.action.defaults.explorerelement.folder.FolderActionRegions
-import net.jamsimulator.jams.gui.editor.CodeFileEditor
+import net.jamsimulator.jams.gui.editor.code.CodeFileEditor
 import net.jamsimulator.jams.gui.explorer.Explorer
 import net.jamsimulator.jams.gui.explorer.ExplorerElement
 import net.jamsimulator.jams.gui.explorer.folder.ExplorerFolder
@@ -38,9 +40,9 @@ import net.jamsimulator.jams.gui.main.MainMenuBar
 import net.jamsimulator.jams.gui.project.ProjectFolderExplorer
 import java.io.IOException
 import java.nio.file.Files
-import java.nio.file.Path
 
 class FolderActionAddAllSpritesToAssembler : ContextAction(
+    NES4JAMS.INSTANCE,
     NAME,
     REGION_TAG,
     LANGUAGE_NODE,
@@ -67,9 +69,9 @@ class FolderActionAddAllSpritesToAssembler : ContextAction(
         try {
             Files.walk(folder.toPath()).forEach { path ->
                 val file = path.toFile()
-                if (file.isFile && Jams.getFileTypeManager().getByFile(file).map { it.name }
+                if (file.isFile && manager<FileTypeManager>().getByFile(file).map { it.name }
                         .orNull() == PCXFileType.NAME) {
-                    project.data.spritesToAssemble.addFile(file, false)
+                    project.data.spritesToAssemble.addFile(file)
                 }
             }
         } catch (ex: IOException) {

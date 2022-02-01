@@ -25,9 +25,9 @@
 package io.github.gaeqs.nes4jams.cartridge.mapper
 
 import io.github.gaeqs.nes4jams.cartridge.Cartridge
-import net.jamsimulator.jams.manager.Labeled
+import net.jamsimulator.jams.manager.ManagerResource
 
-interface MapperBuilder<T : Mapper> : Labeled {
+interface MapperBuilder<T : Mapper> : ManagerResource {
 
     fun build(cartridge: Cartridge): T
 

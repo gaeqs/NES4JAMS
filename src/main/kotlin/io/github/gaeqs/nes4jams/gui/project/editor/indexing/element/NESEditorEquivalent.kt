@@ -22,27 +22,31 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.simulation.memory.representation
+package io.github.gaeqs.nes4jams.gui.project.editor.indexing.element
 
-import io.github.gaeqs.nes4jams.NES4JAMS
-import net.jamsimulator.jams.manager.Manager
-import net.jamsimulator.jams.manager.ResourceProvider
+import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElementImpl
+import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
 
-class NESNumberRepresentationManager(provider: ResourceProvider, loadOnFXThread: Boolean) :
-    Manager<NESNumberRepresentation>(provider, NAME, NESNumberRepresentation::class.java, loadOnFXThread) {
+class NESEditorEquivalent(
+    index: EditorIndex,
+    scope: ElementScope,
+    parent: EditorIndexedParentElement,
+    start: Int,
+    text: String
+) : EditorIndexedParentElementImpl(index, scope, parent, start, text) {
 
-    companion object {
-        val NAME = "nes_number_representation"
-        val INSTANCE = NESNumberRepresentationManager(NES4JAMS.INSTANCE, false)
+    override fun getIdentifier() = super.getIdentifier().substring(1)
+
+    init {
+        val eqIndex = text.indexOf('=')
+        if (eqIndex != -1) {
+            val mnemonic = text.substring(0, eqIndex)
+            val expression = text.substring(eqIndex + 1)
+            elements += NESEditorLabel(index, scope, this, start, mnemonic)
+            elements += NESEditorExpression(index, scope, this, start + eqIndex + 1, expression)
+        }
     }
 
-    override fun loadDefaultElements() {
-        add(NESNumberRepresentation.DECIMAL)
-        add(NESNumberRepresentation.HEXADECIMAL)
-        add(NESNumberRepresentation.OCTAL)
-        add(NESNumberRepresentation.BINARY)
-        add(NESNumberRepresentation.SHORT)
-        add(NESNumberRepresentation.HEXADECIMAL_SHORT)
-        add(NESNumberRepresentation.NES_COLOR)
-    }
 }

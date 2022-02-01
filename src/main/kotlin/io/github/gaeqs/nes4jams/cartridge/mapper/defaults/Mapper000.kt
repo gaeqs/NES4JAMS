@@ -24,12 +24,14 @@
 
 package io.github.gaeqs.nes4jams.cartridge.mapper.defaults
 
+import io.github.gaeqs.nes4jams.NES4JAMS
 import io.github.gaeqs.nes4jams.cartridge.Cartridge
 import io.github.gaeqs.nes4jams.cartridge.mapper.Mapper
 import io.github.gaeqs.nes4jams.cartridge.mapper.MapperBuilder
 import io.github.gaeqs.nes4jams.cartridge.mapper.MapperReadResult
 import io.github.gaeqs.nes4jams.cartridge.mapper.MapperWriteResult
 import io.github.gaeqs.nes4jams.ppu.Mirror
+import net.jamsimulator.jams.manager.ResourceProvider
 
 class Mapper000(override val cartridge: Cartridge) : Mapper {
 
@@ -78,5 +80,6 @@ class Mapper000(override val cartridge: Cartridge) : Mapper {
         }
         override fun build(cartridge: Cartridge) = Mapper000(cartridge)
         override fun getName() = "0"
+        override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
     }
 }

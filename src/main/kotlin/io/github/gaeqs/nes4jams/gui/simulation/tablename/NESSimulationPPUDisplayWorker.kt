@@ -116,7 +116,7 @@ class NESSimulationPPUDisplayWorker(val display: NESSimulationPPUDisplay) : Thre
         var i = 0x3F00
         display.palettes.forEach { palette ->
             palette.rectangles.forEach {
-                it.fill = PPUColors.COLORS[data[i++].toInt()]
+                it.fill = PPUColors.COLORS[data[i++].toInt() % PPUColors.COLORS.size]
             }
         }
     }

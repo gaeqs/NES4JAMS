@@ -24,27 +24,34 @@
 
 package io.github.gaeqs.nes4jams.project
 
+import io.github.gaeqs.nes4jams.gui.project.editor.indexing.NESEditorIndex
 import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfiguration
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationAddEvent
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationRemoveEvent
 import io.github.gaeqs.nes4jams.project.configuration.event.NESSimulationConfigurationSelectEvent
 import io.github.gaeqs.nes4jams.util.extension.orNull
 import net.jamsimulator.jams.configuration.Configuration
-import net.jamsimulator.jams.project.FilesToAssemble
-import net.jamsimulator.jams.project.FilesToAssemblerHolder
+import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
+import net.jamsimulator.jams.gui.editor.code.indexing.global.ProjectGlobalIndex
+import net.jamsimulator.jams.project.GlobalIndexHolder
 import net.jamsimulator.jams.project.ProjectData
+import net.jamsimulator.jams.project.mips.MIPSProjectData
+import java.io.File
 import java.util.*
 
 
 class NESProjectData(project: NESProject) :
-    ProjectData(NESProjectType.INSTANCE, project.folder), FilesToAssemblerHolder {
+    ProjectData(NESProjectType.INSTANCE, project.folder), GlobalIndexHolder {
 
     companion object {
         const val NODE_CONFIGURATIONS = "nes.configurations"
         const val NODE_SELECTED_CONFIGURATION = "nes.selected_configuration"
     }
 
-    val filesToAssemble = NESFilesToAssemble(project)
+    private val globalIndex = object : ProjectGlobalIndex(project) {
+        override fun generateIndexForFile(file: File): EditorIndex = NESEditorIndex(project, file.name)
+    }
+
     val spritesToAssemble = NESSpritesToAssemble(project)
     var selectedConfiguration: NESSimulationConfiguration? = null
         private set
@@ -88,12 +95,14 @@ class NESProjectData(project: NESProject) :
         return true
     }
 
-    override fun getFilesToAssemble(): FilesToAssemble = filesToAssemble
+    override fun getGlobalIndex(): ProjectGlobalIndex = globalIndex
 
     override fun load() {
         if (loaded) return
         super.load()
-        filesToAssemble.load(metadataFolder)
+
+        globalIndex.loadFiles(File(metadataFolder, MIPSProjectData.GLOBAL_INDEX_FILE_NAME))
+
         spritesToAssemble.load(metadataFolder)
 
         data.get<Configuration>(NODE_CONFIGURATIONS).ifPresent {
@@ -108,13 +117,13 @@ class NESProjectData(project: NESProject) :
         selectedConfiguration = configurations.find { it.name == selectedConfig }
 
         // Let's try to get a default configuration
-        if(selectedConfiguration == null) {
+        if (selectedConfiguration == null) {
             selectedConfiguration = configurations.find { true }
         }
     }
 
     override fun save() {
-        filesToAssemble.save(metadataFolder)
+        globalIndex.saveFiles(File(metadataFolder, MIPSProjectData.GLOBAL_INDEX_FILE_NAME))
         spritesToAssemble.save(metadataFolder)
         _configurations.forEach { it.save(data, NODE_CONFIGURATIONS) }
         data.set(NODE_SELECTED_CONFIGURATION, selectedConfiguration?.name)

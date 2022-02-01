@@ -22,27 +22,42 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.simulation.memory.representation
+package io.github.gaeqs.nes4jams.gui.simulation
 
-import io.github.gaeqs.nes4jams.NES4JAMS
-import net.jamsimulator.jams.manager.Manager
-import net.jamsimulator.jams.manager.ResourceProvider
+import io.github.gaeqs.nes4jams.simulation.NESSimulation
+import io.github.gaeqs.nes4jams.simulation.event.NESSimulationRenderEvent
+import javafx.animation.KeyFrame
+import javafx.animation.Timeline
+import javafx.scene.control.Label
+import javafx.scene.layout.HBox
+import javafx.util.Duration
+import net.jamsimulator.jams.event.Listener
 
-class NESNumberRepresentationManager(provider: ResourceProvider, loadOnFXThread: Boolean) :
-    Manager<NESNumberRepresentation>(provider, NAME, NESNumberRepresentation::class.java, loadOnFXThread) {
+class NESSimulationInfo(private val simulation: NESSimulation) : HBox() {
 
-    companion object {
-        val NAME = "nes_number_representation"
-        val INSTANCE = NESNumberRepresentationManager(NES4JAMS.INSTANCE, false)
+    private val label = Label("FPS: ")
+    private val timeline = Timeline(KeyFrame(Duration.seconds(0.5), {
+        updateFPS()
+    }))
+
+
+    init {
+        children += label
+        simulation.registerListeners(this, true)
+
+        timeline.cycleCount = Timeline.INDEFINITE
+        timeline.play()
     }
 
-    override fun loadDefaultElements() {
-        add(NESNumberRepresentation.DECIMAL)
-        add(NESNumberRepresentation.HEXADECIMAL)
-        add(NESNumberRepresentation.OCTAL)
-        add(NESNumberRepresentation.BINARY)
-        add(NESNumberRepresentation.SHORT)
-        add(NESNumberRepresentation.HEXADECIMAL_SHORT)
-        add(NESNumberRepresentation.NES_COLOR)
+    fun dispose () {
+        timeline.stop()
     }
+
+    private fun updateFPS() {
+        val delay = simulation.lastFrameDelayInNanos
+        val delayInSeconds = delay / 1_000_000_000.0
+        val fps = 1 / delayInSeconds
+        label.text = "FPS: %.2f".format(fps)
+    }
+
 }

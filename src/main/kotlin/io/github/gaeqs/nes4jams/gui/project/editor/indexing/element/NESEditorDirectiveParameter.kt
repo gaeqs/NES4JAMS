@@ -22,26 +22,28 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.simulation.memory.representation.event
+package io.github.gaeqs.nes4jams.gui.project.editor.indexing.element
 
-import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.NESNumberRepresentation
-import net.jamsimulator.jams.event.Cancellable
-import net.jamsimulator.jams.event.Event
+import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexStyleableElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedElementImpl
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
+import net.jamsimulator.jams.mips.directive.parameter.DirectiveParameterType
 
-sealed class NESNumberRepresentationUnregisterEvent private constructor(val representation: NESNumberRepresentation) :
-    Event() {
+class NESEditorDirectiveParameter(
+    index: EditorIndex,
+    scope: ElementScope,
+    parent: EditorIndexedParentElement,
+    start: Int,
+    text: String
+) : EditorIndexedElementImpl(index, scope, parent, start, text), EditorIndexStyleableElement {
 
-    class Before(view: NESNumberRepresentation) : NESNumberRepresentationUnregisterEvent(view), Cancellable {
-
-        private var cancelled = false
-
-        override fun isCancelled() = cancelled
-        override fun setCancelled(cancelled: Boolean) {
-            this.cancelled = cancelled
-        }
-
+    companion object {
+        val STYLES = setOf("directive-parameter")
+        val STRING_STYLE = setOf("directive-parameter-string")
     }
 
-    class After(view: NESNumberRepresentation) : NESNumberRepresentationUnregisterEvent(view)
-
+    private val isString = text.startsWith("\"") && text.endsWith("\"")
+    override fun getStyles() = if(isString) STRING_STYLE else STYLES
 }

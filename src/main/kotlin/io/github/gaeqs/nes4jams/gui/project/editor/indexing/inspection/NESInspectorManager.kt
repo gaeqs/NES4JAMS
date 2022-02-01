@@ -22,25 +22,24 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.cartridge.mapper.event
+package io.github.gaeqs.nes4jams.gui.project.editor.indexing.inspection
 
-import io.github.gaeqs.nes4jams.cartridge.mapper.MapperBuilder
-import net.jamsimulator.jams.event.Cancellable
-import net.jamsimulator.jams.event.Event
+import io.github.gaeqs.nes4jams.NES4JAMS
+import net.jamsimulator.jams.gui.editor.code.indexing.inspection.Inspector
+import net.jamsimulator.jams.manager.Manager
+import net.jamsimulator.jams.manager.ResourceProvider
 
-sealed class MapperBuilderUnregisterEvent private constructor(val builder: MapperBuilder<*>) : Event() {
+class NESInspectorManager(
+    provider: ResourceProvider,
+    loadOnFXThread: Boolean
+) : Manager<Inspector<*>>(provider, NAME, Inspector::class.java, loadOnFXThread) {
 
-    class Before(builder: MapperBuilder<*>) : MapperBuilderUnregisterEvent(builder), Cancellable {
-
-        private var cancelled = false
-
-        override fun isCancelled() = cancelled
-        override fun setCancelled(cancelled: Boolean) {
-            this.cancelled = cancelled
-        }
-
+    companion object {
+        val NAME = "nes_inspector"
+        val INSTANCE = NESInspectorManager(NES4JAMS.INSTANCE, true)
     }
 
-    class After(builder: MapperBuilder<*>) : MapperBuilderUnregisterEvent(builder)
+    override fun loadDefaultElements() {
+    }
 
 }

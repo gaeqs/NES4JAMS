@@ -24,13 +24,14 @@
 
 package io.github.gaeqs.nes4jams.file.pcx
 
+import io.github.gaeqs.nes4jams.NES4JAMS
 import io.github.gaeqs.nes4jams.gui.pcx.PCXFileEditor
 import net.jamsimulator.jams.file.FileType
 import net.jamsimulator.jams.gui.editor.FileEditor
-import net.jamsimulator.jams.gui.editor.FileEditorTab
+import net.jamsimulator.jams.gui.editor.holder.FileEditorTab
 import net.jamsimulator.jams.gui.image.icon.Icons
 
-class PCXFileType private constructor() : FileType(NAME, Icons.FILE_IMAGE, EXTENSION) {
+class PCXFileType private constructor() : FileType(NES4JAMS.INSTANCE, NAME, Icons.FILE_IMAGE, EXTENSION) {
 
     companion object {
         const val NAME = "Picture Exchange"

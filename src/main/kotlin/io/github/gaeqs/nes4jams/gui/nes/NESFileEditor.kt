@@ -25,8 +25,8 @@
 package io.github.gaeqs.nes4jams.gui.nes
 
 import io.github.gaeqs.nes4jams.cartridge.CartridgeHeader
+import io.github.gaeqs.nes4jams.data.NES4JAMS_TASK_LOADING_CARTRIDGE
 import io.github.gaeqs.nes4jams.project.NESProject
-import io.github.gaeqs.nes4jams.simulation.NESSimulationData
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
@@ -34,8 +34,9 @@ import javafx.scene.control.Label
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.VBox
 import net.jamsimulator.jams.gui.editor.FileEditor
-import net.jamsimulator.jams.gui.editor.FileEditorTab
+import net.jamsimulator.jams.gui.editor.holder.FileEditorTab
 import net.jamsimulator.jams.gui.util.AnchorUtils
+import net.jamsimulator.jams.task.LanguageTask
 
 class NESFileEditor(private val tab: FileEditorTab) : VBox(), FileEditor {
 
@@ -61,8 +62,11 @@ class NESFileEditor(private val tab: FileEditorTab) : VBox(), FileEditor {
         children += Button("Run simulation").apply {
             setOnAction {
                 val project = tab.workingPane.projectTab.project
-                if(project is NESProject) {
-                    project.openSimulationForNESFile(tab.file)
+                if (project is NESProject) {
+                    project.taskExecutor.execute(LanguageTask.of(NES4JAMS_TASK_LOADING_CARTRIDGE) {
+                        project.openSimulationForNESFile(tab.file)
+
+                    })
                 }
             }
         }

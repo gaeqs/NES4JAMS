@@ -24,20 +24,23 @@
 
 package io.github.gaeqs.nes4jams.gui.project
 
+import io.github.gaeqs.nes4jams.data.NES4JAMS_BAR_INFO
 import io.github.gaeqs.nes4jams.data.NES4JAMS_BAR_PPU
+import io.github.gaeqs.nes4jams.gui.simulation.NESSimulationInfo
 import io.github.gaeqs.nes4jams.gui.simulation.display.DisplayHolder
 import io.github.gaeqs.nes4jams.gui.simulation.display.NESSimulationDisplay
 import io.github.gaeqs.nes4jams.gui.simulation.memory.NESMemoryPane
 import io.github.gaeqs.nes4jams.gui.simulation.tablename.NESSimulationPPUDisplay
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
+import io.github.gaeqs.nes4jams.util.managerOfD
 import javafx.scene.control.Tab
 import javafx.scene.layout.HBox
 import net.jamsimulator.jams.gui.ActionRegion
 import net.jamsimulator.jams.gui.action.RegionTags
 import net.jamsimulator.jams.gui.bar.BarPosition
 import net.jamsimulator.jams.gui.bar.BarSnapshot
-import net.jamsimulator.jams.gui.bar.mode.BarSnapshotViewModePane
+import net.jamsimulator.jams.gui.bar.mode.BarSnapshotViewMode
 import net.jamsimulator.jams.gui.image.icon.Icons
 import net.jamsimulator.jams.gui.mips.simulator.execution.ExecutionButtons
 import net.jamsimulator.jams.gui.mips.simulator.execution.SpeedSlider
@@ -46,26 +49,25 @@ import net.jamsimulator.jams.gui.project.SimulationHolder
 import net.jamsimulator.jams.gui.project.WorkingPane
 import net.jamsimulator.jams.language.Messages
 import net.jamsimulator.jams.mips.simulation.Simulation
-import tornadofx.clear
+import tornadofx.*
 
 class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESProject, val simulation: NESSimulation) :
     WorkingPane(parent, projectTab, null, false), SimulationHolder<Short>, ActionRegion {
 
     private val executionButtons = ExecutionButtons(simulation)
 
-    val display: NESSimulationDisplay
+    val display = NESSimulationDisplay(this)
+    val info = NESSimulationInfo(simulation)
+    val memory = NESMemoryPane(simulation)
     val ppuDisplay: NESSimulationPPUDisplay
-    val memory: NESMemoryPane
 
     init {
-
-        display = NESSimulationDisplay(this)
         center = DisplayHolder(display)
-        memory = NESMemoryPane(simulation)
 
         init()
         loadConsole()
         loadMemory()
+        loadInfo()
 
         ppuDisplay = NESSimulationPPUDisplay(this)
         loadPatternTableDisplay()
@@ -89,6 +91,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
         simulation.destroy()
         display.dispose()
         ppuDisplay.stop()
+        info.dispose()
     }
 
     private fun loadConsole() {
@@ -98,7 +101,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
                 "console",
                 console,
                 BarPosition.BOTTOM_LEFT,
-                BarSnapshotViewModePane.INSTANCE,
+                managerOfD<BarSnapshotViewMode>().default,
                 true,
                 Icons.SIMULATION_CONSOLE,
                 Messages.BAR_CONSOLE_NAME,
@@ -112,7 +115,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
                 "ppu_display",
                 ppuDisplay,
                 BarPosition.RIGHT_TOP,
-                BarSnapshotViewModePane.INSTANCE,
+                managerOfD<BarSnapshotViewMode>().default,
                 true,
                 Icons.FILE_IMAGE,
                 NES4JAMS_BAR_PPU
@@ -126,10 +129,24 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
                 "memory",
                 memory,
                 BarPosition.LEFT_TOP,
-                BarSnapshotViewModePane.INSTANCE,
+                managerOfD<BarSnapshotViewMode>().default,
                 true,
                 Icons.SIMULATION_MEMORY,
                 Messages.BAR_MEMORY_NAME
+            )
+        )
+    }
+
+    private fun loadInfo() {
+        barMap.registerSnapshot(
+            BarSnapshot(
+                "info",
+                info,
+                BarPosition.LEFT_BOTTOM,
+                managerOfD<BarSnapshotViewMode>().default,
+                true,
+                Icons.FILE_TEXT,
+                NES4JAMS_BAR_INFO
             )
         )
     }

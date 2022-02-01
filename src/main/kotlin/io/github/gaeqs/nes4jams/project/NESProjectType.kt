@@ -24,11 +24,12 @@
 
 package io.github.gaeqs.nes4jams.project
 
+import io.github.gaeqs.nes4jams.NES4JAMS
 import io.github.gaeqs.nes4jams.data.ICON_PLUGIN
 import net.jamsimulator.jams.project.ProjectType
 import java.io.File
 
-class NESProjectType private constructor() : ProjectType<NESProject>(NAME, ICON) {
+class NESProjectType private constructor() : ProjectType<NESProject>(NES4JAMS.INSTANCE, NAME, ICON) {
 
     companion object {
         const val NAME = "NES"

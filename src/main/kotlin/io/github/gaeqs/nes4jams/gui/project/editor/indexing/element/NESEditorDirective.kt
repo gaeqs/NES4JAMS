@@ -22,55 +22,45 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.project.editor.element
+package io.github.gaeqs.nes4jams.gui.project.editor.indexing.element
 
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
+import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElementImpl
+import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
 import net.jamsimulator.jams.utils.StringUtils
 
-class NESEditorDirective(line: NESLine, text: String, startIndex: Int, endIndex: Int) :
-    NESCodeElement(line, text, startIndex, endIndex) {
-
-    override val translatedNameNode: String = "MIPS_ELEMENT_DIRECTIVE"
-    override val simpleText: String
-    override val styles: List<String> get() = getGeneralStyles("mips-directive")
+class NESEditorDirective(
+    index: EditorIndex,
+    scope: ElementScope,
+    parent: EditorIndexedParentElement,
+    start: Int,
+    text: String
+) : EditorIndexedParentElementImpl(index, scope, parent, start, text) {
 
     val directive: NESDirective?
-    val parameters = mutableListOf<NESEditorExpression>()
+
+    override fun getIdentifier() = super.getIdentifier().substring(1)
 
     init {
-
         val parts = StringUtils.multiSplitIgnoreInsideStringWithIndex(text, false, " ", ",", "\t")
-            .toSortedMap()
+        if (parts.isNotEmpty()) {
+            val stringParameters = parts.toSortedMap()
+            val firstKey = stringParameters.firstKey()
+            val firstValue = stringParameters[firstKey]!!
+            directive = NESDirective.DIRECTIVES[firstValue.substring(1)]
 
-        if (parts.isEmpty()) {
-            simpleText = ""
-            directive = null
-        }
-        else {
-            //The first entry is the directive itself.
-            val firstKey = parts.firstKey()
-            simpleText = parts[firstKey]!!
-            parts.remove(firstKey)
+            elements += NESEditorDirectiveMnemonic(index, scope, this, start + firstKey, firstValue)
+            stringParameters.remove(firstKey)
 
-            parts.forEach {
-                parameters.add(
-                    NESEditorExpression(
-                        line,
-                        it.value,
-                        startIndex + it.key,
-                        startIndex + it.key + it.value.length
-                    )
-                )
+            stringParameters.forEach {
+                elements += NESEditorExpression(index, scope, this, start + it.key, it.value)
             }
 
-            this.startIndex += firstKey
-            this.endIndex = startIndex + simpleText.length + 1
-            directive = NESDirective.DIRECTIVES[simpleText.substring(1)]
+        } else {
+            directive = null
         }
     }
 
-    override fun move(offset: Int) {
-        super.move(offset)
-        parameters.forEach { it.move(offset) }
-    }
 }

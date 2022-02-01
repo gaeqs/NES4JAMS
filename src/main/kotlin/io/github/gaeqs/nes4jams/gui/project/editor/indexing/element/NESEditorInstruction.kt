@@ -22,41 +22,36 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.project.editor
+package io.github.gaeqs.nes4jams.gui.project.editor.indexing.element
 
-import io.github.gaeqs.nes4jams.gui.project.editor.indexing.NESEditorIndex
-import io.github.gaeqs.nes4jams.project.NESProject
-import javafx.stage.Popup
-import net.jamsimulator.jams.gui.editor.code.CodeFileEditor
 import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
-import net.jamsimulator.jams.gui.editor.holder.FileEditorTab
-import net.jamsimulator.jams.language.Messages
-import net.jamsimulator.jams.task.LanguageTask
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
+import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElementImpl
+import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
 
-class NESAssemblyFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
+class NESEditorInstruction(
+    index: EditorIndex,
+    scope: ElementScope,
+    parent: EditorIndexedParentElement,
+    start: Int,
+    text: String
+) : EditorIndexedParentElementImpl(index, scope, parent, start, text) {
 
-    private val popup = Popup()
+
+    override fun getIdentifier() = super.getIdentifier().substring(1)
 
     init {
-        autocompletionPopup = NESAutocompletionPopup(this)
-    }
-
-    fun getNESProject(): NESProject? {
-        val pr = project
-        return if (pr is NESProject) pr else null
-    }
-
-    override fun getIndex() = super.getIndex() as NESEditorIndex
-
-    override fun generateIndex(): EditorIndex {
-        val index = NESEditorIndex(project, tab.file.name)
-        val taskExecutor = tab.workingPane.projectTab.project.taskExecutor
-        taskExecutor.execute(object : LanguageTask<Unit>(Messages.EDITOR_INDEXING) {
-            override fun call() {
-                index.withLock(true) { i: EditorIndex -> i.indexAll(text) }
+        if (text.isNotEmpty()) {
+            val expIndex = text.indexOfAny(charArrayOf(' ', '\t'))
+            if (expIndex == -1) {
+                elements += NESEditorInstructionMnemonic(index, scope, this, start, text)
+            } else {
+                val mnemonic = text.substring(0, expIndex)
+                val expression = text.substring(expIndex + 1)
+                elements += NESEditorInstructionMnemonic(index, scope, this, start, mnemonic)
+                elements += NESEditorExpression(index, scope, this, start + expIndex + 1, expression)
             }
-        })
-        return index
+        }
     }
 
 }

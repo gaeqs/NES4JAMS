@@ -24,20 +24,19 @@
 
 package io.github.gaeqs.nes4jams.cartridge.mapper
 
+import io.github.gaeqs.nes4jams.NES4JAMS
 import io.github.gaeqs.nes4jams.cartridge.mapper.defaults.*
-import io.github.gaeqs.nes4jams.cartridge.mapper.event.MapperBuilderRegisterEvent
-import io.github.gaeqs.nes4jams.cartridge.mapper.event.MapperBuilderUnregisterEvent
 import net.jamsimulator.jams.manager.Manager
+import net.jamsimulator.jams.manager.ResourceProvider
 
-class MapperBuilderManager private constructor() : Manager<MapperBuilder<*>>(
-    { MapperBuilderRegisterEvent.Before(it) },
-    { MapperBuilderRegisterEvent.After(it) },
-    { MapperBuilderUnregisterEvent.Before(it) },
-    { MapperBuilderUnregisterEvent.After(it) }) {
+class MapperBuilderManager private constructor(provider: ResourceProvider, loadOnFxThread: Boolean) :
+    Manager<MapperBuilder<*>>(provider, NAME, MapperBuilder::class.java, loadOnFxThread) {
 
     companion object {
-        val INSTANCE = MapperBuilderManager()
+        val NAME = "mapper_builder"
+        val INSTANCE = MapperBuilderManager(NES4JAMS.INSTANCE, true)
     }
+
 
     override fun loadDefaultElements() {
         add(Mapper000.Builder.INSTANCE)

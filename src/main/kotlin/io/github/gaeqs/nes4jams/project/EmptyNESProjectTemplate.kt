@@ -29,7 +29,7 @@ import io.github.gaeqs.nes4jams.data.NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY
 import javafx.beans.property.BooleanProperty
 import javafx.scene.Node
 import net.jamsimulator.jams.configuration.RootConfiguration
-import net.jamsimulator.jams.gui.configuration.ConfigurationRegionDisplay
+import net.jamsimulator.jams.gui.configuration.RegionDisplay
 import net.jamsimulator.jams.gui.util.PathAndNameEditor
 import net.jamsimulator.jams.project.ProjectData
 import net.jamsimulator.jams.project.ProjectTemplate
@@ -43,7 +43,7 @@ class EmptyNESProjectTemplate : ProjectTemplate<NESProject>(NESProjectType.INSTA
     private val editor = PathAndNameEditor()
 
     init {
-        editor.children.add(0, ConfigurationRegionDisplay(EmptyNESProjectTemplateBuilder.LANGUAGE_NODE))
+        editor.children.add(0, RegionDisplay(EmptyNESProjectTemplateBuilder.LANGUAGE_NODE))
     }
 
     override fun getBuilderNode(): Node = editor

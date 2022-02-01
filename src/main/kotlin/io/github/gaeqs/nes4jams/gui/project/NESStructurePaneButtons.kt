@@ -41,7 +41,6 @@ import net.jamsimulator.jams.gui.action.defaults.general.GeneralActionAssemble
 import net.jamsimulator.jams.gui.bar.BarButton
 import net.jamsimulator.jams.gui.image.icon.Icons
 import net.jamsimulator.jams.gui.image.quality.QualityImageView
-import net.jamsimulator.jams.gui.util.FixedButton
 import net.jamsimulator.jams.gui.util.log.Log
 
 class NESStructurePaneButtons(val project: NESProject) {
@@ -78,39 +77,21 @@ class NESStructurePaneButtons(val project: NESProject) {
     }
 
     private fun createRunButton(): Button {
-        val assemble =
-            FixedButton(
-                "",
-                QualityImageView(Icons.SIMULATION_PLAY, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE),
-                BUTTON_SIZE,
-                BUTTON_SIZE
-            )
-        assemble.styleClass += BUTTON_STYLE_CLASS
-        assemble.setOnAction { GeneralActionAssemble.compileAndShow(project) }
-        return assemble
+        val play = Button("", QualityImageView(Icons.SIMULATION_PLAY, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE))
+        play.styleClass += BUTTON_STYLE_CLASS
+        play.setOnAction { GeneralActionAssemble.compileAndShow(project) }
+        return play
     }
 
     private fun createAssembleButton(): Button {
-        val assemble =
-            FixedButton(
-                "",
-                QualityImageView(Icons.PROJECT_ASSEMBLE, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE),
-                BUTTON_SIZE,
-                BUTTON_SIZE
-            )
+        val assemble = Button("", QualityImageView(Icons.PROJECT_ASSEMBLE, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE))
         assemble.styleClass += BUTTON_STYLE_CLASS
         assemble.setOnAction { assembleOnly() }
         return assemble
     }
 
     private fun createSettingsButton(): Button {
-        val settings =
-            FixedButton(
-                "",
-                QualityImageView(Icons.PROJECT_SETTINGS, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE),
-                BUTTON_SIZE,
-                BUTTON_SIZE
-            )
+        val settings = Button("", QualityImageView(Icons.PROJECT_SETTINGS, BUTTON_ICON_SIZE, BUTTON_ICON_SIZE))
         settings.styleClass += BUTTON_STYLE_CLASS
         settings.setOnAction { NESConfigurationWindow.open(project.data) }
         return settings
