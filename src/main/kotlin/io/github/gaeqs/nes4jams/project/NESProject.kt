@@ -208,12 +208,7 @@ class NESProject(folder: File) : BasicProject(folder, true) {
     fun openSimulationForNESFile(file: File) {
         val cartridge = Cartridge(file)
 
-        val configuration = getData().selectedConfiguration
-        val data = if (configuration != null) {
-            NESSimulationData(cartridge, Console(), emptyMap(), emptySet(), configuration)
-        } else {
-            NESSimulationData(cartridge, Console(), emptyMap(), emptySet(), callEvents = true, undoEnabled = true)
-        }
+        val data = NESSimulationData(cartridge, Console(), emptyMap(), emptySet())
 
         val simulation = NESSimulation(data)
         Platform.runLater {
@@ -226,12 +221,9 @@ class NESProject(folder: File) : BasicProject(folder, true) {
     }
 
     override fun generateSimulation(log: Log?) {
-        val (configuration, assembler, file) = assembleToFile(log)
+        val (_, assembler, file) = assembleToFile(log)
         val cartridge = Cartridge(file)
-        val data = NESSimulationData(
-            cartridge, Console(), emptyMap(),
-            assembler.globalLabels.values.toSet(), configuration
-        )
+        val data = NESSimulationData(cartridge, Console(), emptyMap(), assembler.globalLabels.values.toSet())
 
         val simulation = NESSimulation(data)
         Platform.runLater {

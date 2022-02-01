@@ -26,34 +26,11 @@ package io.github.gaeqs.nes4jams.simulation
 
 import io.github.gaeqs.nes4jams.cartridge.Cartridge
 import io.github.gaeqs.nes4jams.cpu.label.NESLabel
-import io.github.gaeqs.nes4jams.project.configuration.NESSimulationConfiguration
 import net.jamsimulator.jams.gui.util.log.Console
-import net.jamsimulator.jams.project.mips.configuration.MIPSSimulationConfigurationPresets
 
 class NESSimulationData(
     val cartridge: Cartridge,
     val console: Console?,
     val originalInstructions: Map<Int, String>,
-    val labels: Set<NESLabel>,
-    val callEvents: Boolean,
-    undoEnabled: Boolean
-) {
-
-    val undoEnabled = callEvents && undoEnabled
-
-    constructor(
-        cartridge: Cartridge,
-        console: Console?,
-        originalInstructions: Map<Int, String>,
-        labels: Set<NESLabel>,
-        configuration: NESSimulationConfiguration
-    ) : this(
-        cartridge,
-        console,
-        originalInstructions,
-        labels,
-        configuration.getNodeValue<Boolean>(MIPSSimulationConfigurationPresets.CALL_EVENTS) ?: false,
-        configuration.getNodeValue<Boolean>(MIPSSimulationConfigurationPresets.UNDO_ENABLED) ?: false
-    )
-
-}
+    val labels: Set<NESLabel>
+)

@@ -340,10 +340,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             try {
                 executionTime += measureNanoTime {
                     apu.resume()
-                    val before = callEvent(SimulationCycleEvent.Before(this, cycles))
-                    if (before.isCancelled) return@Thread
                     clock()
-                    callEvent(SimulationCycleEvent.After(this, cycles))
                     manageSimulationFinish()
                     apu.pause()
                 }
@@ -365,8 +362,13 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
                 val clockStart = clock
                 val nanos = measureNanoTime {
                     lastTick = System.nanoTime()
-                    if (data.callEvents) executeAllWithEvents()
-                    else executeAllWithoutEvents()
+                    clock()
+                    while (!checkThreadInterrupted()) {
+                        velocitySleep()
+                        if (!checkThreadInterrupted()) {
+                            clock()
+                        }
+                    }
                 }
                 apu.pause()
 
@@ -389,34 +391,6 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         thread?.start()
     }
 
-    private fun executeAllWithEvents() {
-        val before = callEvent(SimulationCycleEvent.Before(this, cycles))
-        if (!before.isCancelled) {
-            clock()
-            callEvent(SimulationCycleEvent.After(this, cycles))
-        }
-        while (!checkThreadInterrupted()) {
-            velocitySleep()
-            if (!checkThreadInterrupted()) {
-                val before = callEvent(SimulationCycleEvent.Before(this, cycles))
-                if (!before.isCancelled) {
-                    clock()
-                    callEvent(SimulationCycleEvent.After(this, cycles))
-                }
-            }
-        }
-    }
-
-    private fun executeAllWithoutEvents() {
-        clock()
-        while (!checkThreadInterrupted()) {
-            velocitySleep()
-            if (!checkThreadInterrupted()) {
-                clock()
-            }
-        }
-    }
-
     private fun manageSimulationFinish() {
         finishedRunningLock.withLock {
             running = false
@@ -426,11 +400,8 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         }
     }
 
-    override fun isUndoEnabled() = data.undoEnabled
-
-    override fun undoLastStep(): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun isUndoEnabled() = false
+    override fun undoLastStep() = false
 
     @Synchronized
     override fun runSynchronized(runnable: Runnable) = runnable.run()
