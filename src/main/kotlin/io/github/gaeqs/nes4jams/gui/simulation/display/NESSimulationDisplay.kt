@@ -64,6 +64,12 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
             KeyCode.DOWN -> controller = controller.copy(down = pressed)
             KeyCode.LEFT -> controller = controller.copy(left = pressed)
             KeyCode.RIGHT -> controller = controller.copy(right = pressed)
+            KeyCode.SHIFT -> {
+                pane.simulation.runSynchronized {
+                    pane.simulation.maxFPS = pressed
+                }
+                return
+            }
             else -> {
             }
         }

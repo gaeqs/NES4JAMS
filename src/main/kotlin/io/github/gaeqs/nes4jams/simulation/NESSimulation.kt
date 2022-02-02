@@ -33,7 +33,10 @@ import io.github.gaeqs.nes4jams.simulation.event.NESSimulationRenderEvent
 import io.github.gaeqs.nes4jams.util.extension.*
 import net.jamsimulator.jams.event.SimpleEventBroadcast
 import net.jamsimulator.jams.mips.simulation.Simulation
-import net.jamsimulator.jams.mips.simulation.event.*
+import net.jamsimulator.jams.mips.simulation.event.SimulationAddBreakpointEvent
+import net.jamsimulator.jams.mips.simulation.event.SimulationRemoveBreakpointEvent
+import net.jamsimulator.jams.mips.simulation.event.SimulationStartEvent
+import net.jamsimulator.jams.mips.simulation.event.SimulationStopEvent
 import java.util.concurrent.locks.ReentrantLock
 import java.util.function.Consumer
 import kotlin.concurrent.withLock
@@ -57,6 +60,8 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     @Volatile
     var frame = 0L
         private set
+
+    var maxFPS = false
 
     // region NES
 
@@ -167,7 +172,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
                 // Active wait. Thread.sleep() has too much delay.
                 val nextTick = lastTick + 1000000000L / (apu.tvType.framerate + 1)
-                while (System.nanoTime() < nextTick);
+                while (!maxFPS && System.nanoTime() < nextTick);
                 lastTick = System.nanoTime()
                 updateControllers()
 

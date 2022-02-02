@@ -239,7 +239,7 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
     }
 
     fun onFrameFinish() {
-        beeper.flush(true)
+        //beeper.flush(true)
     }
 
     private fun getOutputLevel(): Int {
