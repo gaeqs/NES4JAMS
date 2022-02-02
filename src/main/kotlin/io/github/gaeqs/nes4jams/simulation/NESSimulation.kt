@@ -94,7 +94,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
     // region sound
 
-    private val audio = BeeperThread(apu, 9600)
+    private val audio = BeeperThread(apu, 9600).apply { priority = Thread.MAX_PRIORITY }
 
     // endregion
 
@@ -200,10 +200,6 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         if (clocksTillCPU == 0) {
             apu.clock()
         }
-
-        //if (ppu.frameCompleted) {
-        //    audio.flush()
-        //}
 
         cpu.requestingNMI = ppu.isRequestingNMI()
         cpu.requestingInterrupt = cartridge.mapper.requestingInterrupt || apu.isRequestingInterrupt()
