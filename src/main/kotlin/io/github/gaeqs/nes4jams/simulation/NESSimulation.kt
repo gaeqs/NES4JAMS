@@ -189,6 +189,8 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
     @Synchronized
     private fun clock() {
+        apu.trySample()
+
         ppu.clock()
         if (clocksTillCPU == 0) {
             apu.clock()

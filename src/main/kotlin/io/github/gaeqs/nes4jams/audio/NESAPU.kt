@@ -26,13 +26,10 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
 
     val beeper = Beeper(sampleRate, tvType)
 
-    var clocksAfterSample = 0L
-
     private val frameCounter = FrameCounter(tvType, this::clockFrameCounter)
     private val dmc = DMC(this)
     private val filter = Filter()
 
-    private val cyclesPerSample = tvType.getAudioCyclesPerSample(sampleRate.toDouble())
     private val timers = arrayOf(
         SquareTimer(8, 2),
         SquareTimer(8, 2),
@@ -46,7 +43,8 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
     private var linearCounter = 0
     private var linearCounterReload = 0
 
-    private var accumulator = 0
+    private val sampleDelayNanos =900_000_000L / sampleRate
+    private var nextSample = 0L
 
     fun pause() {
         beeper.pause()
@@ -219,8 +217,6 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
     }
 
     fun clock() {
-        clocksAfterSample++
-
         dmc.clock()
         frameCounter.clock()
 
@@ -229,17 +225,19 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
                 timer.clock()
             }
         }
+    }
 
-        accumulator += getOutputLevel()
-        while (clocksAfterSample >= cyclesPerSample) {
-            beeper.sample(filter.filter((accumulator / clocksAfterSample).toInt()))
-            clocksAfterSample -= cyclesPerSample.toInt()
-            accumulator = 0
+    fun trySample() {
+        val now = System.nanoTime()
+
+        if (nextSample < now) {
+            nextSample = now + sampleDelayNanos
+            beeper.sample(filter.filter(getOutputLevel()))
         }
     }
 
     fun onFrameFinish() {
-        //beeper.flush(true)
+        beeper.flush(true)
     }
 
     private fun getOutputLevel(): Int {
@@ -346,7 +344,6 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
     }
 
     fun reset() {
-        clocksAfterSample = 0
         frameCounter.reset()
         dmc.reset()
         filter.reset()
@@ -354,7 +351,6 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
         interruptFlag = false
         linearCounterFlag = false
         linearCounterReload = 0
-        accumulator = 0
         beeper.reset()
     }
 
