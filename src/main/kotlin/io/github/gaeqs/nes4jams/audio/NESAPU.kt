@@ -8,8 +8,10 @@ import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import io.github.gaeqs.nes4jams.util.BIT6
 import io.github.gaeqs.nes4jams.util.BIT7
 import io.github.gaeqs.nes4jams.util.extension.shr
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
-class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
+class NESAPU(val simulation: NESSimulation, sampleRate : Int) {
 
     companion object {
         private val TND_LOOKUP = IntArray(203 * 2) { ((163.67 / (24329.0 / it + 100.0)) * 49151.0).toInt() }
@@ -24,12 +26,11 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
 
     val tvType = simulation.cartridge.header.tvType
 
-    val beeper = Beeper(sampleRate, tvType)
-
     private val frameCounter = FrameCounter(tvType, this::clockFrameCounter)
     private val dmc = DMC(this)
     private val filter = Filter()
 
+    private val cyclesPerSample = tvType.getAudioCyclesPerSample(sampleRate.toDouble())
     private val timers = arrayOf(
         SquareTimer(8, 2),
         SquareTimer(8, 2),
@@ -43,19 +44,18 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
     private var linearCounter = 0
     private var linearCounterReload = 0
 
-    private val sampleDelayNanos =900_000_000L / sampleRate
-    private var nextSample = 0L
+    private var accumulator = 0
+    private var accumulatorCount = 0
 
-    fun pause() {
-        beeper.pause()
-    }
+    private var sample = 0
+    private var sampleLock = ReentrantLock()
+    private var sampleCondition = sampleLock.newCondition()
+    private var sampleFetched = false
 
-    fun resume() {
-        beeper.resume()
-    }
-
-    fun destroy() {
-        beeper.destroy()
+    fun fetchSample() = sampleLock.withLock {
+        if (sampleFetched) sampleCondition.await()
+        sampleFetched = true
+        sample
     }
 
     fun isRequestingInterrupt() = dmc.interrupt || frameCounter.interrupt
@@ -217,6 +217,7 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
     }
 
     fun clock() {
+
         dmc.clock()
         frameCounter.clock()
 
@@ -225,19 +226,18 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
                 timer.clock()
             }
         }
-    }
 
-    fun trySample() {
-        val now = System.nanoTime()
-
-        if (nextSample < now) {
-            nextSample = now + sampleDelayNanos
-            beeper.sample(filter.filter(getOutputLevel()))
+        accumulatorCount++
+        accumulator += getOutputLevel()
+        if (accumulatorCount >= cyclesPerSample) {
+            sampleLock.withLock {
+                sample = accumulator / accumulatorCount
+                sampleFetched = false
+                accumulator = 0
+                accumulatorCount = 0
+                sampleCondition.signal()
+            }
         }
-    }
-
-    fun onFrameFinish() {
-        beeper.flush(true)
     }
 
     private fun getOutputLevel(): Int {
@@ -351,7 +351,6 @@ class NESAPU(val simulation: NESSimulation, val sampleRate: Int) {
         interruptFlag = false
         linearCounterFlag = false
         linearCounterReload = 0
-        beeper.reset()
     }
 
 }

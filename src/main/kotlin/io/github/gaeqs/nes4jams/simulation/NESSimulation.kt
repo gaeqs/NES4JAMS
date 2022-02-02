@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams.simulation
 
+import io.github.gaeqs.nes4jams.audio.BeeperThread
 import io.github.gaeqs.nes4jams.audio.NESAPU
 import io.github.gaeqs.nes4jams.cpu.NESCPU
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
@@ -87,8 +88,13 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
     private val renderEvent = NESSimulationRenderEvent(this, ppu.screen)
 
-
     val cartridge get() = data.cartridge
+
+    //endregion
+
+    // region sound
+
+    private val audio = BeeperThread(apu, 9600)
 
     // endregion
 
@@ -96,6 +102,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         cpu.reset()
         cartridge.reset()
         clock = 0
+        audio.start()
     }
 
     fun sendNextControllerData(map: NESControllerMap, secondPlayer: Boolean) {
@@ -147,7 +154,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     fun destroy() {
         stop()
         waitForExecutionFinish()
-        apu.destroy()
+        audio.kill()
     }
 
     private fun velocitySleep() {
@@ -189,16 +196,14 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
     @Synchronized
     private fun clock() {
-        apu.trySample()
-
         ppu.clock()
         if (clocksTillCPU == 0) {
             apu.clock()
         }
 
-        if (ppu.frameCompleted) {
-            apu.onFrameFinish()
-        }
+        //if (ppu.frameCompleted) {
+        //    audio.flush()
+        //}
 
         cpu.requestingNMI = ppu.isRequestingNMI()
         cpu.requestingInterrupt = cartridge.mapper.requestingInterrupt || apu.isRequestingInterrupt()
@@ -346,10 +351,10 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         thread = Thread {
             try {
                 executionTime += measureNanoTime {
-                    apu.resume()
+                    audio.play()
                     clock()
                     manageSimulationFinish()
-                    apu.pause()
+                    audio.pause()
                 }
             } catch (ex: Exception) {
                 manageException(ex)
@@ -365,7 +370,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         interrupted = false
         thread = Thread {
             try {
-                apu.resume()
+                audio.play()
                 val clockStart = clock
                 val nanos = measureNanoTime {
                     lastTick = System.nanoTime()
@@ -377,7 +382,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
                         }
                     }
                 }
-                apu.pause()
+                audio.pause()
 
                 executionTime += nanos
                 val millis = nanos / 1_000_000
