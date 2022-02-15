@@ -29,7 +29,7 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
     }
 
     private fun executeClock(scanline: Int, cycle: Int) {
-        if (cycle in 2 until 258 || cycle in 321 until 338) {
+        if (2 <= cycle && cycle < 258 || 321 <= cycle && cycle < 338) {
             updateShifters()
             when ((cycle - 1) and 0x7) {
                 0 -> {
@@ -52,7 +52,7 @@ class PPUBackgroundRenderer(private val ppu: NESPPU) {
             338, 340 -> loadBackgroundNextTileId()
         }
 
-        if (scanline == -1 && cycle in 280 until 305) {
+        if (scanline == -1 && 280 <= cycle && cycle < 305) {
             transferAddressY()
         }
     }

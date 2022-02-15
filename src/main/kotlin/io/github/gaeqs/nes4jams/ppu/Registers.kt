@@ -1,6 +1,5 @@
 package io.github.gaeqs.nes4jams.ppu
 
-import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import io.github.gaeqs.nes4jams.util.extension.shl
 import io.github.gaeqs.nes4jams.util.extension.shr
 

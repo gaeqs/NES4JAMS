@@ -1,7 +1,7 @@
 /*
  *  MIT License
  *
- *  Copyright (c) 2021 Gael Rial Costas
+ *  Copyright (c) 2022 Gael Rial Costas
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -22,15 +22,50 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.simulation
+package io.github.gaeqs.nes4jams.audio
 
-import io.github.gaeqs.nes4jams.cartridge.Cartridge
-import io.github.gaeqs.nes4jams.cpu.label.NESLabel
-import net.jamsimulator.jams.gui.util.log.Console
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
-class NESSimulationData(
-    val cartridge: Cartridge,
-    val console: Console?,
-    val originalInstructions: Map<Int, String>,
-    val labels: Set<NESLabel>
-)
+class BeeperThread(val apu: NESAPU, sampleRate: Int) : Thread() {
+
+    private val pauseLock = ReentrantLock()
+    private val pauseCondition = pauseLock.newCondition()
+
+    private val beeper = Beeper(sampleRate)
+
+    private var running = false
+
+    private var paused = true
+
+    override fun run() {
+        running = true
+        while (running) {
+            if (paused) pauseLock.withLock { pauseCondition.await() }
+            beeper.sample(apu.fetchSample())
+        }
+    }
+
+    fun play() {
+        pauseLock.withLock {
+            paused = false
+            pauseCondition.signalAll()
+        }
+    }
+
+    fun pause() {
+        pauseLock.withLock {
+            paused = true
+        }
+    }
+
+    fun kill() {
+        running = false
+        beeper.destroy()
+    }
+
+    fun reset() {
+        beeper.reset()
+    }
+
+}

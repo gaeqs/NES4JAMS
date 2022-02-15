@@ -56,8 +56,6 @@ data class NESSimulationConfigurationNodePreset(
     }
 
     companion object {
-        const val CALL_EVENTS = "call_events"
-        const val UNDO_ENABLED = "undo_enabled"
         const val MIRRORING = "mirroring"
         const val TV_TYPE = "tv_type"
         const val CONSOLE_TYPE = "console_type"
@@ -65,21 +63,6 @@ data class NESSimulationConfigurationNodePreset(
         const val MAPPER = "mapper"
 
         val PRESETS = hashSetOf(
-            NESSimulationConfigurationNodePreset(
-                CALL_EVENTS,
-                Boolean::class,
-                90,
-                Messages.SIMULATION_CONFIGURATION_CALL_EVENTS,
-                true
-            ),
-            NESSimulationConfigurationNodePreset(
-                UNDO_ENABLED,
-                Boolean::class,
-                89,
-                Messages.SIMULATION_CONFIGURATION_ENABLE_UNDO,
-                true,
-                mapOf(CALL_EVENTS to arrayOf(true))
-            ),
             NESSimulationConfigurationNodePreset(
                 MIRRORING,
                 Mirror::class,

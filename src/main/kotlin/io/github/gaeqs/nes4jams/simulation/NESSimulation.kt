@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams.simulation
 
+import io.github.gaeqs.nes4jams.audio.BeeperThread
 import io.github.gaeqs.nes4jams.audio.NESAPU
 import io.github.gaeqs.nes4jams.cpu.NESCPU
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
@@ -33,7 +34,10 @@ import io.github.gaeqs.nes4jams.simulation.event.NESSimulationRenderEvent
 import io.github.gaeqs.nes4jams.util.extension.*
 import net.jamsimulator.jams.event.SimpleEventBroadcast
 import net.jamsimulator.jams.mips.simulation.Simulation
-import net.jamsimulator.jams.mips.simulation.event.*
+import net.jamsimulator.jams.mips.simulation.event.SimulationAddBreakpointEvent
+import net.jamsimulator.jams.mips.simulation.event.SimulationRemoveBreakpointEvent
+import net.jamsimulator.jams.mips.simulation.event.SimulationStartEvent
+import net.jamsimulator.jams.mips.simulation.event.SimulationStopEvent
 import java.util.concurrent.locks.ReentrantLock
 import java.util.function.Consumer
 import kotlin.concurrent.withLock
@@ -57,6 +61,8 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     @Volatile
     var frame = 0L
         private set
+
+    var maxFPS = false
 
     // region NES
 
@@ -82,8 +88,13 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
     private val renderEvent = NESSimulationRenderEvent(this, ppu.screen)
 
-
     val cartridge get() = data.cartridge
+
+    //endregion
+
+    // region sound
+
+    private val audio = BeeperThread(apu, 9600).apply { priority = Thread.MAX_PRIORITY }
 
     // endregion
 
@@ -91,6 +102,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         cpu.reset()
         cartridge.reset()
         clock = 0
+        audio.start()
     }
 
     fun sendNextControllerData(map: NESControllerMap, secondPlayer: Boolean) {
@@ -142,7 +154,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     fun destroy() {
         stop()
         waitForExecutionFinish()
-        apu.destroy()
+        audio.kill()
     }
 
     private fun velocitySleep() {
@@ -167,7 +179,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
                 // Active wait. Thread.sleep() has too much delay.
                 val nextTick = lastTick + 1000000000L / (apu.tvType.framerate + 1)
-                while (System.nanoTime() < nextTick);
+                while (!maxFPS && System.nanoTime() < nextTick);
                 lastTick = System.nanoTime()
                 updateControllers()
 
@@ -187,10 +199,6 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         ppu.clock()
         if (clocksTillCPU == 0) {
             apu.clock()
-        }
-
-        if (ppu.frameCompleted) {
-            apu.onFrameFinish()
         }
 
         cpu.requestingNMI = ppu.isRequestingNMI()
@@ -339,13 +347,10 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         thread = Thread {
             try {
                 executionTime += measureNanoTime {
-                    apu.resume()
-                    val before = callEvent(SimulationCycleEvent.Before(this, cycles))
-                    if (before.isCancelled) return@Thread
+                    audio.play()
                     clock()
-                    callEvent(SimulationCycleEvent.After(this, cycles))
                     manageSimulationFinish()
-                    apu.pause()
+                    audio.pause()
                 }
             } catch (ex: Exception) {
                 manageException(ex)
@@ -361,14 +366,19 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         interrupted = false
         thread = Thread {
             try {
-                apu.resume()
+                audio.play()
                 val clockStart = clock
                 val nanos = measureNanoTime {
                     lastTick = System.nanoTime()
-                    if (data.callEvents) executeAllWithEvents()
-                    else executeAllWithoutEvents()
+                    clock()
+                    while (!checkThreadInterrupted()) {
+                        velocitySleep()
+                        if (!checkThreadInterrupted()) {
+                            clock()
+                        }
+                    }
                 }
-                apu.pause()
+                audio.pause()
 
                 executionTime += nanos
                 val millis = nanos / 1_000_000
@@ -389,34 +399,6 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         thread?.start()
     }
 
-    private fun executeAllWithEvents() {
-        val before = callEvent(SimulationCycleEvent.Before(this, cycles))
-        if (!before.isCancelled) {
-            clock()
-            callEvent(SimulationCycleEvent.After(this, cycles))
-        }
-        while (!checkThreadInterrupted()) {
-            velocitySleep()
-            if (!checkThreadInterrupted()) {
-                val before = callEvent(SimulationCycleEvent.Before(this, cycles))
-                if (!before.isCancelled) {
-                    clock()
-                    callEvent(SimulationCycleEvent.After(this, cycles))
-                }
-            }
-        }
-    }
-
-    private fun executeAllWithoutEvents() {
-        clock()
-        while (!checkThreadInterrupted()) {
-            velocitySleep()
-            if (!checkThreadInterrupted()) {
-                clock()
-            }
-        }
-    }
-
     private fun manageSimulationFinish() {
         finishedRunningLock.withLock {
             running = false
@@ -426,11 +408,8 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
         }
     }
 
-    override fun isUndoEnabled() = data.undoEnabled
-
-    override fun undoLastStep(): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun isUndoEnabled() = false
+    override fun undoLastStep() = false
 
     @Synchronized
     override fun runSynchronized(runnable: Runnable) = runnable.run()
