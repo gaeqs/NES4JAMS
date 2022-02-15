@@ -49,9 +49,9 @@ import net.jamsimulator.jams.gui.theme.ThemeManager
 import net.jamsimulator.jams.gui.theme.exception.ThemeLoadException
 import net.jamsimulator.jams.language.Language
 import net.jamsimulator.jams.language.LanguageManager
+import net.jamsimulator.jams.language.exception.LanguageLoadException
 import net.jamsimulator.jams.plugin.Plugin
 import net.jamsimulator.jams.project.ProjectType
-import java.io.InputStream
 import java.nio.file.Path
 
 class NES4JAMS : Plugin() {
@@ -108,10 +108,13 @@ class NES4JAMS : Plugin() {
     }
 
     private fun loadLanguages() {
-        val list = mutableListOf<InputStream>()
-        resource("/languages/english.jlang").ifPresent { list.add(it) }
-        resource("/languages/spanish.jlang").ifPresent { list.add(it) }
-        manager<LanguageManager>().loadLanguages(this, list, true)
+        val manager = manager<LanguageManager>()
+        val jarResource = javaClass.getResource("/gui/languages")
+        if (jarResource != null) {
+            manager.loadLanguagesInDirectory(this, Path.of(jarResource.toURI()), true)
+                .forEach { (_: Path, e: LanguageLoadException) -> e.printStackTrace() }
+        }
+        manager.refresh()
     }
 
     private fun loadThemes() {
@@ -119,9 +122,7 @@ class NES4JAMS : Plugin() {
         val jarResource = javaClass.getResource("/gui/themes")
         if (jarResource != null) {
             manager.loadThemesInDirectory(this, Path.of(jarResource.toURI()), true)
-                .forEach { (_: Path, e: ThemeLoadException) ->
-                    e.printStackTrace()
-                }
+                .forEach { (_: Path, e: ThemeLoadException) -> e.printStackTrace() }
         }
         manager.refresh()
     }

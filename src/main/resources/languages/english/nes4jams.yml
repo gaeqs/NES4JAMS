@@ -1,0 +1,53 @@
+NES4JAMS_DESCRIPTION: NES developing environment for JAMS.
+NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY: Empty NES project.
+
+NES4JAMS_BAR_SPRITES_TO_ASSEMBLE: Sprites to assemble
+NES4JAMS_BAR_PPU: PPU
+NES4JAMS_BAR_INFO: Simulation info
+
+NUMBER_FORMAT_NES_COLOR: Color (NES)
+NUMBER_FORMAT_SHORT: Short
+NUMBER_FORMAT_HEXADECIMAL_SHORT: Hexadecimal short
+
+NES4JAMS_MEMORY_BANK_START: 'Start:'
+NES4JAMS_MEMORY_BANK_SIZE: 'Size:'
+NES4JAMS_MEMORY_BANK_WRITABLE: 'Writable:'
+NES4JAMS_MEMORY_BANK_WRITE_ON_CARTRIDGE: 'In cartridge:'
+
+NES4JAMS_TASK_LOADING_CARTRIDGE: Loading cartridge...
+
+NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS: 'Memory banks:'
+NES4JAMS_SIMULATION_CONFIGURATION_MEMORY_BANKS_TOOLTIP: |-
+  The memory banks are used by the assembler to store the data into the ROM. 
+  You can change between banks in your code using the directive .bank. 
+  At least one memory bank is required for the assembler to work.
+NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING: 'Mirroring:'
+NES4JAMS_SIMULATION_CONFIGURATION_MIRRORING_TOOLTIP: |-
+  This field sets the nametable mirroring of the game. 
+  When mirroring is enabled for a particular axis, the coordinates wrap arround on the current nametable.
+  This value may be overriden by the cartridge mapper.
+NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE: 'TV type:'
+NES4JAMS_SIMULATION_CONFIGURATION_TV_TYPE_TOOLTIP: |-
+  Sets the TV type this game runs on. This value is equivalent to the region of the game. There are three tv types:
+  NTSC: valid for North America, Japan, South Korea and Taiwan NES / Famicon devices. Game runs at 1789773 Hz.
+  PAL: valid for Western Europe and Australia NES devices. Game runs at 1662607 Hz.
+  DENDY: NES clone popular in Easter Europe, Russia, Mainland China, India and Africa. Game runs at 1773448 Hz.
+NES4JAMS_SIMULATION_CONFIGURATION_CONSOLE_TYPE: 'Console type:'
+NES4JAMS_SIMULATION_CONFIGURATION_CONSOLE_TYPE_TOOLTIP: |-
+  There are some systems based on the NES hardware able to run special versions of NES games.
+  There are two official modifications of this kind: the Nintendo VS. and the PlayChoice-10, both arcade boards.
+NES4JAMS_SIMULATION_CONFIGURATION_MAPPER: 'Mapper:'
+NES4JAMS_SIMULATION_CONFIGURATION_MAPPER_TOOLTIP: |-
+  Mappers are hardware inside a cartridge designed to extend the system and bypass the NES limitations.
+  They allow a game to have extra RAM, can create custom interrupts or can simply extend the cartridge ROM using registers to change between memory banks.
+
+ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE: PCX image
+ACTION_FOLDER_EXPLORER_ADD_SPRITE_TO_ASSEMBLER: Add sprite to assembler
+ACTION_FOLDER_EXPLORER_ADD_ALL_SPRITES_TO_ASSEMBLER: Add sprites to assembler
+ACTION_FOLDER_EXPLORER_REMOVE_SPRITE_FROM_ASSEMBLER: Remove sprite from assembler
+ACTION_FOLDER_EXPLORER_REMOVE_ALL_SPRITES_FROM_ASSEMBLER: Remove sprites from assembler
+
+NES_MEMORY_VIEW_CPU: CPU
+NES_MEMORY_VIEW_PPU: PPU
+NES_MEMORY_VIEW_CARTRIDGE_PRG: Cartridge Program
+NES_MEMORY_VIEW_CARTRIDGE_CHR: Cartridge Sprites

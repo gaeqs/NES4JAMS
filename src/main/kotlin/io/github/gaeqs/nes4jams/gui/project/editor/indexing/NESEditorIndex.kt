@@ -32,6 +32,11 @@ import net.jamsimulator.jams.project.Project
 class NESEditorIndex(project: Project, name: String) :
     EditorLineIndex<NESEditorLine>(project, NESInspectorManager.INSTANCE, name) {
 
+    override fun reformat(): String {
+        println("AAAAAAAAAAAAAAAA")
+        TODO("Not yet implemented")
+    }
+
     override fun generateNewLine(start: Int, number: Int, text: String, scope: ElementScope) =
         NESEditorLine(this, scope, start, number, text)
 }

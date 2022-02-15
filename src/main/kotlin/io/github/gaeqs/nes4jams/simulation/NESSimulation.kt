@@ -33,6 +33,7 @@ import io.github.gaeqs.nes4jams.ppu.NESPPU
 import io.github.gaeqs.nes4jams.simulation.event.NESSimulationRenderEvent
 import io.github.gaeqs.nes4jams.util.extension.*
 import net.jamsimulator.jams.event.SimpleEventBroadcast
+import net.jamsimulator.jams.gui.util.log.Console
 import net.jamsimulator.jams.mips.simulation.Simulation
 import net.jamsimulator.jams.mips.simulation.event.SimulationAddBreakpointEvent
 import net.jamsimulator.jams.mips.simulation.event.SimulationRemoveBreakpointEvent
@@ -238,7 +239,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
     override fun getCycleDelay() = cycleDelay
     override fun getCycles() = clock
     override fun isRunning() = running
-    override fun getConsole() = data.console
+    override fun getLog() = data.log
     override fun getWorkingDirectory() = null
     override fun getExecutedInstructions() = cycles
     override fun getExecutionTime() = executionTime
@@ -383,7 +384,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
                 executionTime += nanos
                 val millis = nanos / 1_000_000
 
-                console?.apply {
+                log?.apply {
                     println()
                     printInfoLn("${clock - clockStart} cycles executed in $millis millis.")
                     printInfoLn("${((clock - clockStart) / (millis / 1000.0)).toInt()} cycles/s")
@@ -404,7 +405,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             running = false
             finishedRunningLockCondition.signalAll()
             callEvent(SimulationStopEvent(this))
-            console?.flush()
+            (log as? Console)?.flush()
         }
     }
 

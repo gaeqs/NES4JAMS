@@ -26,9 +26,12 @@ package io.github.gaeqs.nes4jams.project
 
 import io.github.gaeqs.nes4jams.data.ICON_PLUGIN
 import io.github.gaeqs.nes4jams.data.NES4JAMS_PROJECT_TEMPLATE_NES_EMPTY
+import io.github.gaeqs.nes4jams.util.managerOf
 import javafx.beans.property.BooleanProperty
 import javafx.scene.Node
 import net.jamsimulator.jams.configuration.RootConfiguration
+import net.jamsimulator.jams.configuration.format.ConfigurationFormat
+import net.jamsimulator.jams.configuration.format.ConfigurationFormatJSON
 import net.jamsimulator.jams.gui.configuration.RegionDisplay
 import net.jamsimulator.jams.gui.util.PathAndNameEditor
 import net.jamsimulator.jams.project.ProjectData
@@ -58,10 +61,11 @@ class EmptyNESProjectTemplate : ProjectTemplate<NESProject>(NESProjectType.INSTA
         if (!FolderUtils.checkFolder(metadataFolder))
             throw MIPSTemplateBuildException("Couldn't create folder " + metadataFolder.absolutePath + "!")
 
+        val format = managerOf<ConfigurationFormat>().getOrNull(ConfigurationFormatJSON.NAME)
         val metadataFile = File(metadataFolder, ProjectData.METADATA_DATA_NAME)
-        val config = RootConfiguration(metadataFile)
+        val config = RootConfiguration(metadataFile, format)
         // DEFAULT DATA HERE
-        config.save(true)
+        config.save(format, true)
 
         return try {
             NESProject(folder)
