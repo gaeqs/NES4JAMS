@@ -1,0 +1,11 @@
+{
+  "editor": {
+    "nes": {
+      "use_tabs": true,
+      "preserve_tabs": true,
+      "preserve_tabs_before_labels": true,
+      "space_after_directive_parameter": "SPACE",
+      "maximum_blank_lines": 2
+    }
+  }
+}

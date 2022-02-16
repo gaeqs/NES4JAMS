@@ -35,10 +35,15 @@ import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryViewManager
 import io.github.gaeqs.nes4jams.gui.util.converter.NESValueConverters
 import io.github.gaeqs.nes4jams.gui.util.value.NESValueEditors
 import io.github.gaeqs.nes4jams.project.NESProjectType
+import io.github.gaeqs.nes4jams.util.extension.SELECTED_LANGUAGE
 import io.github.gaeqs.nes4jams.util.extension.orNull
 import io.github.gaeqs.nes4jams.util.manager
 import io.github.gaeqs.nes4jams.util.managerOf
 import net.jamsimulator.jams.Jams
+import net.jamsimulator.jams.configuration.Configuration
+import net.jamsimulator.jams.configuration.RootConfiguration
+import net.jamsimulator.jams.configuration.format.ConfigurationFormat
+import net.jamsimulator.jams.configuration.format.ConfigurationFormatJSON
 import net.jamsimulator.jams.event.Listener
 import net.jamsimulator.jams.event.general.JAMSApplicationPostInitEvent
 import net.jamsimulator.jams.event.general.JAMSPostInitEvent
@@ -52,6 +57,7 @@ import net.jamsimulator.jams.language.LanguageManager
 import net.jamsimulator.jams.language.exception.LanguageLoadException
 import net.jamsimulator.jams.plugin.Plugin
 import net.jamsimulator.jams.project.ProjectType
+import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 class NES4JAMS : Plugin() {
@@ -77,6 +83,7 @@ class NES4JAMS : Plugin() {
 
     private fun load() {
         loadLanguages()
+        loadConfiguration()
 
         NESValueConverters.setupConverters()
         NESValueEditors.setupEditor()
@@ -109,12 +116,30 @@ class NES4JAMS : Plugin() {
 
     private fun loadLanguages() {
         val manager = manager<LanguageManager>()
-        val jarResource = javaClass.getResource("/gui/languages")
+        val jarResource = javaClass.getResource("/languages")
         if (jarResource != null) {
             manager.loadLanguagesInDirectory(this, Path.of(jarResource.toURI()), true)
                 .forEach { (_: Path, e: LanguageLoadException) -> e.printStackTrace() }
         }
         manager.refresh()
+    }
+
+    private fun loadConfiguration() {
+        resource("/configurations/nes4jams.json").ifPresent {
+            val format = managerOf<ConfigurationFormat>().getOrNull(ConfigurationFormatJSON.NAME)
+            Jams.getMainConfiguration().addNotPresentValues(
+                RootConfiguration(it.reader(StandardCharsets.UTF_8), format)
+            )
+            it.close()
+        }
+
+        resource("/configurations/nes4jams_meta.json").ifPresent {
+            val format = managerOf<ConfigurationFormat>().getOrNull(ConfigurationFormatJSON.NAME)
+            Jams.getMainConfigurationMetadata().addNotPresentValues(
+                RootConfiguration(it.reader(StandardCharsets.UTF_8), format)
+            )
+            it.close()
+        }
     }
 
     private fun loadThemes() {

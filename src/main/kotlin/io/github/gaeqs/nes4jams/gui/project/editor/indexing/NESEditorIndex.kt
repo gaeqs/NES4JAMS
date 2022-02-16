@@ -39,14 +39,11 @@ class NESEditorIndex(project: Project, name: String) :
     EditorLineIndex<NESEditorLine>(project, NESInspectorManager.INSTANCE, name) {
 
     companion object {
-        private const val NODE_SPACE_AFTER_INSTRUCTION = "editor.mips.space_after_instruction"
-        private const val NODE_SPACE_AFTER_DIRECTIVE = "editor.mips.space_after_directive"
-        private const val NODE_SPACE_AFTER_INSTRUCTION_PARAMETER = "editor.mips.space_after_instruction_parameter"
-        private const val NODE_SPACE_AFTER_DIRECTIVE_PARAMETER = "editor.mips.space_after_directive_parameter"
-        private const val NODE_MAX_BLANK_LINES = "editor.mips.maximum_blank_lines"
-        private const val NODE_USE_TABS = "editor.mips.use_tabs"
-        private const val NODE_PRESERVE_TABS_AFTER_LABEL = "editor.mips.preserve_tabs"
-        private const val NODE_PRESERVE_TABS_BEFORE_LABEL = "editor.mips.preserve_tabs_before_labels"
+        private const val NODE_SPACE_AFTER_DIRECTIVE_PARAMETER = "editor.nes.space_after_directive_parameter"
+        private const val NODE_MAX_BLANK_LINES = "editor.nes.maximum_blank_lines"
+        private const val NODE_USE_TABS = "editor.nes.use_tabs"
+        private const val NODE_PRESERVE_TABS_AFTER_LABEL = "editor.nes.preserve_tabs"
+        private const val NODE_PRESERVE_TABS_BEFORE_LABEL = "editor.nes.preserve_tabs_before_labels"
 
     }
 
