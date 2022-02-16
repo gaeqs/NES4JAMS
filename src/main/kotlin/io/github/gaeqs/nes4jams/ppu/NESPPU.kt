@@ -262,7 +262,7 @@ class NESPPU(val simulation: NESSimulation) {
             }
             in 0x3F00u..0x3FFFu -> {
                 val i = address.toInt()
-                palette[if (i and 0b11 == 0) i and 0x0F else i and 0x001F]
+                palette[if (i and 0b11 == 0) 0 else i and 0x001F]
             }
             else -> 0u
         }
