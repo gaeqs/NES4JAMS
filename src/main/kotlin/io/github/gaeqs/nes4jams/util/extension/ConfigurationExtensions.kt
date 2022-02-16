@@ -25,9 +25,13 @@
 package io.github.gaeqs.nes4jams.util.extension
 
 import net.jamsimulator.jams.configuration.Configuration
+import java.util.*
 
 inline fun <reified T> Configuration.convertAndSet(key: String, value: T) =
     convertAndSet(key, value, T::class.java)
 
 inline fun <reified T : Any> Configuration.getAndConvert(key: String) =
     getAndConvert<T>(key, T::class.java).orNull()
+
+inline fun <reified T : Enum<*>> Configuration.getEnum(key: String): Optional<T> =
+    getEnum(T::class.java, key)
