@@ -23,7 +23,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 
     implementation(files("lib/JAMS.jar"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     implementation(group = "no.tornado", name = "tornadofx", version = "1.7.20")
     implementation(kotlin("stdlib-jdk8"))
 }

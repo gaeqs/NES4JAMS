@@ -26,11 +26,11 @@ package io.github.gaeqs.nes4jams.simulation
 
 import io.github.gaeqs.nes4jams.cartridge.Cartridge
 import io.github.gaeqs.nes4jams.cpu.label.NESLabel
-import net.jamsimulator.jams.gui.util.log.Console
+import net.jamsimulator.jams.gui.util.log.Log
 
 class NESSimulationData(
     val cartridge: Cartridge,
-    val console: Console?,
+    val log: Log?,
     val originalInstructions: Map<Int, String>,
     val labels: Set<NESLabel>
 )

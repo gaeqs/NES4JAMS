@@ -1,0 +1,39 @@
+{
+  "editor": {
+    "nes": {
+      "meta": {
+        "language_node": "CONFIG_EDITOR_NES",
+        "regions": {
+          "tabs": 0,
+          "spaces": 1,
+          "blank_lines": 2
+        }
+      },
+      "use_tabs": {
+        "type": "boolean",
+        "language_node": "CONFIG_EDITOR_MIPS_USE_TABS",
+        "region": "tabs"
+      },
+      "preserve_tabs": {
+        "type": "boolean",
+        "language_node": "CONFIG_EDITOR_MIPS_PRESERVE_TABS",
+        "region": "tabs"
+      },
+      "preserve_tabs_before_labels": {
+        "type": "boolean",
+        "language_node": "CONFIG_EDITOR_MIPS_PRESERVE_TABS_BEFORE_LABELS",
+        "region": "tabs"
+      },
+      "space_after_directive_parameter": {
+        "type": "mips_spaces",
+        "language_node": "CONFIG_EDITOR_MIPS_SPACE_AFTER_DIRECTIVE_PARAMETER",
+        "region": "spaces"
+      },
+      "maximum_blank_lines": {
+        "type": "positive_integer",
+        "language_node": "CONFIG_EDITOR_MIPS_MAXIMUM_BLANK_LINES",
+        "region": "blank_lines"
+      }
+    }
+  }
+}

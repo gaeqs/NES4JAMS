@@ -24,13 +24,13 @@
 
 package io.github.gaeqs.nes4jams.cpu.assembler
 
+import io.github.gaeqs.nes4jams.cpu.directive.defaults.NESDirectiveEndMacro
 import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
 import io.github.gaeqs.nes4jams.cpu.label.NESLabel
 import io.github.gaeqs.nes4jams.util.extension.parseParameterExpressionWithInvalids
 import io.github.gaeqs.nes4jams.util.extension.removeComments
 import net.jamsimulator.jams.mips.assembler.Macro
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
-import net.jamsimulator.jams.mips.directive.defaults.DirectiveEndmacro
 import net.jamsimulator.jams.utils.StringUtils
 import java.util.*
 
@@ -208,7 +208,7 @@ class NESAssemblerFile(val name: String, rawData: String, val assembler: NESAsse
         val line = NESAssemblerLine(this, index, sanity, original, suffix)
 
         if (definingMacro != null) {
-            if (line.directive != null && line.directive.directive is DirectiveEndmacro) {
+            if (line.directive != null && line.directive.directive is NESDirectiveEndMacro) {
                 stopMacroDefinition(index)
             } else {
                 definingMacro!!.addLine(sanity)

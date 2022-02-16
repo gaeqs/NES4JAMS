@@ -34,6 +34,7 @@ import io.github.gaeqs.nes4jams.gui.simulation.tablename.NESSimulationPPUDisplay
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import io.github.gaeqs.nes4jams.util.managerOfD
+import javafx.scene.Node
 import javafx.scene.control.Tab
 import javafx.scene.layout.HBox
 import net.jamsimulator.jams.gui.ActionRegion
@@ -95,7 +96,7 @@ class NESSimulationPane(parent: Tab, projectTab: ProjectTab, val project: NESPro
     }
 
     private fun loadConsole() {
-        val console = simulation.console ?: return
+        val console = simulation.log as? Node ?: return
         barMap.registerSnapshot(
             BarSnapshot(
                 "console",
