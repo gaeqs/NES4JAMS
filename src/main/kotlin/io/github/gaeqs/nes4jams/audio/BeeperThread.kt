@@ -37,12 +37,22 @@ class BeeperThread(val apu: NESAPU, sampleRate: Int) : Thread() {
     private var running = false
 
     private var paused = true
+    private var filling = true
 
     override fun run() {
         running = true
+        filling = true
         while (running) {
-            if (paused) pauseLock.withLock { pauseCondition.await() }
+            if (paused) pauseLock.withLock {
+                beeper.pause()
+                pauseCondition.await()
+                filling = true
+            }
             beeper.sample(apu.fetchSample())
+            if(filling && beeper.samplesBeingProcessedPercentage() > 0.3) {
+                filling = false
+                beeper.resume()
+            }
         }
     }
 
