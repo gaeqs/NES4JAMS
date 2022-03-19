@@ -29,7 +29,7 @@ import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 import net.jamsimulator.jams.mips.directive.defaults.DirectiveMacro
 
-class NESDirectiveMacro : NESDirective(NAME) {
+class NESDirectiveMacro : NESDirective(NAME, false) {
 
     companion object {
         const val NAME = "macro"

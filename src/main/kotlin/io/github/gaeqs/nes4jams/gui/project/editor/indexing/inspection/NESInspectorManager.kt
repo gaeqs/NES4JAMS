@@ -26,6 +26,7 @@ package io.github.gaeqs.nes4jams.gui.project.editor.indexing.inspection
 
 import io.github.gaeqs.nes4jams.NES4JAMS
 import net.jamsimulator.jams.gui.editor.code.indexing.inspection.Inspector
+import net.jamsimulator.jams.gui.editor.code.indexing.inspection.defaults.*
 import net.jamsimulator.jams.manager.Manager
 import net.jamsimulator.jams.manager.ResourceProvider
 
@@ -40,6 +41,11 @@ class NESInspectorManager(
     }
 
     override fun loadDefaultElements() {
+        add(DuplicatedLabelInspector(ResourceProvider.JAMS))
+        add(DuplicatedMacroInspector(ResourceProvider.JAMS))
+        add(MacroNotFoundInspector(ResourceProvider.JAMS))
+        add(IllegalMacroParameterInspector(ResourceProvider.JAMS))
+        add(LabelAddressNotFoundInspector(ResourceProvider.JAMS))
     }
 
 }

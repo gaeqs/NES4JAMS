@@ -30,8 +30,6 @@ import javafx.stage.Popup
 import net.jamsimulator.jams.gui.editor.code.CodeFileEditor
 import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
 import net.jamsimulator.jams.gui.editor.holder.FileEditorTab
-import net.jamsimulator.jams.language.Messages
-import net.jamsimulator.jams.task.LanguageTask
 
 class NESAssemblyFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
 
@@ -41,21 +39,14 @@ class NESAssemblyFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
         autocompletionPopup = NESAutocompletionPopup(this)
     }
 
-    fun getNESProject(): NESProject? {
-        val pr = project
-        return if (pr is NESProject) pr else null
-    }
+    fun getNESProject() = project as? NESProject
 
     override fun getIndex() = super.getIndex() as NESEditorIndex
 
     override fun generateIndex(): EditorIndex {
         val index = NESEditorIndex(project, tab.file.name)
         val taskExecutor = tab.workingPane.projectTab.project.taskExecutor
-        taskExecutor.execute(object : LanguageTask<Unit>(Messages.EDITOR_INDEXING) {
-            override fun call() {
-                index.withLock(true) { i: EditorIndex -> i.indexAll(text) }
-            }
-        })
+        taskExecutor.executeIndexing(index, text)
         return index
     }
 

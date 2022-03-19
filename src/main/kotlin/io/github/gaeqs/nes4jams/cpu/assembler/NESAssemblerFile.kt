@@ -169,7 +169,7 @@ class NESAssemblerFile(val name: String, rawData: String, val assembler: NESAsse
         if (NESInstruction.INSTRUCTIONS[name.uppercase()] != null)
             throw AssemblerException(line, "Macro name collision with the instruction ${name.uppercase()}!")
 
-        definingMacro = Macro(name, parameters)
+        definingMacro = Macro(name + "-${parameters.size}", name, parameters, name, line)
     }
 
     fun stopMacroDefinition(line: Int) {
@@ -287,10 +287,10 @@ class NESAssemblerFile(val name: String, rawData: String, val assembler: NESAsse
 
     private fun manageMacroExecution(macro: Macro, call: NESMacroCallSnapshot): List<NESAssemblerLine> {
         val lines = mutableListOf<NESAssemblerLine>()
-        macro.executeMacro(call.parameters, call.line.index, assembler.callsToMacros) { lineNumber, line, sufix ->
-            lines += scanMetadataForLine(lineNumber, line, false, sufix) ?: return@executeMacro
+        var i = 0
+        macro.getParsedLines(call.parameters, call.line.index).forEach {
+            lines += scanMetadataForLine(i++, it, false) ?: return@forEach
         }
-        assembler.addCallToMacro()
         return lines
     }
 

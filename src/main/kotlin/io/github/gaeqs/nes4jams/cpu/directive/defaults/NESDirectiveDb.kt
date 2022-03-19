@@ -29,7 +29,7 @@ import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
 import io.github.gaeqs.nes4jams.cpu.label.LabelReference
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 
-class NESDirectiveDb : NESDirective(NAME) {
+class NESDirectiveDb : NESDirective(NAME, true) {
 
     companion object {
         const val NAME = "db"

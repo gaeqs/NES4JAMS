@@ -29,7 +29,7 @@ import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
 import io.github.gaeqs.nes4jams.util.extension.toIntOldWayOrNull
 import net.jamsimulator.jams.mips.assembler.exception.AssemblerException
 
-class NESDirectiveBank : NESDirective(NAME) {
+class NESDirectiveBank : NESDirective(NAME, true) {
 
     companion object {
         const val NAME = "bank"

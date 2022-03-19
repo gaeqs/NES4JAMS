@@ -38,7 +38,7 @@ import kotlin.system.measureTimeMillis
  *
  * This assembler assembles the given code in four steps.
  * - **Step 1**: metadata scanning. In this step lines are split into their primitive elements.
- * Labels and equivalents are registered without it's value.
+ * Labels and equivalents are registered without its value.
  * - **Step 2**: macro execution. Macros are invoked and their result is placed in the corresponding position.
  * Added lines execute the step 1.
  * - **Step 3**: address assignation: addresses are assigned to labels, instructions and directives.
@@ -83,7 +83,7 @@ import kotlin.system.measureTimeMillis
  *
  * ## Expressions
  *
- * Expressions supports the next operators:
+ * Expressions support the next operators:
  *
  * ### Unary operators:
  * - **<**: returns the lower byte of a word.
@@ -107,7 +107,7 @@ import kotlin.system.measureTimeMillis
  * Operators use the
  * [default order of operations](https://en.wikipedia.org/wiki/Order_of_operations#Programming_languages).
  *
- * Immediate values will be interpreted as a byte or as a word depending of it's size. If the number
+ * Immediate values will be interpreted as a byte or as a word depending on it's size. If the number
  * can be represented in a byte, then the assembler will interpret it as a byte. Use the **.w** operator
  * if you want to explicitly declare it as a word.
  *
@@ -126,7 +126,7 @@ import kotlin.system.measureTimeMillis
  *
  * Use the directive **.bank** to move between banks. Use the directive **.data** to switch to the data bank.
  *
- * Banks have it's own address pointer, so you don't have to manually set the current address when changing banks.
+ * Banks have its own address pointer, so you don't have to manually set the current address when changing banks.
  *
  * @author Gael Rial Costas
  *
@@ -183,12 +183,6 @@ class NESAssembler(
      * Whether the code has been assembled.
      */
     var assembled = false
-        private set
-
-    /**
-     * The amount of macro calls executed.
-     */
-    var callsToMacros = 0
         private set
 
     /**
@@ -269,13 +263,6 @@ class NESAssembler(
         } catch (ex: IndexOutOfBoundsException) {
             throw AssemblerException(line, "Out of bounds! ($${address.toHex(4)})", ex)
         }
-    }
-
-    /**
-     * Adds a macro call to the assembler.
-     */
-    fun addCallToMacro() {
-        callsToMacros++
     }
 
     /**

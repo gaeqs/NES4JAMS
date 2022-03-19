@@ -48,7 +48,10 @@ class NESEditorLine(index: EditorIndex, scope: ElementScope, start: Int, number:
 
     override fun isMacroStart() = false
     override fun isMacroEnd() = false
-    override fun getDefinedMacroIdentifier(): Optional<String> = Optional.empty()
+    override fun canBeReferencedByALabel() =
+        instruction != null || directive != null && directive.directive?.providesAddress == true
+
+    override fun getDefinedMacroScope(): Optional<ElementScope> = Optional.empty()
 
     init {
         var current = text
