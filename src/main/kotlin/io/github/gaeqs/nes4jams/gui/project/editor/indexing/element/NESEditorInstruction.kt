@@ -38,9 +38,6 @@ class NESEditorInstruction(
     text: String
 ) : EditorIndexedParentElementImpl(index, scope, parent, start, text, Messages.MIPS_ELEMENT_INSTRUCTION) {
 
-
-    override fun getIdentifier() = super.getIdentifier().substring(1)
-
     init {
         if (text.isNotEmpty()) {
             val expIndex = text.indexOfAny(charArrayOf(' ', '\t'))

@@ -41,6 +41,8 @@ class NESInspectorManager(
     }
 
     override fun loadDefaultElements() {
+        add(BadMacroFormatInspector(ResourceProvider.JAMS))
+        add(BadMacroCallFormatInspector(ResourceProvider.JAMS))
         add(DuplicatedLabelInspector(ResourceProvider.JAMS))
         add(DuplicatedMacroInspector(ResourceProvider.JAMS))
         add(MacroNotFoundInspector(ResourceProvider.JAMS))

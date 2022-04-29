@@ -24,6 +24,8 @@
 
 package io.github.gaeqs.nes4jams.gui.project.editor.indexing
 
+import io.github.gaeqs.nes4jams.cpu.directive.defaults.NESDirectiveEndMacro
+import io.github.gaeqs.nes4jams.cpu.directive.defaults.NESDirectiveMacro
 import io.github.gaeqs.nes4jams.gui.project.editor.indexing.element.NESEditorDirective
 import io.github.gaeqs.nes4jams.gui.project.editor.indexing.element.NESEditorEquivalent
 import io.github.gaeqs.nes4jams.gui.project.editor.indexing.element.NESEditorInstruction
@@ -33,8 +35,10 @@ import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
 import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
 import net.jamsimulator.jams.gui.editor.code.indexing.element.basic.EditorElementComment
 import net.jamsimulator.jams.gui.editor.code.indexing.element.basic.EditorElementLabel
+import net.jamsimulator.jams.gui.editor.code.indexing.element.basic.EditorElementMacroCall
 import net.jamsimulator.jams.gui.editor.code.indexing.element.line.EditorIndexedLine
 import net.jamsimulator.jams.utils.LabelUtils
+import net.jamsimulator.jams.utils.StringUtils
 import java.util.*
 
 class NESEditorLine(index: EditorIndex, scope: ElementScope, start: Int, number: Int, text: String) :
@@ -44,10 +48,11 @@ class NESEditorLine(index: EditorIndex, scope: ElementScope, start: Int, number:
     val instruction: NESEditorInstruction?
     val directive: NESEditorDirective?
     val equivalent: NESEditorEquivalent?
+    val macroCall: EditorElementMacroCall?
     val comment: EditorElementComment?
 
-    override fun isMacroStart() = false
-    override fun isMacroEnd() = false
+    override fun isMacroStart() = directive?.let { it.directive is NESDirectiveMacro } ?: false
+    override fun isMacroEnd() = directive?.let { it.directive is NESDirectiveEndMacro } ?: false
     override fun canBeReferencedByALabel() =
         instruction != null || directive != null && directive.directive?.providesAddress == true
 
@@ -88,24 +93,37 @@ class NESEditorLine(index: EditorIndex, scope: ElementScope, start: Int, number:
                 instruction = null
                 directive = null
                 equivalent = null
+                macroCall = null
             }
             '=' in trim -> {
                 instruction = null
                 directive = null
                 equivalent = NESEditorEquivalent(index, scope, this, currentStart, trim)
+                macroCall = null
                 elements += equivalent
             }
             trim[0] == '.' -> {
                 instruction = null
                 directive = NESEditorDirective(index, scope, this, currentStart, trim)
                 equivalent = null
+                macroCall = null
                 elements += directive
             }
             else -> {
-                instruction = NESEditorInstruction(index, scope, this, currentStart, trim)
-                directive = null
-                equivalent = null
-                elements += instruction
+                val split = StringUtils.indexOf(trim, ' ', ',', '\t')
+                if (split != -1 && trim.substring(split + 1).trim().startsWith('(')) {
+                    instruction = null
+                    directive = null
+                    equivalent = null
+                    macroCall = EditorElementMacroCall(index, scope, this, currentStart, trim, split)
+                    elements += macroCall
+                } else {
+                    instruction = NESEditorInstruction(index, scope, this, currentStart, trim)
+                    directive = null
+                    equivalent = null
+                    macroCall = null
+                    elements += instruction
+                }
             }
         }
     }
