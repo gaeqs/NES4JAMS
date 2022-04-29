@@ -118,7 +118,7 @@ class NES4JAMS : Plugin() {
         val manager = manager<LanguageManager>()
         val jarResource = javaClass.getResource("/languages")
         if (jarResource != null) {
-            manager.loadLanguagesInDirectory(this, Path.of(jarResource.toURI()), true)
+            manager.loadLanguagesInDirectory(this, Path.of(jarResource.toURI()))
                 .forEach { (_: Path, e: LanguageLoadException) -> e.printStackTrace() }
         }
         manager.refresh()
@@ -146,7 +146,7 @@ class NES4JAMS : Plugin() {
         val manager = manager<ThemeManager>()
         val jarResource = javaClass.getResource("/gui/themes")
         if (jarResource != null) {
-            manager.loadThemesInDirectory(this, Path.of(jarResource.toURI()), true)
+            manager.loadThemesInDirectory(this, Path.of(jarResource.toURI()))
                 .forEach { (_: Path, e: ThemeLoadException) -> e.printStackTrace() }
         }
         manager.refresh()

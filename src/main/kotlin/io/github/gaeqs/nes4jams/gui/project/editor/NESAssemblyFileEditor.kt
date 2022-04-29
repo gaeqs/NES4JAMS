@@ -28,6 +28,8 @@ import io.github.gaeqs.nes4jams.gui.project.editor.indexing.NESEditorIndex
 import io.github.gaeqs.nes4jams.project.NESProject
 import javafx.stage.Popup
 import net.jamsimulator.jams.gui.editor.code.CodeFileEditor
+import net.jamsimulator.jams.gui.editor.code.autocompletion.AutocompletionPopup
+import net.jamsimulator.jams.gui.editor.code.autocompletion.view.AutocompletionPopupBasicView
 import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
 import net.jamsimulator.jams.gui.editor.holder.FileEditorTab
 
@@ -36,7 +38,11 @@ class NESAssemblyFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
     private val popup = Popup()
 
     init {
-        autocompletionPopup = NESAutocompletionPopup(this)
+        autocompletionPopup = AutocompletionPopup(
+            this,
+            NESAutocompletionPopupController(),
+            AutocompletionPopupBasicView()
+        )
     }
 
     fun getNESProject() = project as? NESProject

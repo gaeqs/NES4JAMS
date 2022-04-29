@@ -29,10 +29,12 @@ import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexStyleab
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedElementImpl
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
 import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
+import net.jamsimulator.jams.language.Messages
 
 class NESEditorDirectiveMnemonic(
     index: EditorIndex, scope: ElementScope, parent: EditorIndexedParentElement, start: Int, text: String
-) : EditorIndexedElementImpl(index, scope, parent, start, text), EditorIndexStyleableElement {
+) : EditorIndexedElementImpl(index, scope, parent, start, text, Messages.MIPS_ELEMENT_DIRECTIVE),
+    EditorIndexStyleableElement {
 
     companion object {
         val STYLES = setOf("directive")

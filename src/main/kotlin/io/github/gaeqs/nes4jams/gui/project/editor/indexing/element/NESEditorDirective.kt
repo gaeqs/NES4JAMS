@@ -29,6 +29,7 @@ import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElementImpl
 import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
+import net.jamsimulator.jams.language.Messages
 import net.jamsimulator.jams.utils.StringUtils
 
 class NESEditorDirective(
@@ -37,7 +38,7 @@ class NESEditorDirective(
     parent: EditorIndexedParentElement,
     start: Int,
     text: String
-) : EditorIndexedParentElementImpl(index, scope, parent, start, text) {
+) : EditorIndexedParentElementImpl(index, scope, parent, start, text, Messages.MIPS_ELEMENT_DIRECTIVE) {
 
     val directive: NESDirective?
 

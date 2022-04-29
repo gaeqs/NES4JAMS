@@ -28,6 +28,7 @@ import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElementImpl
 import net.jamsimulator.jams.gui.editor.code.indexing.element.ElementScope
+import net.jamsimulator.jams.language.Messages
 
 class NESEditorInstruction(
     index: EditorIndex,
@@ -35,7 +36,7 @@ class NESEditorInstruction(
     parent: EditorIndexedParentElement,
     start: Int,
     text: String
-) : EditorIndexedParentElementImpl(index, scope, parent, start, text) {
+) : EditorIndexedParentElementImpl(index, scope, parent, start, text, Messages.MIPS_ELEMENT_INSTRUCTION) {
 
 
     override fun getIdentifier() = super.getIdentifier().substring(1)

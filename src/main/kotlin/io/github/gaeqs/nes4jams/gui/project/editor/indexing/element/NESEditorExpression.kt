@@ -25,6 +25,7 @@
 package io.github.gaeqs.nes4jams.gui.project.editor.indexing.element
 
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
+import io.github.gaeqs.nes4jams.data.NES4JAMS_ELEMENT_EXPRESSION
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorExpressionPart
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorExpressionPartLabel
 import io.github.gaeqs.nes4jams.gui.project.editor.element.NESEditorExpressionPartType
@@ -43,7 +44,7 @@ class NESEditorExpression(
     parent: EditorIndexedParentElement,
     start: Int,
     text: String
-) : EditorIndexedParentElementImpl(index, scope, parent, start, text) {
+) : EditorIndexedParentElementImpl(index, scope, parent, start, text, NES4JAMS_ELEMENT_EXPRESSION) {
 
     init {
         // First we get the expression.

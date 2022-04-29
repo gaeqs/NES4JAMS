@@ -24,6 +24,8 @@
 
 package io.github.gaeqs.nes4jams.gui.project.editor.element
 
+import io.github.gaeqs.nes4jams.data.NES4JAMS_ELEMENT_EXPRESSION_PART_ADDRESSING_MODE
+import io.github.gaeqs.nes4jams.data.NES4JAMS_ELEMENT_EXPRESSION_PART_OPERATOR
 import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexStyleableElement
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedElementImpl
@@ -34,13 +36,14 @@ import net.jamsimulator.jams.gui.editor.code.indexing.element.basic.EditorElemen
 import net.jamsimulator.jams.gui.editor.code.indexing.element.reference.EditorElementReference
 import net.jamsimulator.jams.gui.editor.code.indexing.element.reference.EditorReferencingElement
 import net.jamsimulator.jams.gui.mips.editor.indexing.element.MIPSEditorInstructionParameterPart
+import net.jamsimulator.jams.language.Messages
 
-enum class NESEditorExpressionPartType(val style: String) {
-    LABEL("label"),
-    IMMEDIATE("instruction-parameter-immediate"),
-    OPERATOR("nes4jams-operator"),
-    ADDRESSING_MODE("instruction-parameter-register"),
-    INVALID("error")
+enum class NESEditorExpressionPartType(val style: String, val languageNode: String) {
+    LABEL("label", Messages.MIPS_ELEMENT_INSTRUCTION_PARAMETER_LABEL),
+    IMMEDIATE("instruction-parameter-immediate", Messages.MIPS_ELEMENT_INSTRUCTION_PARAMETER_IMMEDIATE),
+    OPERATOR("nes4jams-operator", NES4JAMS_ELEMENT_EXPRESSION_PART_OPERATOR),
+    ADDRESSING_MODE("instruction-parameter-register", NES4JAMS_ELEMENT_EXPRESSION_PART_ADDRESSING_MODE),
+    INVALID("error", "")
 }
 
 
@@ -51,7 +54,7 @@ open class NESEditorExpressionPart(
     start: Int,
     text: String,
     val type: NESEditorExpressionPartType
-) : EditorIndexedElementImpl(index, scope, parent, start, text), EditorIndexStyleableElement {
+) : EditorIndexedElementImpl(index, scope, parent, start, text, type.languageNode), EditorIndexStyleableElement {
 
     private val style = setOf(type.style)
     override fun getStyles() = style

@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams.gui.project.editor.indexing.element
 
+import io.github.gaeqs.nes4jams.data.NES4JAMS_ELEMENT_EQUIVALENT
 import net.jamsimulator.jams.gui.editor.code.indexing.EditorIndex
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElement
 import net.jamsimulator.jams.gui.editor.code.indexing.element.EditorIndexedParentElementImpl
@@ -35,7 +36,7 @@ class NESEditorEquivalent(
     parent: EditorIndexedParentElement,
     start: Int,
     text: String
-) : EditorIndexedParentElementImpl(index, scope, parent, start, text) {
+) : EditorIndexedParentElementImpl(index, scope, parent, start, text, NES4JAMS_ELEMENT_EQUIVALENT) {
 
     override fun getIdentifier() = super.getIdentifier().substring(1)
 
