@@ -41,9 +41,9 @@ class NESPPU(val simulation: NESSimulation) {
 
     val tvType = simulation.cartridge.header.tvType
 
-    val nameTables = Array(2) { UByteArray(1024) }
-    val palette = UByteArray(32)
-    val patternTables = Array(2) { UByteArray(4096) }
+    val nameTables = Array(2) { UByteArray(0x400) }
+    val palette = UByteArray(0x20)
+    val patternTables = Array(2) { UByteArray(0x1000) }
 
     val objectAttributeMemory = Array(64) { PPUSprite() }
     var oamAddress: UByte = 0u
@@ -66,8 +66,8 @@ class NESPPU(val simulation: NESSimulation) {
 
     val screen = ByteArray(SCREEN_WIDTH * SCREEN_HEIGHT)
 
-    private val backgroundRenderer = PPUBackgroundRenderer(this)
-    private val spriteRenderer = PPUSpriteRenderer(this)
+    val backgroundRenderer = PPUBackgroundRenderer(this)
+    val spriteRenderer = PPUSpriteRenderer(this)
 
     fun isRequestingNMI() = control.enableNmi > 0u && status.verticalBlank > 0u
 

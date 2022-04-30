@@ -29,24 +29,32 @@ import io.github.gaeqs.nes4jams.gui.simulation.display.BasicDisplay
 import io.github.gaeqs.nes4jams.gui.simulation.display.DisplayHolder
 import io.github.gaeqs.nes4jams.simulation.event.NESSimulationRenderEvent
 import javafx.geometry.Pos
+import javafx.scene.control.Tab
+import javafx.scene.control.TabPane
+import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import net.jamsimulator.jams.event.Listener
 import net.jamsimulator.jams.gui.util.AnchorUtils
 import net.jamsimulator.jams.mips.simulation.event.SimulationStopEvent
 
-class NESSimulationPPUDisplay(val pane: NESSimulationPane) : VBox() {
+class NESSimulationPPUDisplay(val pane: NESSimulationPane) : AnchorPane() {
 
     companion object {
         const val PATTERN_TABLE_SIZE = 128
+        const val MIRRORING_WIDTH = 64 * 8
+        const val MIRRORING_HEIGHT = 60 * 8
     }
 
-    private val worker = NESSimulationPPUDisplayWorker(this)
+    private val worker = NESSimulationPPUDisplayWorker(this).apply { isDaemon = true }
+    private val array = UByteArray(0x4000)
 
     val patternTables = listOf(
         BasicDisplay(PATTERN_TABLE_SIZE, PATTERN_TABLE_SIZE),
         BasicDisplay(PATTERN_TABLE_SIZE, PATTERN_TABLE_SIZE)
     )
+
+    val mirroring = BasicDisplay(MIRRORING_WIDTH, MIRRORING_HEIGHT)
 
     val palettes = listOf(
         NESSimulationPPUDisplayPalette(0),
@@ -71,14 +79,41 @@ class NESSimulationPPUDisplay(val pane: NESSimulationPane) : VBox() {
         pane.simulation.registerListeners(this, true)
         worker.start()
 
-        alignment = Pos.TOP_CENTER
+        val tabPane = TabPane()
 
+        // PATTERN TABLES
+
+        val patternTablesTab = Tab("Pattern Tables").apply { isClosable = false }
+        val patternTablesRoot = VBox().apply {
+            alignment = Pos.CENTER
+            isFillWidth = true
+        }
+
+        patternTablesTab.content = patternTablesRoot
         patternTables.forEach {
             val holder = DisplayHolder(it)
-            holder.prefWidthProperty().bind(widthProperty())
-            holder.prefHeightProperty().bind(heightProperty().multiply(0.9 * 0.5))
-            children += holder
+            holder.prefWidthProperty().bind(patternTablesRoot.widthProperty())
+            holder.prefHeightProperty().bind(patternTablesRoot.heightProperty().multiply(0.5))
+            patternTablesRoot.children += holder
         }
+
+        // MIRRORING
+
+        val mirroringTab = Tab("Mirroring").apply { isClosable = false }
+
+        val mirroringHolder = DisplayHolder(mirroring)
+        mirroringHolder.prefWidthProperty().bind(tabPane.widthProperty())
+        mirroringHolder.prefHeightProperty().bind(tabPane.heightProperty())
+
+        mirroringTab.content = mirroringHolder
+
+        // TAB PANE
+
+        tabPane.tabs += patternTablesTab
+        tabPane.tabs += mirroringTab
+        children += tabPane
+
+        // PALETTES
 
         palettes.forEach { it.setOnMouseClicked { _ -> selectedPalette = it } }
 
@@ -86,8 +121,14 @@ class NESSimulationPPUDisplay(val pane: NESSimulationPane) : VBox() {
         hBox.children.addAll(palettes)
         hBox.alignment = Pos.CENTER
         hBox.spacing = 5.0
+
         AnchorUtils.setAnchor(hBox, -1.0, 0.0, 0.0, 0.0)
-        hBox.prefHeightProperty().bind(heightProperty().multiply(0.1))
+
+        heightProperty().addListener { obs, old, new ->
+            hBox.prefHeight = new.toDouble() * 0.1
+            AnchorUtils.setAnchor(tabPane, 0.0, new.toDouble() * 0.1, 0.0, 0.0)
+        }
+
         children += hBox
     }
 
@@ -109,7 +150,10 @@ class NESSimulationPPUDisplay(val pane: NESSimulationPane) : VBox() {
 
     private fun pushCurrentPPU() {
         val ppu = pane.simulation.ppu
-        worker.generateAndPushIfPossible { UByteArray(0x4000) { ppu.ppuRead(it.toUShort()) } }
+        worker.generateAndPushIfPossible {
+            repeat(0x4000) { array[it] = ppu.ppuRead(it.toUShort()) }
+            array
+        }
     }
 
 }

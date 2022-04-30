@@ -28,7 +28,6 @@ import com.sun.javafx.geom.BaseBounds
 import com.sun.javafx.geom.transform.BaseTransform
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
-import javafx.application.Platform
 import javafx.beans.property.FloatPropertyBase
 import javafx.scene.Node
 import java.util.concurrent.locks.ReentrantLock
@@ -115,8 +114,8 @@ open class DisplayView(val width: Int, val height: Int) : Node() {
         lock.withLock {
             if (disposed) return
             function(data)
+            NodeHelper.markDirty(this, DirtyBits.NODE_CONTENTS)
         }
-        NodeHelper.markDirty(this, DirtyBits.NODE_CONTENTS)
     }
 
     /**
