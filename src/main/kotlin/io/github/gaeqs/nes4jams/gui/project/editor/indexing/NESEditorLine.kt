@@ -26,6 +26,7 @@ package io.github.gaeqs.nes4jams.gui.project.editor.indexing
 
 import io.github.gaeqs.nes4jams.cpu.directive.defaults.NESDirectiveEndMacro
 import io.github.gaeqs.nes4jams.cpu.directive.defaults.NESDirectiveMacro
+import io.github.gaeqs.nes4jams.cpu.instruction.NESInstruction
 import io.github.gaeqs.nes4jams.gui.project.editor.indexing.element.NESEditorDirective
 import io.github.gaeqs.nes4jams.gui.project.editor.indexing.element.NESEditorEquivalent
 import io.github.gaeqs.nes4jams.gui.project.editor.indexing.element.NESEditorInstruction
@@ -38,7 +39,6 @@ import net.jamsimulator.jams.gui.editor.code.indexing.element.basic.EditorElemen
 import net.jamsimulator.jams.gui.editor.code.indexing.element.basic.EditorElementMacroCall
 import net.jamsimulator.jams.gui.editor.code.indexing.element.line.EditorIndexedLine
 import net.jamsimulator.jams.utils.LabelUtils
-import net.jamsimulator.jams.utils.StringUtils
 import java.util.*
 
 class NESEditorLine(index: EditorIndex, scope: ElementScope, start: Int, number: Int, text: String) :
@@ -110,19 +110,33 @@ class NESEditorLine(index: EditorIndex, scope: ElementScope, start: Int, number:
                 elements += directive
             }
             else -> {
-                val split = StringUtils.indexOf(trim, ' ', ',', '\t')
-                if (split != -1 && trim.substring(split + 1).trim().startsWith('(')) {
-                    instruction = null
-                    directive = null
-                    equivalent = null
-                    macroCall = EditorElementMacroCall(index, scope, this, currentStart, trim, split)
-                    elements += macroCall
-                } else {
+                val split = trim.indexOfAny(charArrayOf(' ', ',', '\t'))
+
+                if (split == -1) {
                     instruction = NESEditorInstruction(index, scope, this, currentStart, trim)
                     directive = null
                     equivalent = null
                     macroCall = null
                     elements += instruction
+                } else {
+                    val mnemonic = trim.substring(0, split).uppercase()
+                    val ins = NESInstruction.INSTRUCTIONS[mnemonic]
+                    if (ins == null
+                        && trim.substring(split + 1).trim().startsWith('(')
+                        && trim.endsWith(')')
+                    ) {
+                        instruction = null
+                        directive = null
+                        equivalent = null
+                        macroCall = EditorElementMacroCall(index, scope, this, currentStart, trim, split)
+                        elements += macroCall
+                    } else {
+                        instruction = NESEditorInstruction(index, scope, this, currentStart, trim)
+                        directive = null
+                        equivalent = null
+                        macroCall = null
+                        elements += instruction
+                    }
                 }
             }
         }

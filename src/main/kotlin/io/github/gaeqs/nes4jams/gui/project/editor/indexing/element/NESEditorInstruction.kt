@@ -40,7 +40,7 @@ class NESEditorInstruction(
 
     init {
         if (text.isNotEmpty()) {
-            val expIndex = text.indexOfAny(charArrayOf(' ', '\t'))
+            val expIndex = text.indexOfAny(charArrayOf(' ', ',', '\t'))
             if (expIndex == -1) {
                 elements += NESEditorInstructionMnemonic(index, scope, this, start, text)
             } else {

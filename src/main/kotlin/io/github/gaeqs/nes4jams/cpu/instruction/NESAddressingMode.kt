@@ -69,7 +69,7 @@ enum class NESAddressingMode(
                         return Pair(setOf(INDIRECT_X), candidate.substring(0, candidate.length - 1))
                     }
                 }
-                return Pair(setOf(INDIRECT), trimmed)
+                return Pair(setOf(INDIRECT), candidate)
             }
 
             // ABSOLUTE X, ZERO PAGE X
