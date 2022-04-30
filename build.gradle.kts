@@ -12,6 +12,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://jitpack.io")
 }
 
 javafx {
@@ -25,6 +26,7 @@ dependencies {
     implementation(files("lib/JAMS.jar"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     implementation(group = "no.tornado", name = "tornadofx", version = "1.7.20")
+    implementation(group = "com.github.strikerx3", name = "jxinput", version = "1.0.0")
     implementation(kotlin("stdlib-jdk8"))
 }
 
