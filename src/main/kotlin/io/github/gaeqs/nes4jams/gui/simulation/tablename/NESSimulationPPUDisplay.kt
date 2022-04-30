@@ -24,18 +24,20 @@
 
 package io.github.gaeqs.nes4jams.gui.simulation.tablename
 
+import io.github.gaeqs.nes4jams.data.NES4JAMS_PPU_FULL_SCENE
+import io.github.gaeqs.nes4jams.data.NES4JAMS_PPU_PATTERN_TABLES
 import io.github.gaeqs.nes4jams.gui.project.NESSimulationPane
 import io.github.gaeqs.nes4jams.gui.simulation.display.BasicDisplay
 import io.github.gaeqs.nes4jams.gui.simulation.display.DisplayHolder
 import io.github.gaeqs.nes4jams.simulation.event.NESSimulationRenderEvent
 import javafx.geometry.Pos
-import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import net.jamsimulator.jams.event.Listener
 import net.jamsimulator.jams.gui.util.AnchorUtils
+import net.jamsimulator.jams.language.wrapper.LanguageTab
 import net.jamsimulator.jams.mips.simulation.event.SimulationStopEvent
 
 class NESSimulationPPUDisplay(val pane: NESSimulationPane) : AnchorPane() {
@@ -54,7 +56,7 @@ class NESSimulationPPUDisplay(val pane: NESSimulationPane) : AnchorPane() {
         BasicDisplay(PATTERN_TABLE_SIZE, PATTERN_TABLE_SIZE)
     )
 
-    val mirroring = BasicDisplay(MIRRORING_WIDTH, MIRRORING_HEIGHT)
+    val fullScene = BasicDisplay(MIRRORING_WIDTH, MIRRORING_HEIGHT)
 
     val palettes = listOf(
         NESSimulationPPUDisplayPalette(0),
@@ -83,7 +85,7 @@ class NESSimulationPPUDisplay(val pane: NESSimulationPane) : AnchorPane() {
 
         // PATTERN TABLES
 
-        val patternTablesTab = Tab("Pattern Tables").apply { isClosable = false }
+        val patternTablesTab = LanguageTab(NES4JAMS_PPU_PATTERN_TABLES).apply { isClosable = false }
         val patternTablesRoot = VBox().apply {
             alignment = Pos.CENTER
             isFillWidth = true
@@ -97,20 +99,20 @@ class NESSimulationPPUDisplay(val pane: NESSimulationPane) : AnchorPane() {
             patternTablesRoot.children += holder
         }
 
-        // MIRRORING
+        // FULL SCENE
 
-        val mirroringTab = Tab("Mirroring").apply { isClosable = false }
+        val fullSceneTab = LanguageTab(NES4JAMS_PPU_FULL_SCENE).apply { isClosable = false }
 
-        val mirroringHolder = DisplayHolder(mirroring)
-        mirroringHolder.prefWidthProperty().bind(tabPane.widthProperty())
-        mirroringHolder.prefHeightProperty().bind(tabPane.heightProperty())
+        val fullSceneHolder = DisplayHolder(fullScene)
+        fullSceneHolder.prefWidthProperty().bind(tabPane.widthProperty())
+        fullSceneHolder.prefHeightProperty().bind(tabPane.heightProperty())
 
-        mirroringTab.content = mirroringHolder
+        fullSceneTab.content = fullSceneHolder
 
         // TAB PANE
 
         tabPane.tabs += patternTablesTab
-        tabPane.tabs += mirroringTab
+        tabPane.tabs += fullSceneTab
         children += tabPane
 
         // PALETTES

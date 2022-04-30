@@ -53,21 +53,31 @@ abstract class NESMemoryView(
         val CARTRIDGE_PRG = object : NESMemoryView("CARTRIDGE_PRG", false) {
             override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
             override fun sizeOf(simulation: NESSimulation) = simulation.cartridge.prgMemory.size
-            override fun read(simulation: NESSimulation, address: UShort) =
-                simulation.cartridge.prgMemory[address.toInt()]
+            override fun read(simulation: NESSimulation, address: UShort) = with(address.toInt()) {
+                simulation.cartridge.prgMemory.let {
+                    if (it.size > this) it[this] else (0u).toUByte()
+                }
+            }
 
-            override fun write(simulation: NESSimulation, address: UShort, value: UByte) {
-                simulation.cartridge.prgMemory[address.toInt()] = value
+            override fun write(simulation: NESSimulation, address: UShort, value: UByte) = with(address.toInt()) {
+                simulation.cartridge.prgMemory.let {
+                    if (it.size > this) it[this] = value
+                }
             }
         }
         val CARTRIDGE_CHR = object : NESMemoryView("CARTRIDGE_CHR", false) {
             override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
             override fun sizeOf(simulation: NESSimulation) = simulation.cartridge.chrMemory.size
-            override fun read(simulation: NESSimulation, address: UShort) =
-                simulation.cartridge.chrMemory[address.toInt()]
+            override fun read(simulation: NESSimulation, address: UShort) = with(address.toInt()) {
+                simulation.cartridge.chrMemory.let {
+                    if (it.size > this) it[this] else (0u).toUByte()
+                }
+            }
 
-            override fun write(simulation: NESSimulation, address: UShort, value: UByte) {
-                simulation.cartridge.chrMemory[address.toInt()] = value
+            override fun write(simulation: NESSimulation, address: UShort, value: UByte) = with(address.toInt()) {
+                simulation.cartridge.chrMemory.let {
+                    if (it.size > this) it[this] = value
+                }
             }
         }
     }

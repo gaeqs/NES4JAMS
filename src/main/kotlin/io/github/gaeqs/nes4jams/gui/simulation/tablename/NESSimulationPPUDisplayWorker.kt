@@ -123,7 +123,7 @@ class NESSimulationPPUDisplayWorker(val display: NESSimulationPPUDisplay) : Thre
     }
 
     private fun decodeMirroring(data: UByteArray) {
-        display.mirroring.startDataTransmission { buffer ->
+        display.fullScene.startDataTransmission { buffer ->
             for (ry in 0..1) {
                 for (rx in 0..1) {
                     val start = 0x2000 + ((ry shl 1) + rx) * 0x400

@@ -106,14 +106,20 @@ class NGDisplayView(val width: Int, val height: Int, val data: IntArray, val loc
         }
 
         lock.withLock {
-            texture.update(
-                IntBuffer.wrap(data),
-                PixelFormat.INT_ARGB_PRE,
-                0, 0, 0, 0,
-                width, height,
-                width shl 2,
-                false
-            )
+            try {
+                texture.update(
+                    IntBuffer.wrap(data),
+                    PixelFormat.INT_ARGB_PRE,
+                    0, 0, 0, 0,
+                    width, height,
+                    width shl 2,
+                    false
+                )
+            } catch (ex : NullPointerException) {
+                // Thx JavaFX for this behavior :D
+                textureInitialized = false
+                texture.dispose()
+            }
         }
     }
 }
