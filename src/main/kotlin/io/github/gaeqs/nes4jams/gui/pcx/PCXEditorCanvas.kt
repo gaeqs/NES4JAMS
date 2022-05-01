@@ -110,8 +110,9 @@ class PCXEditorCanvas(val editor: PCXFileEditor) :
 
     private fun initScrollPaneZoomListener(scrollPane: ScrollPane, gc: GraphicsContext) {
         scrollPane.addEventFilter(ScrollEvent.SCROLL) { event ->
-            val sensibility = (Jams.getMainConfiguration().getNumber("editor.zoom_sensibility").orElse(0.2)).toDouble()
-            if (event.isControlDown && Jams.getMainConfiguration().get<Boolean>("editor.zoom_using_mouse_wheel")
+            val sensibility =
+                (Jams.getMainConfiguration().data.getNumber("editor.zoom_sensibility").orElse(0.2)).toDouble()
+            if (event.isControlDown && Jams.getMainConfiguration().data.get<Boolean>("editor.zoom_using_mouse_wheel")
                     .orElse(true)
             ) {
                 zoom = 0.4.coerceAtLeast(zoom + sensibility * event.deltaY * 2.0)
@@ -123,7 +124,8 @@ class PCXEditorCanvas(val editor: PCXFileEditor) :
         }
         scrollPane.addEventFilter(MouseEvent.MOUSE_CLICKED) { event ->
             if (event.isControlDown && event.button == MouseButton.MIDDLE && Jams.getMainConfiguration()
-                    .get<Any>("editor.reset_zoom_using_middle_button").orElse(true) as Boolean
+                    .data.get<Any>("editor.reset_zoom_using_middle_button")
+                    .orElse(true) as Boolean
             ) {
                 zoom = 1.0
                 width = image.header.width * zoom

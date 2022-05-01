@@ -35,12 +35,11 @@ import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryViewManager
 import io.github.gaeqs.nes4jams.gui.util.converter.NESValueConverters
 import io.github.gaeqs.nes4jams.gui.util.value.NESValueEditors
 import io.github.gaeqs.nes4jams.project.NESProjectType
-import io.github.gaeqs.nes4jams.util.extension.SELECTED_LANGUAGE
 import io.github.gaeqs.nes4jams.util.extension.orNull
 import io.github.gaeqs.nes4jams.util.manager
 import io.github.gaeqs.nes4jams.util.managerOf
 import net.jamsimulator.jams.Jams
-import net.jamsimulator.jams.configuration.Configuration
+import net.jamsimulator.jams.configuration.ConfigurationAttachment
 import net.jamsimulator.jams.configuration.RootConfiguration
 import net.jamsimulator.jams.configuration.format.ConfigurationFormat
 import net.jamsimulator.jams.configuration.format.ConfigurationFormatJSON
@@ -125,18 +124,21 @@ class NES4JAMS : Plugin() {
     }
 
     private fun loadConfiguration() {
+        val format = managerOf<ConfigurationFormat>().getOrNull(ConfigurationFormatJSON.NAME)
         resource("/configurations/nes4jams.json").ifPresent {
-            val format = managerOf<ConfigurationFormat>().getOrNull(ConfigurationFormatJSON.NAME)
-            Jams.getMainConfiguration().addNotPresentValues(
+            Jams.getMainConfiguration().data.addNotPresentValues(
                 RootConfiguration(it.reader(StandardCharsets.UTF_8), format)
             )
             it.close()
         }
 
         resource("/configurations/nes4jams_meta.json").ifPresent {
-            val format = managerOf<ConfigurationFormat>().getOrNull(ConfigurationFormatJSON.NAME)
-            Jams.getMainConfigurationMetadata().addNotPresentValues(
-                RootConfiguration(it.reader(StandardCharsets.UTF_8), format)
+            Jams.getMainConfiguration().metadata.addAttachment(
+                ConfigurationAttachment(
+                    this,
+                    RootConfiguration(it.reader(StandardCharsets.UTF_8), format),
+                    0
+                )
             )
             it.close()
         }

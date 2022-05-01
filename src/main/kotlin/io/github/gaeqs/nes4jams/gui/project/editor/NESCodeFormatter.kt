@@ -37,7 +37,7 @@ class NESCodeFormatter(val elements: NESEditorIndex) {
     private var maxBlankLines: Int
 
     init {
-        val c: Configuration = Jams.getMainConfiguration()
+        val c: Configuration = Jams.getMainConfiguration().data
         val useTabs = c.get<Any>("editor.mips.use_tabs").orElse(false) as Boolean
         tabChar = if (useTabs) '\t' else ' '
         tabCharNumber = 4

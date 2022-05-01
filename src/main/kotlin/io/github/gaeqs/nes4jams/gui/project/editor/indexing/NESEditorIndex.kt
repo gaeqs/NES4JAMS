@@ -53,7 +53,7 @@ class NESEditorIndex(project: Project, name: String) :
 
     override fun reformat(): String {
         val builder = StringBuilder()
-        val config = Jams.getMainConfiguration()
+        val config = Jams.getMainConfiguration().data
 
         val afterDirectiveParameter = config.getEnum<MIPSSpaces>(NODE_SPACE_AFTER_DIRECTIVE_PARAMETER)
             .map { it.value }.orElse(" ")
