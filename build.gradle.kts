@@ -36,6 +36,7 @@ tasks.test {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "17"
+    kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.ExperimentalUnsignedTypes"
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
@@ -49,7 +50,7 @@ task("shadowAndRun") {
     dependsOn("shadowJar")
     doLast {
         javaexec {
-            main = "-jar"
+            mainClass.set("-jar")
             args = listOf("lib/JAMS.jar", "-loadPlugin", "build/libs/NES4JAMS-$version.jar")
         }
     }
@@ -63,7 +64,7 @@ task("shadowAndRunWithDebugger") {
             debugOptions {
                 enabled.value(true)
             }
-            main = "-jar"
+            mainClass.set("-jar")
             args = listOf(
                 "lib/JAMS.jar",
                 "-Dprism.order=j2d",
