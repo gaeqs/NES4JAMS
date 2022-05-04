@@ -1,7 +1,7 @@
 /*
  *  MIT License
  *
- *  Copyright (c) 2021 Gael Rial Costas
+ *  Copyright (c) 2022 Gael Rial Costas
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +22,28 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.simulation
+package io.github.gaeqs.nes4jams.simulation.controller
 
-data class NESControllerMap(
-    val a: Boolean = false,
-    val b: Boolean = false,
-    val select: Boolean = false,
-    val start: Boolean = false,
-    val up: Boolean = false,
-    val down: Boolean = false,
-    val left: Boolean = false,
-    val right: Boolean = false
+import io.github.gaeqs.nes4jams.NES4JAMS
+import net.jamsimulator.jams.manager.Manager
+import net.jamsimulator.jams.manager.ResourceProvider
+
+class NESControllerDeviceBuilderManager(
+    resourceProvider: ResourceProvider
+) : Manager<NESControllerDeviceBuilder>(
+    resourceProvider,
+    NAME,
+    NESControllerDeviceBuilder::class.java,
+    true
 ) {
 
-    fun toByte(): UByte {
-        var byte: UByte = 0u
-        byte = byte or if (a) 0x80u else 0x0u
-        byte = byte or if (b) 0x40u else 0x0u
-        byte = byte or if (select) 0x20u else 0x0u
-        byte = byte or if (start) 0x10u else 0x0u
-        byte = byte or if (up) 0x08u else 0x0u
-        byte = byte or if (down) 0x04u else 0x0u
-        byte = byte or if (left) 0x02u else 0x0u
-        byte = byte or if (right) 0x01u else 0x0u
-        return byte
+    companion object {
+        const val NAME = "nes_controller_device_builder"
+        val INSTANCE = NESControllerDeviceBuilderManager(NES4JAMS.INSTANCE)
     }
 
-    infix fun union(other: NESControllerMap) = NESControllerMap(
-        a || other.a,
-        b || other.b,
-        select || other.select,
-        start || other.start,
-        up || other.up,
-        down || other.down,
-        left || other.left,
-        right || other.right
-    )
-
+    override fun loadDefaultElements() {
+        add(NESKeyboardController.Builder(provider))
+        add(NESXInputController.Builder(provider))
+    }
 }
