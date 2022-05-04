@@ -56,18 +56,19 @@ class FolderActionAddSpriteToAssembler : ContextAction(
         const val LANGUAGE_NODE = "ACTION_FOLDER_EXPLORER_ADD_SPRITE_TO_ASSEMBLER"
     }
 
-    override fun run(node: Any?) {
-        if (node !is ExplorerElement) return
+    override fun run(node: Any?) : Boolean {
+        if (node !is ExplorerElement) return false
         val explorer = node.explorer
-        if (explorer !is ProjectFolderExplorer) return
+        if (explorer !is ProjectFolderExplorer) return false
         val project = explorer.project
-        if (project !is NESProject) return
+        if (project !is NESProject) return false
         val elements = explorer.selectedElements
 
         elements.forEach {
             it as ExplorerFile
             project.data.spritesToAssemble.addFile(it.file)
         }
+        return true
     }
 
     override fun runFromMenu() {

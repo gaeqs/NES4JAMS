@@ -53,10 +53,10 @@ class FolderActionNewPCXFile : ContextAction(
         const val LANGUAGE_NODE = "ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE"
     }
 
-    override fun run(node: Any?) {
-        if (node !is ExplorerElement) return
+    override fun run(node: Any?): Boolean {
+        if (node !is ExplorerElement) return false
         val explorer = node.explorer
-        if (explorer !is FolderExplorer || explorer.selectedElements.size != 1) return
+        if (explorer !is FolderExplorer || explorer.selectedElements.size != 1) return false
         val folder = when (val element = explorer.selectedElements[0]) {
             is ExplorerFile -> element.file.parentFile
             is ExplorerFolder -> element.folder
@@ -64,6 +64,7 @@ class FolderActionNewPCXFile : ContextAction(
         }
 
         NewPCXFileWindow.open(folder)
+        return true
     }
 
     override fun runFromMenu() {

@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.10"
-    kotlin("plugin.serialization") version "1.6.10"
+    kotlin("jvm") version "1.6.20"
+    kotlin("plugin.serialization") version "1.6.20"
     id("com.github.johnrengelman.shadow") version "2.0.4"
     id("org.openjfx.javafxplugin") version "0.0.9"
 }
@@ -12,6 +12,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://jitpack.io")
 }
 
 javafx {
@@ -25,6 +26,7 @@ dependencies {
     implementation(files("lib/JAMS.jar"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     implementation(group = "no.tornado", name = "tornadofx", version = "1.7.20")
+    implementation(group = "com.github.strikerx3", name = "jxinput", version = "1.0.0")
     implementation(kotlin("stdlib-jdk8"))
 }
 
@@ -34,6 +36,7 @@ tasks.test {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "17"
+    kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.ExperimentalUnsignedTypes"
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
@@ -47,7 +50,7 @@ task("shadowAndRun") {
     dependsOn("shadowJar")
     doLast {
         javaexec {
-            main = "-jar"
+            mainClass.set("-jar")
             args = listOf("lib/JAMS.jar", "-loadPlugin", "build/libs/NES4JAMS-$version.jar")
         }
     }
@@ -61,7 +64,7 @@ task("shadowAndRunWithDebugger") {
             debugOptions {
                 enabled.value(true)
             }
-            main = "-jar"
+            mainClass.set("-jar")
             args = listOf(
                 "lib/JAMS.jar",
                 "-Dprism.order=j2d",

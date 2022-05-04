@@ -27,7 +27,7 @@ package io.github.gaeqs.nes4jams.cpu.directive.defaults
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerFile
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
 
-class NESDirectiveData : NESDirective(NAME) {
+class NESDirectiveData : NESDirective(NAME, true) {
 
     companion object {
         const val NAME = "data"

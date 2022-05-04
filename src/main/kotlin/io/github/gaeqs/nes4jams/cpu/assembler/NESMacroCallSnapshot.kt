@@ -34,7 +34,6 @@ class NESMacroCallSnapshot(
 ) {
 
     val parameters: Array<String>
-    val mnemonic = mnemonic.uppercase()
 
     init {
         if (!rawParameters.startsWith('(') || !rawParameters.endsWith(')'))
@@ -44,5 +43,7 @@ class NESMacroCallSnapshot(
         parameters = StringUtils.multiSplitIgnoreInsideString(raw, false, " ", ",", "\t")
             .toTypedArray()
     }
+
+    val mnemonic = mnemonic + "-${parameters.size}"
 
 }

@@ -102,7 +102,7 @@ class NESStructurePaneButtons(val project: NESProject) {
         val thread = Thread {
             val pane = tab.projectTabPane.workingPane
             pane.saveAllOpenedFiles()
-            if (Jams.getMainConfiguration().getOrElse("simulation.open_log_on_assemble", true)) {
+            if (Jams.getMainConfiguration().data.getOrElse("simulation.open_log_on_assemble", true)) {
                 Platform.runLater {
                     pane.barMap.searchButton("log").ifPresent { obj: BarButton -> obj.show() }
                 }

@@ -2,6 +2,9 @@
   "editor": {
     "nes": {
       "meta": {
+        "requires_plugins": [
+          "NES4JAMS"
+        ],
         "language_node": "CONFIG_EDITOR_NES",
         "regions": {
           "tabs": 0,

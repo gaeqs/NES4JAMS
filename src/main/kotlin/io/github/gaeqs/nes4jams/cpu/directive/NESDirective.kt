@@ -27,7 +27,7 @@ package io.github.gaeqs.nes4jams.cpu.directive
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerFile
 import io.github.gaeqs.nes4jams.cpu.directive.defaults.*
 
-abstract class NESDirective(val mnemonic: String) {
+abstract class NESDirective(val mnemonic: String, val providesAddress : Boolean) {
 
     abstract fun firstPassExecute(
         file: NESAssemblerFile,

@@ -65,11 +65,11 @@ class NESMemoryTable(
         columns.addAll(pAddress, p0, p1, p2, p3)
         getVisibleLeafColumn(0).minWidth = 80.0
 
-        rows = Jams.getMainConfiguration().get<Int>(MEMORY_ROWS_CONFIGURATION_NODE).orElse(47)
+        rows = Jams.getMainConfiguration().data.get<Int>(MEMORY_ROWS_CONFIGURATION_NODE).orElse(47)
 
         populate()
 
-        Jams.getMainConfiguration().registerListeners(this, true)
+        Jams.getMainConfiguration().data.registerListeners(this, true)
         pane.simulation.registerListeners(this, true)
     }
 

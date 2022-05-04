@@ -27,7 +27,7 @@ package io.github.gaeqs.nes4jams.cpu.directive.defaults
 import io.github.gaeqs.nes4jams.cpu.assembler.NESAssemblerFile
 import io.github.gaeqs.nes4jams.cpu.directive.NESDirective
 
-class NESDirectiveEndMacro : NESDirective(NAME) {
+class NESDirectiveEndMacro : NESDirective(NAME, false) {
 
     companion object {
         const val NAME = "endmacro"

@@ -49,7 +49,7 @@ class BeeperThread(val apu: NESAPU, sampleRate: Int) : Thread() {
                 filling = true
             }
             beeper.sample(apu.fetchSample())
-            if(filling && beeper.samplesBeingProcessedPercentage() > 0.3) {
+            if(filling && beeper.samplesBeingProcessedPercentage() > 0.1) {
                 filling = false
                 beeper.resume()
             }

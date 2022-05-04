@@ -24,6 +24,9 @@
 
 package io.github.gaeqs.nes4jams.gui.simulation.display
 
+import com.github.strikerx3.jxinput.XInputDevice
+import com.github.strikerx3.jxinput.enums.XInputButton
+import com.github.strikerx3.jxinput.listener.SimpleXInputDeviceListener
 import io.github.gaeqs.nes4jams.gui.project.NESSimulationPane
 import io.github.gaeqs.nes4jams.ppu.PPUColors
 import io.github.gaeqs.nes4jams.simulation.NESControllerMap
@@ -46,41 +49,95 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
         get() = pane.parentTab?.isSelected != false && pane.simulation.isRunning
         set(_) {}
 
-    private var controller = NESControllerMap()
+    @Volatile
+    private var keyboard = NESControllerMap()
+
+    @Volatile
+    private var xInputFirstPlayer = NESControllerMap()
+
+    @Volatile
+    private var xInputSecondPlayer = NESControllerMap()
+
+    private val deviceFirstPlayer: XInputDevice?
+    private val deviceSecondPlayer: XInputDevice?
 
     init {
-        setOnKeyPressed { update(it.code, true); it.consume() }
-        setOnKeyReleased { update(it.code, false); it.consume() }
+        setOnKeyPressed { updateKeyboard(it.code, true); it.consume() }
+        setOnKeyReleased { updateKeyboard(it.code, false); it.consume() }
         pane.simulation.registerListeners(this, true)
+
+
+        deviceFirstPlayer = if (XInputDevice.isAvailable()) XInputDevice.getDeviceFor(0).apply {
+            addListener(object : SimpleXInputDeviceListener() {
+                override fun buttonChanged(button: XInputButton, pressed: Boolean) {
+                    // This code runs on the simulation thread.
+                    updateXInput(button, pressed, false)
+                }
+            })
+        } else null
+        deviceSecondPlayer = if (XInputDevice.isAvailable()) XInputDevice.getDeviceFor(1).apply {
+            addListener(object : SimpleXInputDeviceListener() {
+                override fun buttonChanged(button: XInputButton, pressed: Boolean) {
+                    // This code runs on the simulation thread.
+                    updateXInput(button, pressed, true)
+                }
+            })
+        } else null
+
     }
 
-    private fun update(key: KeyCode, pressed: Boolean) {
+    private fun updateKeyboard(key: KeyCode, pressed: Boolean) {
         when (key) {
-            KeyCode.X -> controller = controller.copy(a = pressed)
-            KeyCode.Z -> controller = controller.copy(b = pressed)
-            KeyCode.A -> controller = controller.copy(start = pressed)
-            KeyCode.S -> controller = controller.copy(select = pressed)
-            KeyCode.UP -> controller = controller.copy(up = pressed)
-            KeyCode.DOWN -> controller = controller.copy(down = pressed)
-            KeyCode.LEFT -> controller = controller.copy(left = pressed)
-            KeyCode.RIGHT -> controller = controller.copy(right = pressed)
+            KeyCode.X -> keyboard = keyboard.copy(a = pressed)
+            KeyCode.Z -> keyboard = keyboard.copy(b = pressed)
+            KeyCode.A -> keyboard = keyboard.copy(start = pressed)
+            KeyCode.S -> keyboard = keyboard.copy(select = pressed)
+            KeyCode.UP -> keyboard = keyboard.copy(up = pressed)
+            KeyCode.DOWN -> keyboard = keyboard.copy(down = pressed)
+            KeyCode.LEFT -> keyboard = keyboard.copy(left = pressed)
+            KeyCode.RIGHT -> keyboard = keyboard.copy(right = pressed)
             KeyCode.SHIFT -> {
                 pane.simulation.runSynchronized {
                     pane.simulation.maxFPS = pressed
                 }
                 return
             }
-            else -> {
-            }
+            else -> {}
         }
         pane.simulation.runSynchronized {
-            pane.simulation.sendNextControllerData(controller, false)
+            pane.simulation.sendNextControllerData(keyboard union xInputFirstPlayer, false)
         }
     }
 
+    private fun updateXInput(button: XInputButton, pressed: Boolean, secondPlayer: Boolean) {
+        val xInput = if (secondPlayer) xInputSecondPlayer else xInputFirstPlayer
+        val result = when (button) {
+            XInputButton.A -> xInput.copy(a = pressed)
+            XInputButton.B -> xInput.copy(b = pressed)
+            XInputButton.START -> xInput.copy(start = pressed)
+            XInputButton.BACK -> xInput.copy(select = pressed)
+            XInputButton.DPAD_UP -> xInput.copy(up = pressed)
+            XInputButton.DPAD_DOWN -> xInput.copy(down = pressed)
+            XInputButton.DPAD_LEFT -> xInput.copy(left = pressed)
+            XInputButton.DPAD_RIGHT -> xInput.copy(right = pressed)
+            else -> xInput
+        }
+
+        if (secondPlayer) xInputSecondPlayer = result
+        else xInputFirstPlayer = result
+
+        pane.simulation.runSynchronized {
+            pane.simulation.sendNextControllerData(if (secondPlayer) result else keyboard union result, secondPlayer)
+        }
+    }
+
+
     @Listener
     private fun onSimulationRender(event: NESSimulationRenderEvent) {
-        if(!drawEnabled) return
+        deviceFirstPlayer?.poll()
+        deviceSecondPlayer?.poll()
+        if (!drawEnabled) return
+
         startDataTransmission { buffer ->
             repeat(buffer.size) {
                 buffer[it] = PPUColors.INT_COLORS[event.buffer[it].toInt()]

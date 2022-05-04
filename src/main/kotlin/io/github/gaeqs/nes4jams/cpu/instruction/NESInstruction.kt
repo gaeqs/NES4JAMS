@@ -37,7 +37,7 @@ class NESInstruction(val mnemonic: String, val supportedAddressingModes: Map<NES
     }
 
     override fun toString(): String {
-        return "OLC6502Instruction(mnemonic='$mnemonic')"
+        return "NESInstruction(mnemonic='$mnemonic')"
     }
 
     companion object {

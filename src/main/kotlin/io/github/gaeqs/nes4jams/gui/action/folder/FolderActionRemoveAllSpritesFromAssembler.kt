@@ -54,12 +54,12 @@ class FolderActionRemoveAllSpritesFromAssembler : ContextAction(
         const val LANGUAGE_NODE = "ACTION_FOLDER_EXPLORER_REMOVE_ALL_SPRITES_FROM_ASSEMBLER"
     }
 
-    override fun run(node: Any?) {
-        if (node !is ExplorerElement) return
+    override fun run(node: Any?) : Boolean{
+        if (node !is ExplorerElement) return false
         val explorer = node.explorer
-        if (explorer !is ProjectFolderExplorer) return
+        if (explorer !is ProjectFolderExplorer) return false
         val project = explorer.project
-        if (project !is NESProject) return
+        if (project !is NESProject) return false
         val folder = (explorer.selectedElements[0] as ExplorerFolder).folder
 
         try {
@@ -69,6 +69,8 @@ class FolderActionRemoveAllSpritesFromAssembler : ContextAction(
         } catch (ex: IOException) {
             ex.printStackTrace()
         }
+
+        return true
     }
 
     override fun runFromMenu() {

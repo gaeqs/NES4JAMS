@@ -48,4 +48,15 @@ data class NESControllerMap(
         return byte
     }
 
+    infix fun union(other: NESControllerMap) = NESControllerMap(
+        a || other.a,
+        b || other.b,
+        select || other.select,
+        start || other.start,
+        up || other.up,
+        down || other.down,
+        left || other.left,
+        right || other.right
+    )
+
 }
