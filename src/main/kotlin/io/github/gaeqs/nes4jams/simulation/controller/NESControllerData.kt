@@ -24,19 +24,16 @@
 
 package io.github.gaeqs.nes4jams.simulation.controller
 
-import net.jamsimulator.jams.manager.ManagerResource
-import net.jamsimulator.jams.manager.ResourceProvider
+import io.github.gaeqs.nes4jams.util.extension.orNull
+import io.github.gaeqs.nes4jams.util.managerOf
 
-abstract class NESControllerDeviceBuilder(
-    private val name: String,
-    private val resourceProvider: ResourceProvider
-) : ManagerResource {
+@kotlinx.serialization.Serializable
+data class NESControllerData(
+    val builder: String,
+    val mapping: Map<String, NESButton>,
+    val extra: Map<String, String>
+) {
 
-    abstract val mappingKeys : List<String>
-
-    override fun getName() = name
-    override fun getResourceProvider() = resourceProvider
-
-    abstract fun build(mapping: Map<String, NESButton>, extra: Map<String, String>): NESControllerDevice
+    val builderInstance get() = managerOf<NESControllerDeviceBuilder>()[builder].orNull()
 
 }

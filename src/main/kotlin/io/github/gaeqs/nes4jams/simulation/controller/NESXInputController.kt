@@ -27,7 +27,7 @@ package io.github.gaeqs.nes4jams.simulation.controller
 import com.github.strikerx3.jxinput.XInputDevice
 import com.github.strikerx3.jxinput.enums.XInputButton
 import com.github.strikerx3.jxinput.listener.XInputDeviceListener
-import net.jamsimulator.jams.configuration.Configuration
+import javafx.scene.input.KeyCode
 import net.jamsimulator.jams.manager.ResourceProvider
 
 class NESXInputController(
@@ -73,8 +73,12 @@ class NESXInputController(
             const val DEVICE_NODE = "device"
         }
 
-        override fun build(mapping: Map<String, NESButton>, extra: Configuration): NESControllerDevice {
-            return NESXInputController(mapping, extra.getNumber(DEVICE_NODE).map { it.toInt() }.orElse(0))
+        override val mappingKeys: List<String> get() = XInputButton.values().map { it.name }
+
+        override fun build(mapping: Map<String, NESButton>, extra: Map<String, String>): NESControllerDevice {
+            val device = extra[DEVICE_NODE]?.toIntOrNull() ?: 0
+            return NESXInputController(mapping, device)
         }
+
     }
 }

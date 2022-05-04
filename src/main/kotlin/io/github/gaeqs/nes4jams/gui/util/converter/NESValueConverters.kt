@@ -28,6 +28,7 @@ import io.github.gaeqs.nes4jams.cartridge.ConsoleType
 import io.github.gaeqs.nes4jams.cartridge.TVType
 import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
 import io.github.gaeqs.nes4jams.ppu.Mirror
+import io.github.gaeqs.nes4jams.simulation.controller.NESControllerData
 import net.jamsimulator.jams.gui.util.converter.ValueConverters
 
 class NESValueConverters private constructor() {
@@ -60,6 +61,10 @@ class NESValueConverters private constructor() {
             // MIRROR
             ValueConverters.addByType(Mirror::class.java, MirrorValueConverter.INSTANCE)
             ValueConverters.addByName(MirrorValueConverter.NAME, MirrorValueConverter.INSTANCE)
+
+            // CONTROLLER DATA
+            ValueConverters.addByType(NESControllerData::class.java, NESControllerDataValueConverter.INSTANCE)
+            ValueConverters.addByName(NESControllerDataValueConverter.NAME, NESControllerDataValueConverter.INSTANCE)
         }
     }
 

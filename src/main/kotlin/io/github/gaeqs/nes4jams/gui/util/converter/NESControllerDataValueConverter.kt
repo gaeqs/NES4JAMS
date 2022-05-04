@@ -1,7 +1,7 @@
 /*
  *  MIT License
  *
- *  Copyright (c) 2022 Gael Rial Costas
+ *  Copyright (c) 2021 Gael Rial Costas
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -22,32 +22,37 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.simulation.controller
+package io.github.gaeqs.nes4jams.gui.util.converter
 
-import javafx.scene.input.KeyCode
-import net.jamsimulator.jams.manager.ResourceProvider
+import io.github.gaeqs.nes4jams.memory.NESMemoryBank
+import io.github.gaeqs.nes4jams.simulation.controller.NESControllerData
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import net.jamsimulator.jams.gui.util.converter.ValueConverter
+import java.util.*
 
-class NESKeyboardController(mapping: Map<String, NESButton>) : NESControllerDevice(mapping) {
+class NESControllerDataValueConverter private constructor() : ValueConverter<NESControllerData>() {
 
-    @Volatile
-    override var currentState = NESControllerMap()
-
-    override fun updateKeyboardKey(key: KeyCode, pressed: Boolean) {
-        val button = mapping[key.name] ?: return
-        currentState = currentState.with(button, pressed)
+    companion object {
+        val INSTANCE = NESControllerDataValueConverter()
+        const val NAME = "nes_controller_data"
     }
 
-    class Builder(resourceProvider: ResourceProvider) : NESControllerDeviceBuilder(NAME, resourceProvider) {
+    override fun toString(value: NESControllerData): String {
+        return Json.encodeToString(value)
+    }
 
-        companion object {
-            const val NAME = "KEYBOARD"
-        }
-
-        override val mappingKeys: List<String> get() = KeyCode.values().map { it.name }
-
-        override fun build(mapping: Map<String, NESButton>, extra: Map<String, String>): NESControllerDevice {
-            return NESKeyboardController(mapping)
+    override fun fromStringSafe(raw: String): Optional<NESControllerData> {
+        return try {
+            Optional.of(Json.decodeFromString(raw))
+        } catch (ex: SerializationException) {
+            Optional.empty()
         }
     }
+
+    override fun conversionClass() = NESMemoryBank::class.java
+
 
 }
