@@ -44,4 +44,8 @@ abstract class NESControllerDevice(protected val mapping: Map<String, NESButton>
      */
     open fun updateKeyboardKey(key: KeyCode, pressed: Boolean) {}
 
+    /**
+     * Disposes this device.
+     */
+    open abstract fun dispose()
 }

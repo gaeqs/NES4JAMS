@@ -30,7 +30,9 @@ import net.jamsimulator.jams.manager.ResourceProvider
 abstract class NESControllerDeviceBuilder(
     private val name: String,
     private val resourceProvider: ResourceProvider,
-    val languageNode : String
+    val languageNode : String,
+    val defaultMapper : Map<String, NESButton> = emptyMap(),
+    val defaultExtra : Map<String, String> = emptyMap(),
 ) : ManagerResource {
 
     abstract val mappingKeys : List<String>

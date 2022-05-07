@@ -38,11 +38,32 @@ class NESKeyboardController(mapping: Map<String, NESButton>) : NESControllerDevi
         currentState = currentState.with(button, pressed)
     }
 
+    override fun dispose() {
+        // Nothing to dispose
+    }
+
     class Builder(resourceProvider: ResourceProvider) :
-        NESControllerDeviceBuilder(NAME, resourceProvider, NES4JAMS_CONTROLLER_KEYBOARD) {
+        NESControllerDeviceBuilder(
+            NAME,
+            resourceProvider,
+            NES4JAMS_CONTROLLER_KEYBOARD,
+            DEFAULT_MAPPER,
+            DEFAULT_EXTRA
+        ) {
 
         companion object {
             const val NAME = "KEYBOARD"
+            val DEFAULT_MAPPER = mapOf(
+                "X" to NESButton.A,
+                "Z" to NESButton.B,
+                "S" to NESButton.SELECT,
+                "A" to NESButton.START,
+                "UP" to NESButton.UP,
+                "DOWN" to NESButton.DOWN,
+                "LEFT" to NESButton.LEFT,
+                "RIGHT" to NESButton.RIGHT,
+            )
+            val DEFAULT_EXTRA = emptyMap<String, String>()
         }
 
         override val mappingKeys: List<String> get() = KeyCode.values().map { it.name }

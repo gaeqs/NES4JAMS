@@ -58,7 +58,11 @@ class NESControllerDataValueEditor : VBox(), ValueEditor<NESControllerData> {
     }
 
     private var listener: Consumer<NESControllerData> = Consumer { }
-    private var current = NESControllerData(NESKeyboardController.Builder.NAME, emptyMap(), emptyMap())
+    private var current = NESControllerData(
+        NESKeyboardController.Builder.NAME,
+        NESKeyboardController.Builder.DEFAULT_MAPPER,
+        NESKeyboardController.Builder.DEFAULT_EXTRA
+    )
     private var listenersDisabledCount = 0
 
     private val typeBox = ComboBox<NESControllerDeviceBuilder>().apply {
@@ -68,7 +72,7 @@ class NESControllerDataValueEditor : VBox(), ValueEditor<NESControllerData> {
         selectionModel.select(current.builderInstance)
         selectionModel.selectedItemProperty().addListener { _, _, new ->
             if (listenersDisabledCount > 0) return@addListener
-            current = NESControllerData(new.name, emptyMap(), emptyMap())
+            current = NESControllerData(new.name, new.defaultMapper, new.defaultExtra)
             populateComboBoxes()
             createExtraValues()
             assignComboBoxesData()

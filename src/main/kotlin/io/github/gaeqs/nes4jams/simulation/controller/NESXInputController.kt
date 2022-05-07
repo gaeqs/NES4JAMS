@@ -66,12 +66,27 @@ class NESXInputController(
         _currentState = currentState.with(button, pressed)
     }
 
+    override fun dispose() {
+        device?.removeListener(this)
+    }
+
     class Builder(resourceProvider: ResourceProvider) :
-        NESControllerDeviceBuilder(NAME, resourceProvider, NES4JAMS_CONTROLLER_XINPUT) {
+        NESControllerDeviceBuilder(NAME, resourceProvider, NES4JAMS_CONTROLLER_XINPUT, DEFAULT_MAPPER, DEFAULT_EXTRA) {
 
         companion object {
             const val NAME = "X_INPUT"
             const val DEVICE_NODE = "device"
+            val DEFAULT_MAPPER = mapOf(
+                "A" to NESButton.A,
+                "B" to NESButton.B,
+                "BACK" to NESButton.SELECT,
+                "START" to NESButton.START,
+                "DPAD_UP" to NESButton.UP,
+                "DPAD_DOWN" to NESButton.DOWN,
+                "DPAD_LEFT" to NESButton.LEFT,
+                "DPAD_RIGHT" to NESButton.RIGHT,
+            )
+            val DEFAULT_EXTRA = mapOf("device" to "0")
         }
 
         override val mappingKeys: List<String> get() = XInputButton.values().map { it.name }

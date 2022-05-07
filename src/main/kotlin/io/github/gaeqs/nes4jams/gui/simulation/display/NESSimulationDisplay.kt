@@ -76,6 +76,12 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
         pane.simulation.registerListeners(this, true)
     }
 
+    override fun dispose() {
+        super.dispose()
+        player1Device.dispose()
+        player2Device.dispose()
+    }
+
     private fun updateKeyboard(key: KeyCode, pressed: Boolean) {
         player1Device.updateKeyboardKey(key, pressed)
         player2Device.updateKeyboardKey(key, pressed)
@@ -98,12 +104,18 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
     @Listener
     private fun onNodeChange(event: ConfigurationNodeChangeEvent.After) {
         when (event.node) {
-            PLAYER_1_CONFIGURATION_NODE -> player1Device = event.configuration.root
-                .getAndConvert<NESControllerData>(PLAYER_1_CONFIGURATION_NODE)?.build()
-                ?: NESKeyboardController(emptyMap())
-            PLAYER_2_CONFIGURATION_NODE -> player2Device = event.configuration.root
-                .getAndConvert<NESControllerData>(PLAYER_2_CONFIGURATION_NODE)?.build()
-                ?: NESKeyboardController(emptyMap())
+            PLAYER_1_CONFIGURATION_NODE -> {
+                player1Device.dispose()
+                player1Device = event.configuration.root
+                    .getAndConvert<NESControllerData>(PLAYER_1_CONFIGURATION_NODE)?.build()
+                    ?: NESKeyboardController(emptyMap())
+            }
+            PLAYER_2_CONFIGURATION_NODE -> {
+                player2Device.dispose()
+                player2Device = event.configuration.root
+                    .getAndConvert<NESControllerData>(PLAYER_2_CONFIGURATION_NODE)?.build()
+                    ?: NESKeyboardController(emptyMap())
+            }
         }
     }
 }
