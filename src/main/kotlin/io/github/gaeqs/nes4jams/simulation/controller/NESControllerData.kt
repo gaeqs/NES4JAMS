@@ -36,4 +36,6 @@ data class NESControllerData(
 
     val builderInstance get() = managerOf<NESControllerDeviceBuilder>()[builder].orNull()
 
+    fun build () = builderInstance?.build(mapping, extra)
+
 }

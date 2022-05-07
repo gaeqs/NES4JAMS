@@ -29,10 +29,13 @@ import net.jamsimulator.jams.manager.ResourceProvider
 
 abstract class NESControllerDeviceBuilder(
     private val name: String,
-    private val resourceProvider: ResourceProvider
+    private val resourceProvider: ResourceProvider,
+    val languageNode : String
 ) : ManagerResource {
 
     abstract val mappingKeys : List<String>
+
+    abstract val defaultExtraTypes : Map<String, String>
 
     override fun getName() = name
     override fun getResourceProvider() = resourceProvider

@@ -45,6 +45,12 @@ NES4JAMS_SIMULATION_CONFIGURATION_MAPPER: 'Controlador de memoria:'
 NES4JAMS_SIMULATION_CONFIGURATION_MAPPER_TOOLTIP: |-
   Los controladores de memoria son hardware dentro de un cartucho diseñado para extender ampliar las capacidades del sistema y sobrepasar las limitaciones de la NES. 
   Permiten a un videojuego tener RAM extra, crear interrupciones personalizadas o simplemente extender la ROM del cartucho usando registros que permiten cambiar entre bancos de memoria.
+CONFIG_SIMULATION_NES_PLAYER_1_CONTROLLER: 'Mando del jugador 1:'
+CONFIG_SIMULATION_NES_PLAYER_1_CONTROLLER_TOOLTIP: |-
+  Información sobre el mando del jugador 1.
+CONFIG_SIMULATION_NES_PLAYER_2_CONTROLLER: 'Mando del jugador 2:'
+CONFIG_SIMULATION_NES_PLAYER_2_CONTROLLER_TOOLTIP: |-
+  Información sobre el mando del jugador 2.
 
 ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE: Imagen PCX
 ACTION_FOLDER_EXPLORER_ADD_SPRITE_TO_ASSEMBLER: Añadir sprite al ensamblador
@@ -57,7 +63,15 @@ NES_MEMORY_VIEW_PPU: PPU
 NES_MEMORY_VIEW_CARTRIDGE_PRG: Programa del cartucho
 NES_MEMORY_VIEW_CARTRIDGE_CHR: Sprites del cartucho
 
+NES4JAMS_CONTROLLER_TYPE: 'Tipo:'
+NES4JAMS_CONTROLLER_KEYBOARD: 'Teclado'
+NES4JAMS_CONTROLLER_XINPUT: 'XInput'
+NES4JAMS_CONTROLLER_EXTRA_DEVICE: 'Dispositivo:'
+
 CONFIG_EDITOR_NES: NES
 CONFIG_EDITOR_NES_REGION_TABS: Tabuladores
 CONFIG_EDITOR_NES_REGION_SPACES: Espacios
 CONFIG_EDITOR_NES_REGION_BLANK_LINES: Líneas vacías
+
+CONFIG_SIMULATION_NES: NES
+CONFIG_SIMULATION_NES_REGION_CONTROLLERS: Mandos

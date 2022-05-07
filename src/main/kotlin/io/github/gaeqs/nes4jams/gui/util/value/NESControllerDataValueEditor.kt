@@ -24,25 +24,37 @@
 
 package io.github.gaeqs.nes4jams.gui.util.value
 
+import io.github.gaeqs.nes4jams.data.NES4JAMS_CONTROLLER_TYPE
 import io.github.gaeqs.nes4jams.gui.util.converter.NESControllerDataValueConverter
 import io.github.gaeqs.nes4jams.simulation.controller.NESButton
 import io.github.gaeqs.nes4jams.simulation.controller.NESControllerData
 import io.github.gaeqs.nes4jams.simulation.controller.NESControllerDeviceBuilder
 import io.github.gaeqs.nes4jams.simulation.controller.NESKeyboardController
+import io.github.gaeqs.nes4jams.util.extension.SELECTED_LANGUAGE
+import io.github.gaeqs.nes4jams.util.extension.orNull
 import io.github.gaeqs.nes4jams.util.managerOf
 import javafx.geometry.Pos
+import javafx.scene.Node
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.control.ListCell
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import net.jamsimulator.jams.event.Listener
 import net.jamsimulator.jams.gui.util.value.ValueEditor
+import net.jamsimulator.jams.gui.util.value.ValueEditors
+import net.jamsimulator.jams.language.Language
+import net.jamsimulator.jams.language.event.LanguageRefreshEvent
+import net.jamsimulator.jams.language.wrapper.LanguageLabel
+import tornadofx.*
 import java.util.function.Consumer
 
 class NESControllerDataValueEditor : VBox(), ValueEditor<NESControllerData> {
 
     companion object {
         const val NAME = "nes_controller_data"
+        const val HBOX_STYLE_CLASS = "value-editor-hbox"
+        const val EXTRA_LANGUAGE_NODE = "NES4JAMS_CONTROLLER_EXTRA_"
     }
 
     private var listener: Consumer<NESControllerData> = Consumer { }
@@ -52,26 +64,32 @@ class NESControllerDataValueEditor : VBox(), ValueEditor<NESControllerData> {
     private val typeBox = ComboBox<NESControllerDeviceBuilder>().apply {
         items += managerOf<NESControllerDeviceBuilder>()
         setCellFactory { Cell() }
+        buttonCell = Cell()
+        selectionModel.select(current.builderInstance)
         selectionModel.selectedItemProperty().addListener { _, _, new ->
-            if(listenersDisabledCount > 0) return@addListener
+            if (listenersDisabledCount > 0) return@addListener
             current = NESControllerData(new.name, emptyMap(), emptyMap())
             populateComboBoxes()
+            createExtraValues()
             assignComboBoxesData()
             listener.accept(current)
         }
     }
 
+    private val extraEditors = mutableMapOf<String, Node>()
     private val mappingBoxes = mutableMapOf<NESButton, ComboBox<String>>()
 
     init {
         val typeHBox = HBox()
-        typeHBox.children += Label("Type:")
+        typeHBox.styleClass.add(HBOX_STYLE_CLASS)
+        typeHBox.children += LanguageLabel(NES4JAMS_CONTROLLER_TYPE)
         typeHBox.children += typeBox
         children += typeHBox
 
         NESButton.values().forEach { button ->
             val box = HBox()
-            val label = Label(button.name.lowercase().replaceFirstChar { it.uppercase() })
+            box.styleClass.add(HBOX_STYLE_CLASS)
+            val label = Label(button.name.lowercase().replaceFirstChar { it.uppercase() } + ":")
 
             val comboBox = ComboBox<String>()
             mappingBoxes[button] = comboBox
@@ -80,14 +98,34 @@ class NESControllerDataValueEditor : VBox(), ValueEditor<NESControllerData> {
             box.children += comboBox
             children += box
 
-            comboBox.selectionModel.selectedItemProperty().addListener { _, _, new ->
-                if(listenersDisabledCount > 0) return@addListener
-                current = current.copy(mapping = current.mapping + Pair(new, button))
+            comboBox.selectionModel.selectedItemProperty().addListener { _, old, new ->
+                if (listenersDisabledCount > 0) return@addListener
+
+                val map = current.mapping.toMutableMap()
+                map.remove(old)
+
+                if (new != "-") {
+                    map[new] = button
+                    current = current.copy(mapping = map)
+                    listenersDisabledCount++
+
+                    mappingBoxes.forEach { other ->
+                        if (other.value != comboBox && other.value.selectedItem == new) {
+                            other.value.selectionModel.select(0)
+                        }
+                    }
+
+                    listenersDisabledCount--
+                }
+
+                current = current.copy(mapping = map)
+
                 listener.accept(current)
             }
         }
 
         populateComboBoxes()
+        createExtraValues()
         assignComboBoxesData()
     }
 
@@ -103,6 +141,7 @@ class NESControllerDataValueEditor : VBox(), ValueEditor<NESControllerData> {
         val type = typeBox.items.find { it.name == value.builder } ?: typeBox.items.first()
         typeBox.selectionModel.select(type)
         populateComboBoxes()
+        createExtraValues()
         assignComboBoxesData()
 
         listenersDisabledCount--
@@ -132,10 +171,52 @@ class NESControllerDataValueEditor : VBox(), ValueEditor<NESControllerData> {
         listenersDisabledCount--
     }
 
-    private class Cell : ListCell<NESControllerDeviceBuilder>() {
-        init {
-            itemProperty().addListener { _, _, new -> text = new?.toString() }
+    private fun createExtraValues() {
+        extraEditors.forEach { children.remove(it.value) }
+        extraEditors.clear()
+
+        typeBox.selectionModel.selectedItem.defaultExtraTypes.forEach { (name, type) ->
+            val label = LanguageLabel(EXTRA_LANGUAGE_NODE + name.uppercase())
+
+            val builder = ValueEditors.getByName(type).orNull() ?: return@forEach
+            val editor = builder.build()
+            val node = editor.buildConfigNode(label)
+
+            current.extra[name]?.let {
+                editor.linkedConverter.fromStringSafe(it).ifPresent { value ->
+                    editor.currentValue = value
+                }
+            }
+
+            editor.addListener {
+                current = current.copy(extra = current.extra + Pair(name, it.toString()))
+                listener.accept(current)
+            }
+
+            extraEditors[name] = node
+            children += node
         }
+
+    }
+
+    private class Cell : ListCell<NESControllerDeviceBuilder>() {
+
+        private var node: String? = null
+
+        init {
+            itemProperty().addListener { _, _, new ->
+                node = new?.languageNode
+                refreshMessage()
+            }
+            managerOf<Language>().registerListeners(this, true)
+        }
+
+        private fun refreshMessage() = node?.let { text = SELECTED_LANGUAGE.getOrDefault(it) }
+
+        override fun getTypeSelector() = "ListCell"
+
+        @Listener
+        private fun onRefresh(event: LanguageRefreshEvent) = refreshMessage()
     }
 
     class Builder : ValueEditor.Builder<NESControllerData> {

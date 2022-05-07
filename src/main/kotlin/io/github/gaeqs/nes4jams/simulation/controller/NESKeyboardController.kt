@@ -24,6 +24,7 @@
 
 package io.github.gaeqs.nes4jams.simulation.controller
 
+import io.github.gaeqs.nes4jams.data.NES4JAMS_CONTROLLER_KEYBOARD
 import javafx.scene.input.KeyCode
 import net.jamsimulator.jams.manager.ResourceProvider
 
@@ -37,13 +38,16 @@ class NESKeyboardController(mapping: Map<String, NESButton>) : NESControllerDevi
         currentState = currentState.with(button, pressed)
     }
 
-    class Builder(resourceProvider: ResourceProvider) : NESControllerDeviceBuilder(NAME, resourceProvider) {
+    class Builder(resourceProvider: ResourceProvider) :
+        NESControllerDeviceBuilder(NAME, resourceProvider, NES4JAMS_CONTROLLER_KEYBOARD) {
 
         companion object {
             const val NAME = "KEYBOARD"
         }
 
         override val mappingKeys: List<String> get() = KeyCode.values().map { it.name }
+
+        override val defaultExtraTypes = emptyMap<String, String>()
 
         override fun build(mapping: Map<String, NESButton>, extra: Map<String, String>): NESControllerDevice {
             return NESKeyboardController(mapping)

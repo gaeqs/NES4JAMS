@@ -26,11 +26,14 @@ package io.github.gaeqs.nes4jams.gui.simulation.display
 
 import io.github.gaeqs.nes4jams.gui.project.NESSimulationPane
 import io.github.gaeqs.nes4jams.ppu.PPUColors
-import io.github.gaeqs.nes4jams.simulation.controller.NESButton
+import io.github.gaeqs.nes4jams.simulation.controller.NESControllerData
 import io.github.gaeqs.nes4jams.simulation.controller.NESControllerDevice
 import io.github.gaeqs.nes4jams.simulation.controller.NESKeyboardController
 import io.github.gaeqs.nes4jams.simulation.event.NESSimulationRenderEvent
+import io.github.gaeqs.nes4jams.util.extension.getAndConvert
 import javafx.scene.input.KeyCode
+import net.jamsimulator.jams.Jams
+import net.jamsimulator.jams.configuration.event.ConfigurationNodeChangeEvent
 import net.jamsimulator.jams.event.Listener
 
 /**
@@ -42,6 +45,9 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
     companion object {
         const val WIDTH = 256
         const val HEIGHT = 240
+
+        const val PLAYER_1_CONFIGURATION_NODE = "simulation.nes.player_1_controller"
+        const val PLAYER_2_CONFIGURATION_NODE = "simulation.nes.player_2_controller"
     }
 
     var drawEnabled: Boolean
@@ -55,18 +61,13 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
     private var player2Device: NESControllerDevice
 
     init {
-        val map = mapOf(
-            "X" to NESButton.A,
-            "Z" to NESButton.B,
-            "S" to NESButton.SELECT,
-            "A" to NESButton.START,
-            "UP" to NESButton.UP,
-            "DOWN" to NESButton.DOWN,
-            "LEFT" to NESButton.LEFT,
-            "RIGHT" to NESButton.RIGHT,
-        )
-        player1Device = NESKeyboardController(map)
-        player2Device = NESKeyboardController(map)
+        val config = Jams.getMainConfiguration().data
+        player1Device = config.getAndConvert<NESControllerData>(PLAYER_1_CONFIGURATION_NODE)?.build()
+            ?: NESKeyboardController(emptyMap())
+
+        player2Device = config.getAndConvert<NESControllerData>(PLAYER_2_CONFIGURATION_NODE)?.build()
+            ?: NESKeyboardController(emptyMap())
+        config.registerListeners(this, true)
     }
 
     init {
@@ -91,6 +92,18 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
             repeat(buffer.size) {
                 buffer[it] = PPUColors.INT_COLORS[event.buffer[it].toInt()]
             }
+        }
+    }
+
+    @Listener
+    private fun onNodeChange(event: ConfigurationNodeChangeEvent.After) {
+        when (event.node) {
+            PLAYER_1_CONFIGURATION_NODE -> player1Device = event.configuration.root
+                .getAndConvert<NESControllerData>(PLAYER_1_CONFIGURATION_NODE)?.build()
+                ?: NESKeyboardController(emptyMap())
+            PLAYER_2_CONFIGURATION_NODE -> player2Device = event.configuration.root
+                .getAndConvert<NESControllerData>(PLAYER_2_CONFIGURATION_NODE)?.build()
+                ?: NESKeyboardController(emptyMap())
         }
     }
 }
