@@ -29,9 +29,10 @@ import io.github.gaeqs.nes4jams.cartridge.mapper.MapperBuilderManager
 import io.github.gaeqs.nes4jams.ppu.Mirror
 import io.github.gaeqs.nes4jams.util.extension.orNull
 import java.io.File
+import java.io.InputStream
 import kotlin.math.ceil
 
-class Cartridge(val file: File) {
+class Cartridge(stream: InputStream, val name: String, closeStream: Boolean = false) {
 
     val header: CartridgeHeader
     val prgMemory: UByteArray
@@ -48,8 +49,9 @@ class Cartridge(val file: File) {
             return if (mirror == Mirror.HARDWARE) field else mirror
         }
 
+    constructor(file: File) : this(file.inputStream(), file.name, true)
+
     init {
-        val stream = file.inputStream()
         header = CartridgeHeader(stream)
 
         val prgSize = header.prgRomSize.toInt()
@@ -65,7 +67,9 @@ class Cartridge(val file: File) {
 
         mapper = (MapperBuilderManager.INSTANCE[header.mapper.toString()].orNull()
             ?: throw NoSuchElementException("Couldn't find mapper ${header.mapper}!")).build(this)
-        stream.close()
+        if (closeStream) {
+            stream.close()
+        }
     }
 
     fun cpuRead(address: UShort): Pair<Boolean, UByte> {

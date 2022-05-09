@@ -357,7 +357,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             } catch (ex: Exception) {
                 manageException(ex)
             }
-        }.apply { priority = Thread.MAX_PRIORITY; name = "NES Simulation (${cartridge.file.name})"; isDaemon = true }
+        }.apply { priority = Thread.MAX_PRIORITY; name = "NES Simulation (${cartridge.name})"; isDaemon = true }
         callEvent(SimulationStartEvent(this))
         thread?.start()
     }
@@ -396,7 +396,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             } catch (ex: Exception) {
                 manageException(ex)
             }
-        }.apply { priority = Thread.MAX_PRIORITY; name = "NES Simulation (${cartridge.file.name})"; isDaemon = true }
+        }.apply { priority = Thread.MAX_PRIORITY; name = "NES Simulation (${cartridge.name})"; isDaemon = true }
         callEvent(SimulationStartEvent(this))
         thread?.start()
     }

@@ -24,8 +24,11 @@
 
 package io.github.gaeqs.nes4jams.gui.nes
 
-import io.github.gaeqs.nes4jams.cartridge.CartridgeHeader
+import io.github.gaeqs.nes4jams.cartridge.Cartridge
 import io.github.gaeqs.nes4jams.data.NES4JAMS_TASK_LOADING_CARTRIDGE
+import io.github.gaeqs.nes4jams.file.pcx.PictureExchangeImage
+import io.github.gaeqs.nes4jams.gui.pcx.PCXEditorCanvas
+import io.github.gaeqs.nes4jams.gui.pcx.PCXVisualizer
 import io.github.gaeqs.nes4jams.project.NESProject
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -40,16 +43,13 @@ import net.jamsimulator.jams.task.LanguageTask
 
 class NESFileEditor(private val tab: FileEditorTab) : VBox(), FileEditor {
 
-    val header: CartridgeHeader
+    val cartridge = Cartridge(tab.file)
 
     init {
-        val stream = tab.file.inputStream()
-        header = CartridgeHeader(stream)
-        stream.close()
-
         alignment = Pos.CENTER_LEFT
-
         padding = Insets(5.0)
+
+        val header = cartridge.header
         children += Label("iNES 2.0: ${header.isINES2}")
         children += Label("Mapper: ${header.mapper}")
         children += Label("Sub-mapper: ${header.subMapper}")
@@ -70,6 +70,12 @@ class NESFileEditor(private val tab: FileEditorTab) : VBox(), FileEditor {
                 }
             }
         }
+
+
+        val pcx = PictureExchangeImage.fromCHRData(cartridge.chrMemory.toByteArray())
+
+        children += PCXVisualizer(pcx)
+
     }
 
     override fun supportsActionRegion(region: String): Boolean {
