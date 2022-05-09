@@ -30,6 +30,7 @@ import io.github.gaeqs.nes4jams.cpu.NESCPU
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAddressingMode
 import io.github.gaeqs.nes4jams.cpu.instruction.NESAssembledInstruction
 import io.github.gaeqs.nes4jams.ppu.NESPPU
+import io.github.gaeqs.nes4jams.simulation.controller.NESControllerMap
 import io.github.gaeqs.nes4jams.simulation.event.NESSimulationRenderEvent
 import io.github.gaeqs.nes4jams.util.extension.*
 import net.jamsimulator.jams.event.SimpleEventBroadcast

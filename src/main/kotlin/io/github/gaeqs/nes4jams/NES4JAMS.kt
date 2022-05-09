@@ -35,6 +35,7 @@ import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryViewManager
 import io.github.gaeqs.nes4jams.gui.util.converter.NESValueConverters
 import io.github.gaeqs.nes4jams.gui.util.value.NESValueEditors
 import io.github.gaeqs.nes4jams.project.NESProjectType
+import io.github.gaeqs.nes4jams.simulation.controller.NESControllerDeviceBuilderManager
 import io.github.gaeqs.nes4jams.util.extension.orNull
 import io.github.gaeqs.nes4jams.util.manager
 import io.github.gaeqs.nes4jams.util.managerOf
@@ -91,6 +92,7 @@ class NES4JAMS : Plugin() {
         Jams.REGISTRY.registerPrimary(MapperBuilderManager.INSTANCE)
         Jams.REGISTRY.registerPrimary(NESMemoryViewManager.INSTANCE)
         Jams.REGISTRY.registerPrimary(NESNumberRepresentationManager.INSTANCE)
+        Jams.REGISTRY.registerPrimary(NESControllerDeviceBuilderManager.INSTANCE)
 
         val fileManager = managerOf<FileType>()
         val assemblyFileType = fileManager[AssemblyFileType.NAME].orNull()

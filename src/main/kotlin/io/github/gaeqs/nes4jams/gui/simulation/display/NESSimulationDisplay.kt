@@ -24,14 +24,16 @@
 
 package io.github.gaeqs.nes4jams.gui.simulation.display
 
-import com.github.strikerx3.jxinput.XInputDevice
-import com.github.strikerx3.jxinput.enums.XInputButton
-import com.github.strikerx3.jxinput.listener.SimpleXInputDeviceListener
 import io.github.gaeqs.nes4jams.gui.project.NESSimulationPane
 import io.github.gaeqs.nes4jams.ppu.PPUColors
-import io.github.gaeqs.nes4jams.simulation.NESControllerMap
+import io.github.gaeqs.nes4jams.simulation.controller.NESControllerData
+import io.github.gaeqs.nes4jams.simulation.controller.NESControllerDevice
+import io.github.gaeqs.nes4jams.simulation.controller.NESKeyboardController
 import io.github.gaeqs.nes4jams.simulation.event.NESSimulationRenderEvent
+import io.github.gaeqs.nes4jams.util.extension.getAndConvert
 import javafx.scene.input.KeyCode
+import net.jamsimulator.jams.Jams
+import net.jamsimulator.jams.configuration.event.ConfigurationNodeChangeEvent
 import net.jamsimulator.jams.event.Listener
 
 /**
@@ -43,6 +45,9 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
     companion object {
         const val WIDTH = 256
         const val HEIGHT = 240
+
+        const val PLAYER_1_CONFIGURATION_NODE = "simulation.nes.player_1_controller"
+        const val PLAYER_2_CONFIGURATION_NODE = "simulation.nes.player_2_controller"
     }
 
     var drawEnabled: Boolean
@@ -50,97 +55,66 @@ class NESSimulationDisplay(val pane: NESSimulationPane) : BasicDisplay(WIDTH, HE
         set(_) {}
 
     @Volatile
-    private var keyboard = NESControllerMap()
+    private var player1Device: NESControllerDevice
 
     @Volatile
-    private var xInputFirstPlayer = NESControllerMap()
+    private var player2Device: NESControllerDevice
 
-    @Volatile
-    private var xInputSecondPlayer = NESControllerMap()
+    init {
+        val config = Jams.getMainConfiguration().data
+        player1Device = config.getAndConvert<NESControllerData>(PLAYER_1_CONFIGURATION_NODE)?.build()
+            ?: NESKeyboardController(emptyMap())
 
-    private val deviceFirstPlayer: XInputDevice?
-    private val deviceSecondPlayer: XInputDevice?
+        player2Device = config.getAndConvert<NESControllerData>(PLAYER_2_CONFIGURATION_NODE)?.build()
+            ?: NESKeyboardController(emptyMap())
+        config.registerListeners(this, true)
+    }
 
     init {
         setOnKeyPressed { updateKeyboard(it.code, true); it.consume() }
         setOnKeyReleased { updateKeyboard(it.code, false); it.consume() }
         pane.simulation.registerListeners(this, true)
+    }
 
-
-        deviceFirstPlayer = if (XInputDevice.isAvailable()) XInputDevice.getDeviceFor(0).apply {
-            addListener(object : SimpleXInputDeviceListener() {
-                override fun buttonChanged(button: XInputButton, pressed: Boolean) {
-                    // This code runs on the simulation thread.
-                    updateXInput(button, pressed, false)
-                }
-            })
-        } else null
-        deviceSecondPlayer = if (XInputDevice.isAvailable()) XInputDevice.getDeviceFor(1).apply {
-            addListener(object : SimpleXInputDeviceListener() {
-                override fun buttonChanged(button: XInputButton, pressed: Boolean) {
-                    // This code runs on the simulation thread.
-                    updateXInput(button, pressed, true)
-                }
-            })
-        } else null
-
+    override fun dispose() {
+        super.dispose()
+        player1Device.dispose()
+        player2Device.dispose()
     }
 
     private fun updateKeyboard(key: KeyCode, pressed: Boolean) {
-        when (key) {
-            KeyCode.X -> keyboard = keyboard.copy(a = pressed)
-            KeyCode.Z -> keyboard = keyboard.copy(b = pressed)
-            KeyCode.A -> keyboard = keyboard.copy(start = pressed)
-            KeyCode.S -> keyboard = keyboard.copy(select = pressed)
-            KeyCode.UP -> keyboard = keyboard.copy(up = pressed)
-            KeyCode.DOWN -> keyboard = keyboard.copy(down = pressed)
-            KeyCode.LEFT -> keyboard = keyboard.copy(left = pressed)
-            KeyCode.RIGHT -> keyboard = keyboard.copy(right = pressed)
-            KeyCode.SHIFT -> {
-                pane.simulation.runSynchronized {
-                    pane.simulation.maxFPS = pressed
-                }
-                return
-            }
-            else -> {}
-        }
-        pane.simulation.runSynchronized {
-            pane.simulation.sendNextControllerData(keyboard union xInputFirstPlayer, false)
-        }
+        player1Device.updateKeyboardKey(key, pressed)
+        player2Device.updateKeyboardKey(key, pressed)
     }
-
-    private fun updateXInput(button: XInputButton, pressed: Boolean, secondPlayer: Boolean) {
-        val xInput = if (secondPlayer) xInputSecondPlayer else xInputFirstPlayer
-        val result = when (button) {
-            XInputButton.A -> xInput.copy(a = pressed)
-            XInputButton.B -> xInput.copy(b = pressed)
-            XInputButton.START -> xInput.copy(start = pressed)
-            XInputButton.BACK -> xInput.copy(select = pressed)
-            XInputButton.DPAD_UP -> xInput.copy(up = pressed)
-            XInputButton.DPAD_DOWN -> xInput.copy(down = pressed)
-            XInputButton.DPAD_LEFT -> xInput.copy(left = pressed)
-            XInputButton.DPAD_RIGHT -> xInput.copy(right = pressed)
-            else -> xInput
-        }
-
-        if (secondPlayer) xInputSecondPlayer = result
-        else xInputFirstPlayer = result
-
-        pane.simulation.runSynchronized {
-            pane.simulation.sendNextControllerData(if (secondPlayer) result else keyboard union result, secondPlayer)
-        }
-    }
-
 
     @Listener
     private fun onSimulationRender(event: NESSimulationRenderEvent) {
-        deviceFirstPlayer?.poll()
-        deviceSecondPlayer?.poll()
+        pane.simulation.sendNextControllerData(player1Device.currentState, false)
+        pane.simulation.sendNextControllerData(player2Device.currentState, true)
+
         if (!drawEnabled) return
 
         startDataTransmission { buffer ->
             repeat(buffer.size) {
                 buffer[it] = PPUColors.INT_COLORS[event.buffer[it].toInt()]
+            }
+        }
+    }
+
+    @Listener
+    private fun onNodeChange(event: ConfigurationNodeChangeEvent.After) {
+        when (event.node) {
+            PLAYER_1_CONFIGURATION_NODE -> {
+                player1Device.dispose()
+                player1Device = event.configuration.root
+                    .getAndConvert<NESControllerData>(PLAYER_1_CONFIGURATION_NODE)?.build()
+                    ?: NESKeyboardController(emptyMap())
+            }
+            PLAYER_2_CONFIGURATION_NODE -> {
+                player2Device.dispose()
+                player2Device = event.configuration.root
+                    .getAndConvert<NESControllerData>(PLAYER_2_CONFIGURATION_NODE)?.build()
+                    ?: NESKeyboardController(emptyMap())
             }
         }
     }

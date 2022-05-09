@@ -7,5 +7,11 @@
       "space_after_directive_parameter": "SPACE",
       "maximum_blank_lines": 2
     }
+  },
+  "simulation": {
+    "nes": {
+      "player_1_controller": "{\"builder\":\"KEYBOARD\",\"mapping\":{\"BACK_SPACE\":\"B\",\"X\":\"A\",\"Z\":\"B\",\"S\":\"SELECT\",\"A\":\"START\",\"UP\":\"UP\",\"DOWN\":\"DOWN\",\"LEFT\":\"LEFT\",\"RIGHT\":\"RIGHT\"},\"extra\":{}}",
+      "player_2_controller": "{\"builder\":\"X_INPUT\",\"mapping\":{\"A\":\"A\",\"B\":\"B\",\"BACK\":\"SELECT\",\"START\":\"START\",\"DPAD_UP\":\"UP\",\"DPAD_DOWN\":\"DOWN\",\"DPAD_LEFT\":\"LEFT\",\"DPAD_RIGHT\":\"RIGHT\"},\"extra\":{\"device\":\"0\"}}"
+    }
   }
 }

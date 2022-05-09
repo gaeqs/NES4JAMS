@@ -30,6 +30,7 @@ import io.github.gaeqs.nes4jams.gui.util.converter.NESMemoryBankValueConverter
 import io.github.gaeqs.nes4jams.memory.NESMemoryBank
 import io.github.gaeqs.nes4jams.memory.NESMemoryBankCollection
 import io.github.gaeqs.nes4jams.ppu.Mirror
+import io.github.gaeqs.nes4jams.simulation.controller.NESControllerData
 import net.jamsimulator.jams.gui.util.value.ValueEditors
 
 class NESValueEditors private constructor() {
@@ -61,6 +62,11 @@ class NESValueEditors private constructor() {
             val consoleTypeBuilder = ConsoleTypeValueEditor.Builder()
             ValueEditors.addByType(ConsoleType::class.java, consoleTypeBuilder)
             ValueEditors.addByName(ConsoleTypeValueEditor.NAME, consoleTypeBuilder)
+
+            // CONTROLLER DATA
+            val controllerDataBuilder = NESControllerDataValueEditor.Builder()
+            ValueEditors.addByType(NESControllerData::class.java, controllerDataBuilder)
+            ValueEditors.addByName(NESControllerDataValueEditor.NAME, controllerDataBuilder)
         }
 
     }
