@@ -34,6 +34,7 @@ import io.github.gaeqs.nes4jams.gui.action.folder.NewPCXFileWindow
 import io.github.gaeqs.nes4jams.gui.pcx.PCXVisualizer
 import io.github.gaeqs.nes4jams.ppu.Mirror
 import io.github.gaeqs.nes4jams.project.NESProject
+import io.github.gaeqs.nes4jams.util.extension.fit
 import io.github.gaeqs.nes4jams.util.extension.orNull
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -41,7 +42,6 @@ import javafx.scene.control.ScrollPane
 import javafx.scene.control.SplitPane
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.FlowPane
-import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import net.jamsimulator.jams.gui.configuration.RegionDisplay
@@ -67,12 +67,14 @@ class NESFileEditor(private val tab: FileEditorTab) : SplitPane(), FileEditor {
 
         padding = Insets(5.0)
 
+        val headerScroll = PixelScrollPane().fit()
         val headerBox = VBox().apply {
             alignment = Pos.TOP_LEFT
             padding = Insets(10.0)
             isFillWidth = true
             spacing = 5.0
         }
+        headerScroll.content = headerBox
 
         headerBox.children += RegionDisplay(NES4JAMS_NES_FILE_REGION_GENERAL)
         headerBox.children += LanguageLabel(
@@ -169,20 +171,20 @@ class NESFileEditor(private val tab: FileEditorTab) : SplitPane(), FileEditor {
         }
         headerBox.children += buttonsBox
 
-        items += headerBox
+        items += headerScroll
 
-        val scroll = PixelScrollPane().apply {
+        val imageScroll = PixelScrollPane().apply {
             isPannable = true
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
         }
 
         val visualizer = PCXVisualizer(pcx)
-        scroll.content = visualizer
-        scroll.viewportBoundsProperty().addListener { obs, old, new ->
+        imageScroll.content = visualizer
+        imageScroll.viewportBoundsProperty().addListener { obs, old, new ->
             visualizer.zoom = new.width / pcx.header.width
         }
 
-        items += scroll
+        items += imageScroll
     }
 
     override fun supportsActionRegion(region: String): Boolean {
