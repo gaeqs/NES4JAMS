@@ -35,7 +35,7 @@ import net.jamsimulator.jams.language.wrapper.LanguageLabel
 import net.jamsimulator.jams.utils.Validate
 import java.io.File
 
-class NewPCXFileWindow(stage: Stage, folder: File, onFileCreated: (File) -> Unit) : VBox() {
+class NewNESFileWindow(stage: Stage, folder: File, onFileCreated: (File) -> Unit) : VBox() {
 
     companion object {
         const val WIDTH = 500
@@ -43,7 +43,7 @@ class NewPCXFileWindow(stage: Stage, folder: File, onFileCreated: (File) -> Unit
 
         fun open(folder: File, onFileCreated: (File) -> Unit = {}) {
             val stage = Stage()
-            val window = NewPCXFileWindow(stage, folder, onFileCreated)
+            val window = NewNESFileWindow(stage, folder, onFileCreated)
             PopupWindowHelper.open(stage, window, WIDTH, HEIGHT, true)
         }
     }
@@ -52,7 +52,7 @@ class NewPCXFileWindow(stage: Stage, folder: File, onFileCreated: (File) -> Unit
         Validate.isTrue(folder.isDirectory, "Folder must be a directory!")
         styleClass += "v-box"
         alignment = Pos.CENTER
-        children += LanguageLabel("ACTION_FOLDER_EXPLORER_ELEMENT_NEW_PCX_FILE")
+        children += LanguageLabel("ACTION_FOLDER_EXPLORER_ELEMENT_NEW_NES_FILE")
         val field = TextField()
         children += field
 
@@ -62,7 +62,7 @@ class NewPCXFileWindow(stage: Stage, folder: File, onFileCreated: (File) -> Unit
                 return@setOnAction
             }
 
-            val file = File(folder, field.text + ".pcx")
+            val file = File(folder, field.text + ".nes")
             try {
                 if (file.createNewFile()) {
                     val stream = file.outputStream()

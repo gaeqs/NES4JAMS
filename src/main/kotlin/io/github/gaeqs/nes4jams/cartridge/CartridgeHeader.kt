@@ -32,6 +32,7 @@ import io.github.gaeqs.nes4jams.util.BIT3
 import io.github.gaeqs.nes4jams.util.extension.shl
 import io.github.gaeqs.nes4jams.util.extension.shr
 import java.io.InputStream
+import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 
 data class CartridgeHeader(
@@ -269,7 +270,6 @@ data class CartridgeHeader(
 
     //endregion
 
-
     fun toByteArray(): ByteArray {
         return byteArrayOf(
             'N'.code.toByte(),
@@ -289,5 +289,9 @@ data class CartridgeHeader(
             flag14.toByte(),
             flag15.toByte()
         )
+    }
+
+    fun write(out: OutputStream) {
+        out.write(toByteArray())
     }
 }
