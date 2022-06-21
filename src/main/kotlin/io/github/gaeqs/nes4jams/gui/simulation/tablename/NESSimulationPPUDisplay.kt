@@ -24,7 +24,7 @@
 
 package io.github.gaeqs.nes4jams.gui.simulation.tablename
 
-import io.github.gaeqs.nes4jams.data.NES4JAMS_PPU_FULL_SCENE
+import io.github.gaeqs.nes4jams.data.NES4JAMS_PPU_NAME_TABLES
 import io.github.gaeqs.nes4jams.data.NES4JAMS_PPU_PATTERN_TABLES
 import io.github.gaeqs.nes4jams.gui.project.NESSimulationPane
 import io.github.gaeqs.nes4jams.gui.simulation.display.BasicDisplay
@@ -101,7 +101,7 @@ class NESSimulationPPUDisplay(val pane: NESSimulationPane) : AnchorPane() {
 
         // FULL SCENE
 
-        val fullSceneTab = LanguageTab(NES4JAMS_PPU_FULL_SCENE).apply { isClosable = false }
+        val fullSceneTab = LanguageTab(NES4JAMS_PPU_NAME_TABLES).apply { isClosable = false }
 
         val fullSceneHolder = DisplayHolder(fullScene)
         fullSceneHolder.prefWidthProperty().bind(tabPane.widthProperty())
