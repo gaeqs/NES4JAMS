@@ -41,7 +41,7 @@ class NESMemoryTableCell(val offset: Int) :
         super.cancelEdit()
         val entry = tableRow.item ?: return
         val representation = entry.table.pane.representation
-        val address = (entry.address + offset.toUInt()).toUShort()
+        val address = entry.address + offset.toUInt()
         val item = representation.represent(address, entry.table.pane)
         updateItem(item, false)
     }
@@ -55,7 +55,7 @@ class NESMemoryTableCell(val offset: Int) :
             if (offset != 3) {
                 entry.update(offset + 1)
             } else {
-                entry.table.entries[(entry.address - 4u).toUShort()]?.update(0)
+                entry.table.entries[(entry.address - 4u)]?.update(0)
             }
         }
     }
@@ -83,7 +83,7 @@ class NESMemoryTableCell(val offset: Int) :
             if (tableRow == null) return entry
             val item = tableRow.item ?: return entry
             val pane = item.table.pane
-            val value = pane.view.read(pane.simulation, (item.address + offset.toUInt()).toUShort())
+            val value = pane.view.read(pane.simulation, item.address + offset.toUInt())
             return "$${value.toHex(2)}"
         }
 
@@ -93,14 +93,14 @@ class NESMemoryTableCell(val offset: Int) :
             val value = string.toIntOldWayOrNull()
             if (value != null && value in BYTE_RANGE) {
                 val pane = item.table.pane
-                pane.view.write(pane.simulation, (item.address + offset.toUInt()).toUShort(), value.toUByte())
+                pane.view.write(pane.simulation, (item.address + offset.toUInt()), value.toUByte())
             } else {
                 // Add char
                 if (string.length != 1) return string
                 val code = string[0].code
                 if (code in BYTE_RANGE) {
                     val pane = item.table.pane
-                    pane.view.write(pane.simulation, (item.address + offset.toUInt()).toUShort(), code.toUByte())
+                    pane.view.write(pane.simulation, item.address + offset.toUInt(), code.toUByte())
                 }
             }
 

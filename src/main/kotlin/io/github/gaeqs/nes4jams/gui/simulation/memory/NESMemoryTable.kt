@@ -42,10 +42,10 @@ class NESMemoryTable(
         val MEMORY_ROWS_CONFIGURATION_NODE = "simulation.memory_rows"
     }
 
-    internal val entries = hashMapOf<UShort, NESMemoryTableEntry>()
+    internal val entries = hashMapOf<UInt, NESMemoryTableEntry>()
     private var rows: Int
 
-    var offset: UShort = 0u
+    var offset: UInt = 0u
         set(value) {
             field = value
             populate()
@@ -80,16 +80,16 @@ class NESMemoryTable(
             val entry = NESMemoryTableEntry(this, current)
             entries[current] = entry
             items += entry
-            current = (current + 4u).toUShort()
+            current = (current + 4u)
         }
     }
 
     fun nextPage() {
-        offset = (offset + (rows shl 2).toUShort()).toUShort()
+        offset = (offset + (rows shl 2).toUInt()) % pane.view.sizeOf(pane.simulation).toUInt()
     }
 
     fun previousPage() {
-        offset = (offset - (rows shl 2).toUShort()).toUShort()
+        offset = (offset - (rows shl 2).toUInt()) % pane.view.sizeOf(pane.simulation).toUInt()
     }
 
     private fun TableColumn<NESMemoryTableEntry, String>.configure(offset: Int): TableColumn<NESMemoryTableEntry, String> {

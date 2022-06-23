@@ -83,6 +83,7 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
 
     var clock: Long = 0
         private set
+    private var clocksTillCPUIndex: Int = 0
     private var clocksTillCPU: Int = 0
 
     private val cpuRAM = UByteArray(2048)
@@ -212,7 +213,11 @@ class NESSimulation(val data: NESSimulationData) : SimpleEventBroadcast(), Simul
             } else {
                 cpu.clock()
             }
-            clocksTillCPU = 2
+
+
+            clocksTillCPU = apu.tvType.videoCPUDivider[clocksTillCPUIndex++] - 1
+            if (clocksTillCPUIndex >= apu.tvType.videoCPUDivider.size)
+                clocksTillCPUIndex = 0
         } else clocksTillCPU--
 
         clock++

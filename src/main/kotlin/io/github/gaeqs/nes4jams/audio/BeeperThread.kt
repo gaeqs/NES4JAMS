@@ -29,6 +29,10 @@ import kotlin.concurrent.withLock
 
 class BeeperThread(val apu: NESAPU, sampleRate: Int) : Thread() {
 
+    init {
+        name = "APU Beeper"
+    }
+
     private val pauseLock = ReentrantLock()
     private val pauseCondition = pauseLock.newCondition()
 
@@ -42,17 +46,20 @@ class BeeperThread(val apu: NESAPU, sampleRate: Int) : Thread() {
     override fun run() {
         running = true
         filling = true
-        while (running) {
-            if (paused) pauseLock.withLock {
-                beeper.pause()
-                pauseCondition.await()
-                filling = true
+        try {
+            while (running) {
+                if (paused) pauseLock.withLock {
+                    beeper.pause()
+                    pauseCondition.await()
+                    filling = true
+                }
+                beeper.sample(apu.fetchSample())
+                if (filling && beeper.samplesBeingProcessedPercentage() > 0.1) {
+                    filling = false
+                    beeper.resume()
+                }
             }
-            beeper.sample(apu.fetchSample())
-            if(filling && beeper.samplesBeingProcessedPercentage() > 0.1) {
-                filling = false
-                beeper.resume()
-            }
+        } catch (ignore : InterruptedException) {
         }
     }
 
@@ -71,6 +78,7 @@ class BeeperThread(val apu: NESAPU, sampleRate: Int) : Thread() {
 
     fun kill() {
         running = false
+        interrupt()
         beeper.destroy()
     }
 

@@ -27,7 +27,7 @@ package io.github.gaeqs.nes4jams.gui.simulation.memory
 import io.github.gaeqs.nes4jams.util.extension.toHex
 import javafx.beans.property.SimpleStringProperty
 
-class NESMemoryTableEntry(val table: NESMemoryTable, val address: UShort) {
+class NESMemoryTableEntry(val table: NESMemoryTable, val address: UInt) {
 
     val addressProperty by lazy { SimpleStringProperty(this, "address", "$${address.toHex(4)}") }
 
@@ -54,18 +54,18 @@ class NESMemoryTableEntry(val table: NESMemoryTable, val address: UShort) {
     }
 
     fun refresh() {
-        repeat(4) { update((address + it.toUInt()).toUShort(), it) }
+        repeat(4) { update((address + it.toUInt()), it) }
     }
 
     fun update(offset: Int) {
-        update((address + offset.toUInt()).toUShort(), offset)
+        update((address + offset.toUInt()), offset)
     }
 
-    fun update(address: UShort, offset: Int) {
+    fun update(address: UInt, offset: Int) {
         lazies[offset].takeIf { it.isInitialized() }?.value?.set(represent(address))
     }
 
-    private fun represent(address: UShort, offset: UShort = 0u): String {
-        return table.pane.representation.represent((address + offset).toUShort(), table.pane)
+    private fun represent(address: UInt, offset: UInt = 0u): String {
+        return table.pane.representation.represent(address + offset, table.pane)
     }
 }

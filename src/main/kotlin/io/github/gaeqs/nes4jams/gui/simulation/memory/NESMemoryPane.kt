@@ -26,7 +26,6 @@ package io.github.gaeqs.nes4jams.gui.simulation.memory
 
 import io.github.gaeqs.nes4jams.gui.simulation.memory.representation.NESNumberRepresentation
 import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryView
-import io.github.gaeqs.nes4jams.gui.simulation.memory.view.NESMemoryViewManager
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import io.github.gaeqs.nes4jams.util.managerOf
 import javafx.geometry.Pos
@@ -73,7 +72,7 @@ class NESMemoryPane(val simulation: NESSimulation) : AnchorPane(), ActionRegion 
         initButtons()
 
         table = NESMemoryTable(this)
-        AnchorUtils.setAnchor(table, 60.0, 31.0, 0.0, 0.0)
+        AnchorUtils.setAnchor(table, 30.0, 31.0, 0.0, 0.0)
 
         children.addAll(headerHBox, table, buttonsHBox)
 
@@ -90,7 +89,7 @@ class NESMemoryPane(val simulation: NESSimulation) : AnchorPane(), ActionRegion 
         views.sortBy { it.name }
         viewSelector.items += views
         viewSelector.selectionModel.select(NESMemoryView.CPU)
-        viewSelector.setOnAction { table.entries.values.forEach { it.refresh() } }
+        viewSelector.setOnAction { table.offset = 0u }
 
         representations += managerOf<NESNumberRepresentation>()
         representations.sortBy { it.name }
