@@ -31,6 +31,7 @@ class BeeperThread(val apu: NESAPU, sampleRate: Int) : Thread() {
 
     init {
         name = "APU Beeper"
+        isDaemon = true
     }
 
     private val pauseLock = ReentrantLock()
