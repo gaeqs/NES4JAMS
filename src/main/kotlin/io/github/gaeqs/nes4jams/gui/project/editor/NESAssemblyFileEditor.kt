@@ -31,6 +31,7 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.stage.Popup
+import net.jamsimulator.jams.Jams
 import net.jamsimulator.jams.gui.editor.code.CodeFileEditor
 import net.jamsimulator.jams.gui.editor.code.autocompletion.AutocompletionPopup
 import net.jamsimulator.jams.gui.editor.code.autocompletion.view.AutocompletionPopupBasicView
@@ -43,6 +44,9 @@ import java.time.Duration
 class NESAssemblyFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
 
     companion object {
+        @JvmStatic
+        val TAB_CONFIG_NODE = "editor.nes.use_tabs"
+
         @JvmStatic
         val THRESHOLD = 20
     }
@@ -74,6 +78,8 @@ class NESAssemblyFileEditor(tab: FileEditorTab) : CodeFileEditor(tab) {
         taskExecutor.executeIndexing(index, tab.file.name, text)
         return index
     }
+
+    override fun useTabCharacter(): Boolean = Jams.getMainConfiguration().data.getOrElse(TAB_CONFIG_NODE, false)
 
     private fun applyIndentRemoval() {
         addEventFilter(KeyEvent.KEY_PRESSED) { event ->
