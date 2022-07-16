@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "io.github.gaeqs"
-version = "1.0-SNAPSHOT"
+version = "0.1-BETA"
 
 repositories {
     mavenCentral()
