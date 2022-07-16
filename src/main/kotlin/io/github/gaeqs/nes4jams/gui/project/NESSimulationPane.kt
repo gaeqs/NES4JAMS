@@ -30,7 +30,7 @@ import io.github.gaeqs.nes4jams.gui.simulation.NESSimulationInfo
 import io.github.gaeqs.nes4jams.gui.simulation.display.DisplayHolder
 import io.github.gaeqs.nes4jams.gui.simulation.display.NESSimulationDisplay
 import io.github.gaeqs.nes4jams.gui.simulation.memory.NESMemoryPane
-import io.github.gaeqs.nes4jams.gui.simulation.tablename.NESSimulationPPUDisplay
+import io.github.gaeqs.nes4jams.gui.simulation.ppu.NESSimulationPPUDisplay
 import io.github.gaeqs.nes4jams.project.NESProject
 import io.github.gaeqs.nes4jams.simulation.NESSimulation
 import io.github.gaeqs.nes4jams.util.managerOfD

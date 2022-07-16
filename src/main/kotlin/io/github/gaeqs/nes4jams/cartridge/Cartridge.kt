@@ -29,43 +29,83 @@ import io.github.gaeqs.nes4jams.cartridge.mapper.MapperBuilderManager
 import io.github.gaeqs.nes4jams.ppu.Mirror
 import io.github.gaeqs.nes4jams.util.extension.orNull
 import java.io.File
+import java.io.InputStream
 import kotlin.math.ceil
+import kotlin.math.min
 
-class Cartridge(val file: File) {
+class Cartridge(stream: InputStream, val name: String, closeStream: Boolean = false, defaultMapper: Int? = null) {
 
-    val header: CartridgeHeader
+    var header: CartridgeHeader
+
     val prgMemory: UByteArray
     val chrMemory: UByteArray
-
     val prgBanks: Int
     val chrBanks: Int
 
-    val mapper: Mapper
+    var mapper: Mapper
+        private set
 
-    val mirroring: Mirror
+    var mirroring: Mirror
         get() {
             val mirror = mapper.mirroring
             return if (mirror == Mirror.HARDWARE) field else mirror
         }
+        private set
+
+    constructor(file: File, defaultMapper: Int? = null) : this(file.inputStream(), file.name, true, defaultMapper)
 
     init {
-        val stream = file.inputStream()
         header = CartridgeHeader(stream)
+
+        val data = stream.readAllBytes()
+        if (closeStream) {
+            stream.close()
+        }
 
         val prgSize = header.prgRomSize.toInt()
         val chrSize = header.chrRomSize.toInt()
+        prgMemory = UByteArray(if (prgSize == 0) 0x4000 else header.prgRomSize.toInt())
+        chrMemory = UByteArray(if (chrSize == 0) 0x2000 else header.chrRomSize.toInt())
 
-        prgMemory = UByteArray(if (prgSize == 0) 0x4000 else header.prgRomSize.toInt()) { stream.read().toUByte() }
-        chrMemory = UByteArray(if (chrSize == 0) 0x2000 else header.chrRomSize.toInt()) { stream.read().toUByte() }
+        data.copyInto(
+            prgMemory.asByteArray(), 0, 0, min(prgMemory.size, data.size)
+        )
+        data.copyInto(
+            chrMemory.asByteArray(), 0, prgMemory.size,
+            min(prgMemory.size + chrMemory.size, data.size)
+        )
 
         prgBanks = ceil(prgSize.toDouble() / 0x4000).toInt()
         chrBanks = ceil(chrSize.toDouble() / 0x2000).toInt()
 
         mirroring = header.mirroring
 
-        mapper = (MapperBuilderManager.INSTANCE[header.mapper.toString()].orNull()
-            ?: throw NoSuchElementException("Couldn't find mapper ${header.mapper}!")).build(this)
-        stream.close()
+        mapper = MapperBuilderManager.INSTANCE[header.mapper.toString()].orNull()?.build(this)
+            ?: run {
+                if (defaultMapper == null) {
+                    throw NoSuchElementException("Couldn't find mapper ${header.mapper}!")
+                }
+                val default = MapperBuilderManager.INSTANCE[defaultMapper.toString()].orNull()
+                if (default == null) {
+                    throw NoSuchElementException("Couldn't find default mapper ${default}!")
+                }
+                default.build(this)
+            }
+    }
+
+    fun refreshHeader(defaultMapper: Int? = null) {
+        mirroring = header.mirroring
+        mapper = MapperBuilderManager.INSTANCE[header.mapper.toString()].orNull()?.build(this)
+            ?: run {
+                if (defaultMapper == null) {
+                    throw NoSuchElementException("Couldn't find mapper ${header.mapper}!")
+                }
+                val default = MapperBuilderManager.INSTANCE[header.mapper.toString()].orNull()
+                if (default == null) {
+                    throw NoSuchElementException("Couldn't find default mapper ${default}!")
+                }
+                default.build(this)
+            }
     }
 
     fun cpuRead(address: UShort): Pair<Boolean, UByte> {

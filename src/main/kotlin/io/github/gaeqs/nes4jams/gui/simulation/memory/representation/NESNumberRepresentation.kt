@@ -69,7 +69,7 @@ abstract class NESNumberRepresentation(
     override fun getName() = name
     override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
 
-    fun represent(address: UShort, pane: NESMemoryPane): String {
+    fun represent(address: UInt, pane: NESMemoryPane): String {
         var first: UByte = 0u
         var second: UByte = 0u
         pane.simulation.runSynchronized {

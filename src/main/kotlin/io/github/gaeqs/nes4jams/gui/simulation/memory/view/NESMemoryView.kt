@@ -41,25 +41,27 @@ abstract class NESMemoryView(
         val CPU = object : NESMemoryView("CPU", true) {
             override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
             override fun sizeOf(simulation: NESSimulation) = 0x10000
-            override fun read(simulation: NESSimulation, address: UShort) = simulation.cpuRead(address, true)
-            override fun write(simulation: NESSimulation, address: UShort, value: UByte) {}
+            override fun read(simulation: NESSimulation, address: UInt) = simulation.cpuRead(address.toUShort(), true)
+            override fun write(simulation: NESSimulation, address: UInt, value: UByte) =
+                simulation.cpuWrite(address.toUShort(), value);
         }
         val PPU = object : NESMemoryView("PPU", true) {
             override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
             override fun sizeOf(simulation: NESSimulation) = 0x4000
-            override fun read(simulation: NESSimulation, address: UShort) = simulation.ppu.ppuRead(address)
-            override fun write(simulation: NESSimulation, address: UShort, value: UByte) {}
+            override fun read(simulation: NESSimulation, address: UInt) = simulation.ppu.ppuRead(address.toUShort())
+            override fun write(simulation: NESSimulation, address: UInt, value: UByte) =
+                simulation.ppu.ppuWrite(address.toUShort(), value)
         }
         val CARTRIDGE_PRG = object : NESMemoryView("CARTRIDGE_PRG", false) {
             override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
             override fun sizeOf(simulation: NESSimulation) = simulation.cartridge.prgMemory.size
-            override fun read(simulation: NESSimulation, address: UShort) = with(address.toInt()) {
+            override fun read(simulation: NESSimulation, address: UInt) = with(address.toInt()) {
                 simulation.cartridge.prgMemory.let {
                     if (it.size > this) it[this] else (0u).toUByte()
                 }
             }
 
-            override fun write(simulation: NESSimulation, address: UShort, value: UByte) = with(address.toInt()) {
+            override fun write(simulation: NESSimulation, address: UInt, value: UByte) = with(address.toInt()) {
                 simulation.cartridge.prgMemory.let {
                     if (it.size > this) it[this] = value
                 }
@@ -68,13 +70,13 @@ abstract class NESMemoryView(
         val CARTRIDGE_CHR = object : NESMemoryView("CARTRIDGE_CHR", false) {
             override fun getResourceProvider(): ResourceProvider = NES4JAMS.INSTANCE
             override fun sizeOf(simulation: NESSimulation) = simulation.cartridge.chrMemory.size
-            override fun read(simulation: NESSimulation, address: UShort) = with(address.toInt()) {
+            override fun read(simulation: NESSimulation, address: UInt) = with(address.toInt()) {
                 simulation.cartridge.chrMemory.let {
                     if (it.size > this) it[this] else (0u).toUByte()
                 }
             }
 
-            override fun write(simulation: NESSimulation, address: UShort, value: UByte) = with(address.toInt()) {
+            override fun write(simulation: NESSimulation, address: UInt, value: UByte) = with(address.toInt()) {
                 simulation.cartridge.chrMemory.let {
                     if (it.size > this) it[this] = value
                 }
@@ -83,7 +85,7 @@ abstract class NESMemoryView(
     }
 
     abstract fun sizeOf(simulation: NESSimulation): Int
-    abstract fun read(simulation: NESSimulation, address: UShort): UByte
-    abstract fun write(simulation: NESSimulation, address: UShort, value: UByte)
+    abstract fun read(simulation: NESSimulation, address: UInt): UByte
+    abstract fun write(simulation: NESSimulation, address: UInt, value: UByte)
 
 }

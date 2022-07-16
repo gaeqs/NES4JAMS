@@ -22,7 +22,7 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.simulation.tablename
+package io.github.gaeqs.nes4jams.gui.simulation.ppu
 
 import javafx.scene.layout.AnchorPane
 import javafx.scene.paint.Color

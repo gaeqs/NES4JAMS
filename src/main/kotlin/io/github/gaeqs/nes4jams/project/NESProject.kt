@@ -205,11 +205,8 @@ class NESProject(folder: File) : BasicProject(folder, true) {
 
     // endregion
 
-    fun openSimulationForNESFile(file: File) {
-        val cartridge = Cartridge(file)
-
+    fun openSimulation(cartridge: Cartridge) {
         val data = NESSimulationData(cartridge, Console(), emptyMap(), emptySet())
-
         val simulation = NESSimulation(data)
         Platform.runLater {
             getProjectTab().ifPresent {

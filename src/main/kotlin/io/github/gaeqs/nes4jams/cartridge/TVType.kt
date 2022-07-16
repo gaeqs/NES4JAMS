@@ -29,21 +29,21 @@ enum class TVType(
 
     val videoScanlines: Int,
     val videoVerticalBlankLine: Int,
-    val videoCPUDivider: Int,
+    val videoCPUDivider: IntArray,
 
-    val audioDMCPeriods: List<Int>,
-    val audioNoisePeriod: List<Int>,
+    val audioDMCPeriods: IntArray,
+    val audioNoisePeriod: IntArray,
     val audioFrameCounterReload: Int,
     private val audioCyclesPerSample: Double,
 ) {
 
     NTSC(
         60,
-        260,
+        261,
         241,
-        3,
-        listOf(428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 84, 72, 54),
-        listOf(4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068),
+        intArrayOf(3),
+        intArrayOf(428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 84, 72, 54),
+        intArrayOf(4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068),
         7456,
         1789773.0
     ),
@@ -51,9 +51,9 @@ enum class TVType(
         50,
         312,
         291,
-        3,
-        listOf(428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 84, 72, 54),
-        listOf(4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068),
+        intArrayOf(3),
+        intArrayOf(428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 84, 72, 54),
+        intArrayOf(4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068),
         7456,
         1773448.0
     ),
@@ -61,9 +61,9 @@ enum class TVType(
         50,
         312,
         241,
-        4,
-        listOf(398, 354, 316, 298, 276, 236, 210, 198, 176, 148, 132, 118, 98, 78, 66, 50),
-        listOf(4, 8, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708, 944, 1890, 3778),
+        intArrayOf(4, 3, 3, 3, 3),
+        intArrayOf(398, 354, 316, 298, 276, 236, 210, 198, 176, 148, 132, 118, 98, 78, 66, 50),
+        intArrayOf(4, 8, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708, 944, 1890, 3778),
         8312,
         1662607.0
     );

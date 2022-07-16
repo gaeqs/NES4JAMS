@@ -22,9 +22,9 @@
  *  SOFTWARE.
  */
 
-package io.github.gaeqs.nes4jams.gui.simulation.tablename
+package io.github.gaeqs.nes4jams.gui.simulation.ppu
 
-import io.github.gaeqs.nes4jams.data.NES4JAMS_PPU_FULL_SCENE
+import io.github.gaeqs.nes4jams.data.NES4JAMS_PPU_NAME_TABLES
 import io.github.gaeqs.nes4jams.data.NES4JAMS_PPU_PATTERN_TABLES
 import io.github.gaeqs.nes4jams.gui.project.NESSimulationPane
 import io.github.gaeqs.nes4jams.gui.simulation.display.BasicDisplay
@@ -56,7 +56,7 @@ class NESSimulationPPUDisplay(val pane: NESSimulationPane) : AnchorPane() {
         BasicDisplay(PATTERN_TABLE_SIZE, PATTERN_TABLE_SIZE)
     )
 
-    val fullScene = BasicDisplay(MIRRORING_WIDTH, MIRRORING_HEIGHT)
+    val nameTables = BasicDisplay(MIRRORING_WIDTH, MIRRORING_HEIGHT)
 
     val palettes = listOf(
         NESSimulationPPUDisplayPalette(0),
@@ -101,9 +101,9 @@ class NESSimulationPPUDisplay(val pane: NESSimulationPane) : AnchorPane() {
 
         // FULL SCENE
 
-        val fullSceneTab = LanguageTab(NES4JAMS_PPU_FULL_SCENE).apply { isClosable = false }
+        val fullSceneTab = LanguageTab(NES4JAMS_PPU_NAME_TABLES).apply { isClosable = false }
 
-        val fullSceneHolder = DisplayHolder(fullScene)
+        val fullSceneHolder = DisplayHolder(nameTables)
         fullSceneHolder.prefWidthProperty().bind(tabPane.widthProperty())
         fullSceneHolder.prefHeightProperty().bind(tabPane.heightProperty())
 
