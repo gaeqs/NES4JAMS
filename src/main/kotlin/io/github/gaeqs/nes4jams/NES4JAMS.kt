@@ -82,11 +82,10 @@ class NES4JAMS : Plugin() {
     private fun onApplicationPostInit(event: JAMSApplicationPostInitEvent) = loadApplication()
 
     private fun load() {
-        loadLanguages()
-        loadConfiguration()
-
         NESValueConverters.setupConverters()
         NESValueEditors.setupEditor()
+
+        loadLanguages()
 
         Jams.REGISTRY.registerSecondary(NESInspectorManager.INSTANCE)
         Jams.REGISTRY.registerPrimary(MapperBuilderManager.INSTANCE)
@@ -103,6 +102,8 @@ class NES4JAMS : Plugin() {
         fileManager += NESFileType.INSTANCE
 
         managerOf<Language>().registerListeners(this, true)
+
+        loadConfiguration()
     }
 
     private fun loadApplication() {
