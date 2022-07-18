@@ -107,7 +107,7 @@ class PPUSpriteRenderer(private val ppu: NESPPU) {
             val flip = scanlineSprites[i].attribute and 0x80u > 0u
             val bottom = if ((scanline - scanlineSprites[i].y.toInt() < 8) xor flip) 0u else 1u
 
-            val first = ppu.control.patternSprite.toUShort() and 0x01u shl 12
+            val first = scanlineSprites[i].id.toUShort() and 0x01u shl 12
             val second = ((scanlineSprites[i].id.toUShort() and 0xFEu) + bottom).toUShort() shl 4
 
             val temp = (scanline.toUInt() - scanlineSprites[i].y).toUShort()
